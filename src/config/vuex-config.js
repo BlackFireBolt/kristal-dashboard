@@ -308,7 +308,7 @@ export const store = new vuex.Store({
     },
     LOGIN: async (context, payload) => {
       await axios
-        .post("http://172.17.0.201:5050//login", payload, {
+        .post("http://172.17.0.201:5050/login", payload, {
           headers: { "Content-Type": "application/x-www-form-urlencoded" },
         })
         .then((response) => {
@@ -338,18 +338,20 @@ export const store = new vuex.Store({
       for (let i = 0; i < keys.length; i++){
         for(let j = 0;j < lines.length; j++) {
           if(lines[j].key === keys[i]){
+            if(plots[i].plot["1"]){
             lines[j].series[0].x = []
             lines[j].series[0].y = []
             for(let k = 0;k< plots[i].plot["1"].length; k++){
               lines[j].series[0].x.push(plots[i].plot["1"][k][0])
               lines[j].series[0].y.push(plots[i].plot["1"][k][1])
-            }
+            }}
+            if(plots[i].plot["2"]){
             lines[j].series[1].x = []
             lines[j].series[1].y = []
             for(let k = 0;k< plots[i].plot["2"].length; k++){
               lines[j].series[1].x.push(plots[i].plot["2"][k][0])
               lines[j].series[1].y.push(plots[i].plot["2"][k][1])
-            }
+            }}
           }
         }
       }
