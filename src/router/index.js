@@ -1,17 +1,6 @@
 import Vue from "vue";
 import VueRouter from "vue-router";
 import { store } from "../config/vuex-config.js";
-/*import firebase from "firebase/app"
-router.beforeEach((to, from, next) => {
-  const currentUser = firebase.auth().currentUser;
-  const requireAuth = to.matched.some((record) => record.meta.auth);
-
-  if (requireAuth && !currentUser) {
-    next("/login?message=login");
-  } else {
-    next();
-  }
-})*/
 
 Vue.use(VueRouter);
 

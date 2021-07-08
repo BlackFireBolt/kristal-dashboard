@@ -79,7 +79,7 @@ export const store = new vuex.Store({
       context.commit("TOGGLE_DRAWER", payload);
     },
     GET_LOAD_DATA: async (context) => {
-      let { data } = await axios.get("http://172.17.0.162:5000/vue?c=" + context.getters.LOAD_USER.channels.slice(-1), {
+      let { data } = await axios.get("http://attp.kristal.local:5000/vue?c=" + context.getters.LOAD_USER.channels.slice(-1), {
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
       });
       var load = data.lines;
@@ -331,7 +331,7 @@ export const store = new vuex.Store({
       context.commit("LOGOUT");
     },
     GET_CHART_DATA: async (context) => {
-      let { data } = await axios.get("http://172.17.0.162:5000/chart?c=c1_s1&a=15")
+      let { data } = await axios.get("http://attp.kristal.local:5000/chart?c=c1_s1&a=15")
       let lines = context.getters.LOAD_LINES;
       let keys = Object.keys(data.lines)
       let plots = Object.values(data.lines);

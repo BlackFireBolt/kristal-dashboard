@@ -49,7 +49,7 @@ export default {
     
     
     let server_side = new EventSource(
-      "http://172.17.0.162:5000/stream?chan=" +
+      "http://attp.kristal.local:5000/stream?chan=" +
         this.$store.getters.LOAD_USER.channels // check bad data?s
     );
     server_side.addEventListener(
