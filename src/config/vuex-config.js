@@ -5,6 +5,7 @@ import createPersistedState from "vuex-persistedstate";
 import { TokenValidation } from "../plugins/utils.js";
 import { StatusDecoder } from "../plugins/utils.js";
 import { AccidentStatus } from "../plugins/utils.js";
+import { GetDots } from "../plugins/utils.js";
 
 Vue.use(vuex);
 
@@ -45,14 +46,14 @@ export const store = new vuex.Store({
       state.tokenJWT = "";
     },
     SET_ACCIDENTS: (state, payload) => {
-      console.log(payload)
-      for(let i = 0; i <state.lines.length; i++){
-        if(state.lines[i].key === payload.key){
+      console.log(payload);
+      for (let i = 0; i < state.lines.length; i++) {
+        if (state.lines[i].key === payload.key) {
           state.lines[i].accidents = payload.accidents.sort((a, b) => b - a);
-          state.lines[i].accidentStatus = payload.status
+          state.lines[i].accidentStatus = payload.status;
         }
       }
-    }
+    },
   },
   getters: {
     LOAD_DATA: (state) => {
@@ -79,78 +80,88 @@ export const store = new vuex.Store({
       context.commit("TOGGLE_DRAWER", payload);
     },
     GET_LOAD_DATA: async (context) => {
-      let { data } = await axios.get("http://attp.kristal.local:5000/vue?c=" + context.getters.LOAD_USER.channels.slice(-1), {
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      });
+      let { data } = await axios.get(
+        "http://attp.kristal.local:5000/vue?c=" +
+          context.getters.LOAD_USER.channels.slice(-1),
+        {
+          headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        }
+      );
       var load = data.lines;
       var lines = [];
-      for (var i = 0; i < load.length; i++) {
-        var plan = Object.values(load[i])[0];
-        let key = Object.keys(load[i])[0];
+      var plan = Object.values(load);
+      let key = Object.keys(load);
+      for (var i = 0; i < plan.length; i++) {
         let accidents = [
-            {
-              id: 15435345,
-              childs: [],
-              time: ["08:40:51"],
-              message: "",
-              worker: "Мастер1",
-            },
-            {
-              id: 28768467,
-              childs: [],
-              time: ["08:40:52"],
-              message: "",
-              worker: "Мастер1",
-            },
-            {
-              id: 397686345634,
-              childs: [],
-              time: ["08:40:53"],
-              message: "",
-              worker: "Мастер1",
-            },
-            {
-              id: 4876856734,
-              childs: [],
-              time: ["08:40:54"],
-              message: "",
-              worker: "Мастер1",
-            },
-            {
-              id: 598798,
-              childs: [],
-              time: ["08:40:55"],
-              message: "",
-              worker: "Мастер1",
-            },
-            {
-              id: 656443543,
-              childs: [],
-              time: ["08:40:56"],
-              message: "",
-              worker: "Мастер1",
-            },
-          ]
+          {
+            id: 15435345,
+            childs: [],
+            time: ["08:40:51"],
+            message: "",
+            worker: "Мастер1",
+          },
+          {
+            id: 28768467,
+            childs: [],
+            time: ["08:40:52"],
+            message: "",
+            worker: "Мастер1",
+          },
+          {
+            id: 397686345634,
+            childs: [],
+            time: ["08:40:53"],
+            message: "",
+            worker: "Мастер1",
+          },
+          {
+            id: 4876856734,
+            childs: [],
+            time: ["08:40:54"],
+            message: "",
+            worker: "Мастер1",
+          },
+          {
+            id: 598798,
+            childs: [],
+            time: ["08:40:55"],
+            message: "",
+            worker: "Мастер1",
+          },
+          {
+            id: 656443543,
+            childs: [],
+            time: ["08:40:56"],
+            message: "",
+            worker: "Мастер1",
+          },
+        ];
         let line_object = {
-          line_id: key.slice(-1),
-          key: key,
-          status: StatusDecoder(plan.bitstatus),
-          series: [
-            {
-              x: plan.boi["1"]["stats-ts"] ? [plan.boi["1"]["stats-ts"]] : [Date.now()],
-              y: [0],
-              type: "scatter",
-              line: { shape: "hv" },
-              name: "Первый счетчик",
-            },
-            {
-              x: plan.boi["2"]["stats-ts"] ? [plan.boi["2"]["stats-ts"]] : [Date.now()],
-              y: [0],
-              type: "scatter",
-              line: { shape: "hv" },
-              name: "Второй счетчик",
-            },
-          ],
+          line_id: key[i].slice(-1),
+          key: key[i],
+          status: StatusDecoder(plan[i].bitstatus),
+          series:  [
+                {
+                  x: plan[i].plot_last ? GetDots(plan[i].plot_last.boi["1"], 0) : plan[i].boi["1"]["stats-ts"]
+                  ? [plan[i].boi["1"]["stats-ts"]]
+                  : [Date.now()],
+                  y: plan[i].plot_last ?GetDots(plan[i].plot_last.boi["1"], 1) : [0],
+                  type: "scatter",
+                  line: { shape: "hv" },
+                  name: "Первый счетчик",
+                },
+                {
+                  x: plan[i].plot_last ?GetDots(plan[i].plot_last.boi["2"], 0) :plan[i].boi["2"]["stats-ts"]
+                  ? [plan[i].boi["2"]["stats-ts"]]
+                  : [Date.now()],
+                  y: plan[i].plot_last ?GetDots(plan[i].plot_last.boi["2"], 1):[0],
+                  type: "scatter",
+                  line: { shape: "hv" },
+                  name: "Второй счетчик",
+                },
+              ]
+            
+              ,
           layout: {
             showlegend: false,
             yaxis: { range: [0, 10000] },
@@ -160,9 +171,9 @@ export const store = new vuex.Store({
                 type: "line",
                 xref: "paper",
                 x0: 0,
-                y0: plan.plan? plan.plan.avgspd:6000,
+                y0: plan[i].plan ? plan[i].plan.avgspd : 6000,
                 x1: 1,
-                y1: plan.plan? plan.plan.avgspd:6000,
+                y1: plan[i].plan ? plan[i].plan.avgspd : 6000,
                 line: {
                   color: "rgb(255, 0, 0)",
                   width: 4,
@@ -173,14 +184,10 @@ export const store = new vuex.Store({
           },
           accidents: accidents,
           accidentStatus: AccidentStatus(accidents),
-          statusPv: plan.boi["1"]["status-pv"],
-          statusSp: plan.boi["1"]["status-sp"],
+          statusPv: plan[i].boi["1"]["status-pv"],
+          statusSp: plan[i].boi["1"]["status-sp"],
+          timetable: plan[i].plan ? plan[i].plan.timetable : plan[i].product,
         };
-        if (plan.plan) {
-          line_object.timetable = plan.plan.timetable;
-        } else {
-          line_object.product = plan.product;
-        }
 
         lines.push(line_object);
       }
@@ -189,7 +196,9 @@ export const store = new vuex.Store({
       context.commit("SET_LOADER", false);
     },
     GET_LOAD_DATA_SINGLE_LINE: async (context, payload) => {
-      let { data } = await axios.get("http://172.17.0.162:5000/vue?c=" + context.getters.LOAD_USER.channels);
+      let { data } = await axios.get(
+        "http://172.17.0.162:5000/vue?c=" + context.getters.LOAD_USER.channels
+      );
       let lines = context.getters.LOAD_LINES;
       for (let i = 0; i < data.lines.length; i++) {
         let key = Object.keys(data.lines[i])[0];
@@ -330,34 +339,6 @@ export const store = new vuex.Store({
     LOGOUT: (context) => {
       context.commit("LOGOUT");
     },
-    GET_CHART_DATA: async (context) => {
-      let { data } = await axios.get("http://attp.kristal.local:5000/chart?c=c1_s1&a=15")
-      let lines = context.getters.LOAD_LINES;
-      let keys = Object.keys(data.lines)
-      let plots = Object.values(data.lines);
-      for (let i = 0; i < keys.length; i++){
-        for(let j = 0;j < lines.length; j++) {
-          if(lines[j].key === keys[i]){
-            if(plots[i].plot["1"]){
-            lines[j].series[0].x = []
-            lines[j].series[0].y = []
-            for(let k = 0;k< plots[i].plot["1"].length; k++){
-              lines[j].series[0].x.push(plots[i].plot["1"][k][0])
-              lines[j].series[0].y.push(plots[i].plot["1"][k][1])
-            }}
-            if(plots[i].plot["2"]){
-            lines[j].series[1].x = []
-            lines[j].series[1].y = []
-            for(let k = 0;k< plots[i].plot["2"].length; k++){
-              lines[j].series[1].x.push(plots[i].plot["2"][k][0])
-              lines[j].series[1].y.push(plots[i].plot["2"][k][1])
-            }}
-          }
-        }
-      }
-      console.log("worked chart")
-      context.commit("SET_LINES", lines);
-    }
   },
   plugins: [createPersistedState()],
 });

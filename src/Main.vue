@@ -38,16 +38,16 @@ export default {
     loadUser() {
       return this.$store.getters.LOAD_USER;
     },
+    linesList() {
+      return this.$store.getters.LOAD_LINES;
+    },
   },
-  created(){
-    this.$store.commit("SET_LOADER", true)
+created(){
+this.$store.commit("SET_LOADER", true)
+    
     this.$store.dispatch("GET_LOAD_DATA");
-    this.$store.dispatch("GET_CHART_DATA");
-  },
-
+},
   mounted() {
-    
-    
     let server_side = new EventSource(
       "http://attp.kristal.local:5000/stream?chan=" +
         this.$store.getters.LOAD_USER.channels // check bad data?s
@@ -67,7 +67,7 @@ export default {
         let key = Object.keys(load_data)[0];
         let data = Object.values(load_data)[0];
         if (data.bitstatus) {
-          let payload = this.$store.getters.LOAD_LINES;
+          let payload = this.linesList;
           for (let i = 0; i < payload.length; i++) {
             if (payload[i].key === key) {
               this.$store.dispatch("GET_STATUS", {
@@ -77,14 +77,14 @@ export default {
               this.$notify({
                 title: "Уведомление",
                 type: "info",
-                text: "Изменение статуса линии №" + +payload[i].line_id + "!",
+                text: "Изменение статуса линии №" + payload[i].line_id + "!",
               });
               break;
             }
           }
         }
         if (data.boi) {
-          let payload = this.$store.getters.LOAD_LINES;
+          let payload = this.linesList;
           for (let i = 0; i < payload.length; i++) {
             if (payload[i].key === key) {
               let boi = data.boi;
@@ -121,7 +121,6 @@ export default {
                     if (payload[j].key === key) {
                       payload[j].series[1].x.push(boi["2"]["stats-ts"]);
                       payload[j].series[1].y.push(boi["2"]["spd"]);
-
                       break;
                     }
                   }
@@ -147,7 +146,7 @@ export default {
           }
         }
         if(data.timetable && data.lredkey) {
-          let payload = this.$store.getters.LOAD_LINES;
+          let payload = this.linesList;
           for (let i = 0; i < payload.length; i++){
             if (payload[i].key === data.lredkey) {
               payload[i].timetable = data.timetable;

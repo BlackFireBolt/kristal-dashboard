@@ -192,7 +192,10 @@ export default {
       }
       grouped.worker = this.$store.getters.LOAD_USER.name;
       accidents.push(grouped);
-      this.$store.commit("SET_ACCIDENTS", {key: this.line_key, accidents: accidents});
+      this.$store.commit("SET_ACCIDENTS", {
+        key: this.line_key,
+        accidents: accidents,
+      });
       this.selected = [];
     },
     ungroupItem(item) {
@@ -207,7 +210,10 @@ export default {
           childs: [],
         });
       }
-      this.$store.commit("SET_ACCIDENTS", {key: this.line_key, accidents: accidents});
+      this.$store.commit("SET_ACCIDENTS", {
+        key: this.line_key,
+        accidents: accidents,
+      });
     },
     editItem(item) {
       this.editedIndex = this.loadAccidents.indexOf(item);
@@ -220,8 +226,12 @@ export default {
       if (this.editedIndex !== null) {
         Object.assign(accidents[this.editedIndex], this.editedItem);
       }
-      console.log(AccidentStatus(accidents))
-      this.$store.commit("SET_ACCIDENTS", {key: this.line_key, accidents: accidents, status: AccidentStatus(accidents)});
+      console.log(AccidentStatus(accidents));
+      this.$store.commit("SET_ACCIDENTS", {
+        key: this.line_key,
+        accidents: accidents,
+        status: AccidentStatus(accidents),
+      });
       this.close();
     },
   },
