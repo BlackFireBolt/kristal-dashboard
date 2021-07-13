@@ -27,6 +27,7 @@ export default {
   name: "Main",
   data() {
     return {
+      counter: 0,
       status: null,
       statusColor: null,
     };
@@ -171,6 +172,7 @@ this.$store.commit("SET_LOADER", true)
       false
     );
     server_side.onopen = () => {
+      this.counter = 0;
       this.$store.commit("SET_LOADER", false)
       console.log("eventstream opened");
       this.$notify({
@@ -193,6 +195,10 @@ this.$store.commit("SET_LOADER", true)
       console.log("CONNECTION CLOSED");
     };
     server_side.onerror = () => {
+      this.counter++;
+      if (this.counter === 3){
+        this.$router.push("/error");
+      }
       console.log("error");
       this.$store.commit("SET_LOADER", true)
       this.$notify({
