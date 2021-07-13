@@ -8,6 +8,7 @@
       </p>
       <br />
       <br />
+      <v-btn large to="/"><v-icon>mdi-arrow-left</v-icon>ВЕРНУТЬСЯ</v-btn>
     </div>
   </v-layout>
 </template>
