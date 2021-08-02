@@ -195,10 +195,10 @@ this.$store.commit("SET_LOADER", true)
       console.log("CONNECTION CLOSED");
     };
     server_side.onerror = () => {
-      this.counter++;
-      if (this.counter === 3){
-        this.$router.push("/error");
-      }
+      // this.counter++;
+      // if (this.counter === 3){
+      //   this.$router.push("/error");
+      // }
       console.log("error");
       this.$store.commit("SET_LOADER", true)
       this.$notify({

@@ -6,7 +6,7 @@
         :status="lineData.status"
         :statusPv="lineData.statusPv"
         :statusSp="lineData.statusSp"
-        :accident="lineData.accidentStatus" 
+        :accident="lineData.accidentStatus"
       />
       <v-btn
         rounded
@@ -27,8 +27,18 @@
               Количество заданий: {{ lineData.timetable.length }}
             </p>
             <p v-else>Нет заданий</p>
-            <p>Количество бутылок в текущем задании: {{ lineData.statusPv}}</p>
+            <p>Количество бутылок в текущем задании: {{ lineData.statusPv }}</p>
           </v-card-text>
+          <v-divider></v-divider>
+          <v-container>
+            <vue-plotly
+              :id="lineData.key"
+              :refers="lineData.key"
+              :data="series"
+              :layout="lineData.layout"
+              :display-mode-bar="false"
+              :autoResize="true"
+          /></v-container>
           <v-divider></v-divider>
           <accidents class="my-2" :line_key="lineData.key" />
           <v-divider></v-divider>
@@ -191,12 +201,29 @@
 import axios from "axios";
 import Status from "../components/Status.vue";
 import Accidents from "../components/Accidents.vue";
+import VuePlotly from "@statnett/vue-plotly";
 
 export default {
   name: "Control",
-  components: { Status, Accidents },
+  components: { Status, Accidents, VuePlotly },
   data() {
     return {
+      series: [
+        {
+          x: [],
+          y: [],
+          type: "scatter",
+          line: { shape: "hv" },
+          name: "Первый счетчик",
+        },
+        {
+          x: [],
+          y: [],
+          type: "scatter",
+          line: { shape: "hv" },
+          name: "Второй счетчик",
+        },
+      ],
       validate: false,
       maintainance: false,
       exportParameter: false,
@@ -377,6 +404,39 @@ export default {
         status: this.lineData.status,
       });
     },
+  },
+  mounted() {
+    axios
+      .get("http://attp.kristal.local:5000/chart?c=c1_s1&a=1", {
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      })
+      .then((response) => {
+        let keys = Object.keys(response.data.lines);
+        let plots = Object.values(response.data.lines);
+        for (let i = 0; i < keys.length; i++) {
+          if (this.$route.params.key === keys[i]) {
+            if (plots[i].plot["1"]) {
+              for (let k = 0; k < plots[i].plot["1"].length; k++) {
+                this.series[0].x.push(plots[i].plot["1"][k][0]);
+                this.series[0].y.push(plots[i].plot["1"][k][1]);
+              }
+            }
+            if (plots[i].plot["2"]) {
+              for (let k = 0; k < plots[i].plot["2"].length; k++) {
+                this.series[1].x.push(plots[i].plot["2"][k][0]);
+                this.series[1].y.push(plots[i].plot["2"][k][1]);
+              }
+            }
+          }
+        }
+      })
+      .catch(()=>{
+        this.$notify({
+            title: "Уведомление",
+            type: "error",
+            text: "Ошибка соединения!",
+          });
+      });
   },
 };
 </script>

@@ -5,7 +5,6 @@ import createPersistedState from "vuex-persistedstate";
 import { TokenValidation } from "../plugins/utils.js";
 import { StatusDecoder } from "../plugins/utils.js";
 import { AccidentStatus } from "../plugins/utils.js";
-import { GetDots } from "../plugins/utils.js";
 
 Vue.use(vuex);
 
@@ -82,7 +81,7 @@ export const store = new vuex.Store({
     GET_LOAD_DATA: async (context) => {
       let { data } = await axios.get(
         "http://attp.kristal.local:5000/vue?c=" +
-          context.getters.LOAD_USER.channels.slice(-1),
+          context.getters.LOAD_USER.channels.slice(-1) + "&nz=" + context.getters.LOAD_USER.channels.slice(-1),
         {
           headers: { "Content-Type": "application/x-www-form-urlencoded" },
         }
@@ -142,26 +141,24 @@ export const store = new vuex.Store({
           status: StatusDecoder(plan[i].bitstatus),
           series:  [
                 {
-                  x: plan[i].plot_last ? GetDots(plan[i].plot_last.boi["1"], 0) : plan[i].boi["1"]["stats-ts"]
+                  x: plan[i].plot_last ? plan[i].plot_last.boi["1"][0] : plan[i].boi["1"]["stats-ts"]
                   ? [plan[i].boi["1"]["stats-ts"]]
                   : [Date.now()],
-                  y: plan[i].plot_last ?GetDots(plan[i].plot_last.boi["1"], 1) : [0],
+                  y: plan[i].plot_last ?plan[i].plot_last.boi["1"][1] : [0],
                   type: "scatter",
                   line: { shape: "hv" },
                   name: "Первый счетчик",
                 },
                 {
-                  x: plan[i].plot_last ?GetDots(plan[i].plot_last.boi["2"], 0) :plan[i].boi["2"]["stats-ts"]
+                  x: plan[i].plot_last ?plan[i].plot_last.boi["2"][0] :plan[i].boi["2"]["stats-ts"]
                   ? [plan[i].boi["2"]["stats-ts"]]
                   : [Date.now()],
-                  y: plan[i].plot_last ?GetDots(plan[i].plot_last.boi["2"], 1):[0],
+                  y: plan[i].plot_last ?plan[i].plot_last.boi["2"][1]:[0],
                   type: "scatter",
                   line: { shape: "hv" },
                   name: "Второй счетчик",
                 },
-              ]
-            
-              ,
+              ],
           layout: {
             showlegend: false,
             yaxis: { range: [0, 10000] },
@@ -186,9 +183,13 @@ export const store = new vuex.Store({
           accidentStatus: AccidentStatus(accidents),
           statusPv: plan[i].boi["1"]["status-pv"],
           statusSp: plan[i].boi["1"]["status-sp"],
-          timetable: plan[i].plan ? plan[i].plan.timetable : plan[i].product,
+          
         };
-
+        if(plan[i].plan){
+          line_object.timetable=plan[i].plan.timetable
+        }else{
+          line_object.product=plan[i].product
+        }
         lines.push(line_object);
       }
       context.commit("SET_LOAD_DATA", data);
@@ -321,7 +322,6 @@ export const store = new vuex.Store({
           headers: { "Content-Type": "application/x-www-form-urlencoded" },
         })
         .then((response) => {
-          console.log(response);
           payload.name = response.data.name;
           payload.channels = response.data.channels;
           context.commit("SET_USER", payload);
