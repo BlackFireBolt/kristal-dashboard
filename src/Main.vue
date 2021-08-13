@@ -43,12 +43,9 @@ export default {
       return this.$store.getters.LOAD_LINES;
     },
   },
-created(){
-this.$store.commit("SET_LOADER", true)
-    
-    this.$store.dispatch("GET_LOAD_DATA");
-},
   mounted() {
+    this.$store.commit("SET_LOADER", true)
+    this.$store.dispatch("GET_LOAD_DATA").then(()=>{
     let server_side = new EventSource(
       "http://attp.kristal.local:5000/stream?chan=" +
         this.$store.getters.LOAD_USER.channels // check bad data?s
@@ -210,6 +207,9 @@ this.$store.commit("SET_LOADER", true)
       this.statusColor = "red--text";
     };
     this.$store.commit("SET_LOADER", false)
+    }).catch(()=>{
+      this.$router.push("/error");
+    })
   },
 };
 </script>

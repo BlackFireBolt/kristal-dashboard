@@ -141,18 +141,14 @@ export const store = new vuex.Store({
           status: StatusDecoder(plan[i].bitstatus),
           series:  [
                 {
-                  x: plan[i].plot_last ? plan[i].plot_last.boi["1"][0] : plan[i].boi["1"]["stats-ts"]
-                  ? [plan[i].boi["1"]["stats-ts"]]
-                  : [Date.now()],
+                  x: plan[i].plot_last ? plan[i].plot_last.boi["1"][0] : [Date.now()],
                   y: plan[i].plot_last ?plan[i].plot_last.boi["1"][1] : [0],
                   type: "scatter",
                   line: { shape: "hv" },
                   name: "Первый счетчик",
                 },
                 {
-                  x: plan[i].plot_last ?plan[i].plot_last.boi["2"][0] :plan[i].boi["2"]["stats-ts"]
-                  ? [plan[i].boi["2"]["stats-ts"]]
-                  : [Date.now()],
+                  x: plan[i].plot_last ?plan[i].plot_last.boi["2"][0] : [Date.now()],
                   y: plan[i].plot_last ?plan[i].plot_last.boi["2"][1]:[0],
                   type: "scatter",
                   line: { shape: "hv" },
@@ -181,8 +177,8 @@ export const store = new vuex.Store({
           },
           accidents: accidents,
           accidentStatus: AccidentStatus(accidents),
-          statusPv: plan[i].boi["1"]["status-pv"],
-          statusSp: plan[i].boi["1"]["status-sp"],
+          statusPv: plan[i].boi ? plan[i].boi["1"]["status-pv"] : 0,
+          statusSp: plan[i].boi ? plan[i].boi["1"]["status-sp"] : 0,
           
         };
         if(plan[i].plan){
@@ -318,7 +314,7 @@ export const store = new vuex.Store({
     },
     LOGIN: async (context, payload) => {
       await axios
-        .post("http://172.17.0.201:5050/login", payload, {
+        .post("http://172.17.1.160:5050/login", payload, {
           headers: { "Content-Type": "application/x-www-form-urlencoded" },
         })
         .then((response) => {
