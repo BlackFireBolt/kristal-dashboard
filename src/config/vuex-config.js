@@ -81,7 +81,9 @@ export const store = new vuex.Store({
     GET_LOAD_DATA: async (context) => {
       let { data } = await axios.get(
         "http://attp.kristal.local:5000/vue?c=" +
-          context.getters.LOAD_USER.channels.slice(-1) + "&nz=" + context.getters.LOAD_USER.channels.slice(-1),
+          context.getters.LOAD_USER.channels.slice(-1) +
+          "&nz=" +
+          context.getters.LOAD_USER.channels.slice(-1),
         {
           headers: { "Content-Type": "application/x-www-form-urlencoded" },
         }
@@ -139,22 +141,26 @@ export const store = new vuex.Store({
           line_id: key[i].slice(-1),
           key: key[i],
           status: StatusDecoder(plan[i].bitstatus),
-          series:  [
-                {
-                  x: plan[i].plot_last ? plan[i].plot_last.boi["1"][0] : [Date.now()],
-                  y: plan[i].plot_last ?plan[i].plot_last.boi["1"][1] : [0],
-                  type: "scatter",
-                  line: { shape: "hv" },
-                  name: "Первый счетчик",
-                },
-                {
-                  x: plan[i].plot_last ?plan[i].plot_last.boi["2"][0] : [Date.now()],
-                  y: plan[i].plot_last ?plan[i].plot_last.boi["2"][1]:[0],
-                  type: "scatter",
-                  line: { shape: "hv" },
-                  name: "Второй счетчик",
-                },
-              ],
+          series: [
+            {
+              x: plan[i].plot_last
+                ? plan[i].plot_last.boi["1"][0]
+                : [Date.now()],
+              y: plan[i].plot_last ? plan[i].plot_last.boi["1"][1] : [0],
+              type: "scatter",
+              line: { shape: "hv" },
+              name: "Первый счетчик",
+            },
+            {
+              x: plan[i].plot_last
+                ? plan[i].plot_last.boi["2"][0]
+                : [Date.now()],
+              y: plan[i].plot_last ? plan[i].plot_last.boi["2"][1] : [0],
+              type: "scatter",
+              line: { shape: "hv" },
+              name: "Второй счетчик",
+            },
+          ],
           layout: {
             showlegend: false,
             yaxis: { range: [0, 10000] },
@@ -179,12 +185,11 @@ export const store = new vuex.Store({
           accidentStatus: AccidentStatus(accidents),
           statusPv: plan[i].boi ? plan[i].boi["1"]["status-pv"] : 0,
           statusSp: plan[i].boi ? plan[i].boi["1"]["status-sp"] : 0,
-          
         };
-        if(plan[i].plan){
-          line_object.timetable=plan[i].plan.timetable
-        }else{
-          line_object.product=plan[i].product
+        if (plan[i].plan) {
+          line_object.timetable = plan[i].plan.timetable;
+        } else {
+          line_object.product = plan[i].product;
         }
         lines.push(line_object);
       }
@@ -314,7 +319,7 @@ export const store = new vuex.Store({
     },
     LOGIN: async (context, payload) => {
       await axios
-        .post("http://172.17.0.201:5050/login", payload, {
+        .post("http://172.17.1.160:5050/login", payload, {
           headers: { "Content-Type": "application/x-www-form-urlencoded" },
         })
         .then((response) => {

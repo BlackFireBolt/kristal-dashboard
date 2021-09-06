@@ -37,30 +37,30 @@ const routes = [
     ],
   },
   {
-    path:"/ot-dashboard",
-    component: () =>{},
-    meta: {requiresAuth: false},
+    path: "/ot-dashboard",
+    component: () => {},
+    meta: { requiresAuth: false },
     children: [
       {
         alias: "",
         path: "ot-dashboard",
         name: "OT-dashboard",
         component: () => {},
-        meta: {requiresAuth: false, layout: "main"}
+        meta: { requiresAuth: false, layout: "main" },
       },
       {
         path: "admin",
         name: "OT-admin",
         component: () => {},
-        meta: {quest: true, layout: "main", auth: true}
+        meta: { quest: true, layout: "main", auth: true },
       },
       {
         path: "login",
         name: "OT-login",
         component: () => {},
-        meta: {quest: true, layout: "empty"}
-      }
-    ]
+        meta: { quest: true, layout: "empty" },
+      },
+    ],
   },
   {
     path: "*",
@@ -85,8 +85,6 @@ router.beforeEach((to, from, next) => {
     next();
   }
 });
-
-
 
 router.beforeEach((to, from, next) => {
   if (to.matched.some((record) => record.meta.quest)) {

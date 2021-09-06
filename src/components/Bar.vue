@@ -20,20 +20,20 @@
         <v-list-item>
           <v-list-item-content>
             <v-list-item-title class="title">
-              {{loadUser.name}}
+              {{ loadUser.name }}
             </v-list-item-title>
-            <v-list-item-subtitle>{{loadUser.username}}</v-list-item-subtitle>
+            <v-list-item-subtitle>{{ loadUser.username }}</v-list-item-subtitle>
           </v-list-item-content>
         </v-list-item>
         <v-divider></v-divider>
         <v-list-item @click="logout" link>
           <v-list-item-icon>
-          <v-icon>mdi-exit-to-app</v-icon>
+            <v-icon>mdi-exit-to-app</v-icon>
           </v-list-item-icon>
           <v-list-item-content>
-          <v-list-item-title>Выйти</v-list-item-title>
+            <v-list-item-title>Выйти</v-list-item-title>
           </v-list-item-content>
-          </v-list-item>
+        </v-list-item>
       </v-list>
     </v-menu>
   </v-app-bar>
@@ -56,13 +56,13 @@ export default {
     },
     loadUser() {
       return this.$store.getters.LOAD_USER;
-    }
+    },
   },
   methods: {
     async logout() {
       await this.$store.dispatch("LOGOUT");
-      this.$router.push('/login')
-    }
-  }
+      this.$router.push("/login");
+    },
+  },
 };
 </script>

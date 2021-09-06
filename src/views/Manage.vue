@@ -9,15 +9,19 @@
       :key="item.id"
     >
       <v-card elevation="5">
-        <v-card-text
-          >
+        <v-card-text>
           <v-list-item-title class="headline mb-1"
             >Линия № {{ item.line_id }}</v-list-item-title
           ><v-sheet width="100%" height="150">
             <v-container>
-          <status :status="item.status" :statusPv="item.statusPv" :statusSp="item.statusSp" :accident="item.accidentStatus" />
-          </v-container></v-sheet>
-            
+              <status
+                :status="item.status"
+                :statusPv="item.statusPv"
+                :statusSp="item.statusSp"
+                :accident="item.accidentStatus"
+              /> </v-container
+          ></v-sheet>
+
           <div v-if="item.timetable">
             <v-expansion-panels>
               <v-expansion-panel>
@@ -87,10 +91,9 @@
                 },
               })
             "
-           >
+          >
             Управление
           </v-btn>
-          
         </v-card-actions>
       </v-card>
     </v-col>
@@ -98,11 +101,11 @@
 </template>
 
 <script>
-import Status from "../components/Status.vue"
+import Status from "../components/Status.vue";
 
 export default {
   name: "Manage",
-  components: {Status},
+  components: { Status },
   data() {
     return {};
   },

@@ -5,12 +5,12 @@ import vuetify from "./plugins/vuetify";
 import axios from "axios";
 
 import "./config/notification-config.js";
-import {store} from "./config/vuex-config.js";
+import { store } from "./config/vuex-config.js";
 
-axios.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded';
+axios.defaults.headers.post["Content-Type"] =
+  "application/x-www-form-urlencoded";
 
 Vue.config.productionTip = false;
-
 
 new Vue({
   router,

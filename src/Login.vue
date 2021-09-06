@@ -45,12 +45,8 @@ export default {
         validate: false,
         username: "",
         password: "",
-        usernameRules: [
-          (value) => !!value || "Введите значение.",
-        ],
-        passwordRules: [
-          (value) => !!value || "Введите значение.",
-        ]
+        usernameRules: [(value) => !!value || "Введите значение."],
+        passwordRules: [(value) => !!value || "Введите значение."],
       },
     };
   },
@@ -60,11 +56,11 @@ export default {
     },
     password: function () {
       this.validateField();
-    }
+    },
   },
   methods: {
     validateField() {
-      this.$refs.form_auth.validate()
+      this.$refs.form_auth.validate();
     },
     async submit() {
       this.validateField();

@@ -12,8 +12,13 @@
       ><v-icon left>mdi-alert-decagram-outline</v-icon>Данные не
       загружены</v-chip
     >
-    <v-chip class="mb-2 mr-3" color="info" pill v-if="(( status & 1) == 1 ) && statusPv"
-      >Отработано: {{statusPv}}<span v-if="statusSp">/{{statusSp}}</span></v-chip
+    <v-chip
+      class="mb-2 mr-3"
+      color="info"
+      pill
+      v-if="(status & 1) == 1 && statusPv"
+      >Отработано: {{ statusPv
+      }}<span v-if="statusSp">/{{ statusSp }}</span></v-chip
     >
     <v-chip class="mb-2 mr-3" pill v-if="status == -1"
       ><v-icon left>mdi-wrench</v-icon>Состояние неизвестно</v-chip
@@ -32,34 +37,18 @@
     <v-chip class="mb-2 mr-3" pill color="error" v-else-if="(status & 32) == 32"
       ><v-icon left>mdi-alert-decagram-outline</v-icon>Авария</v-chip
     >
-    <v-chip
-      class="mb-2 mr-3"
-      pill
-      color="warning"
-      v-if="(status & 64) == 64"
+    <v-chip class="mb-2 mr-3" pill color="warning" v-if="(status & 64) == 64"
       ><v-icon left>mdi-alert-decagram-outline</v-icon>Неподтвержденное
       происшествие</v-chip
     >
-    <v-chip
-      class="mb-2 mr-3"
-      pill
-      color="warning"
-      v-if="(status & 128) == 128"
+    <v-chip class="mb-2 mr-3" pill color="warning" v-if="(status & 128) == 128"
       ><v-icon left>mdi-alert-decagram-outline</v-icon>Пониженная
       производительность</v-chip
     >
-    <v-chip
-      class="mb-2 mr-3"
-      pill
-      color="warning"
-      v-if="(status & 256) == 256"
+    <v-chip class="mb-2 mr-3" pill color="warning" v-if="(status & 256) == 256"
       ><v-icon left>mdi-alert-decagram-outline</v-icon>Простой 5 минут</v-chip
     >
-    <v-chip
-      class="mb-2 mr-3"
-      pill
-      color="warning"
-      v-if="(status & 512) == 512"
+    <v-chip class="mb-2 mr-3" pill color="warning" v-if="(status & 512) == 512"
       ><v-icon left>mdi-alert-decagram-outline</v-icon>Простой 15 минут</v-chip
     >
     <v-chip
@@ -69,12 +58,9 @@
       v-if="(status & 1024) == 1024"
       ><v-icon left>mdi-alert-decagram-outline</v-icon>Получение данных</v-chip
     >
-    <v-chip
-      class="mb-2 mr-3"
-      pill
-      color="warning"
-      v-if="accident"
-      ><v-icon left>mdi-alert-decagram-outline</v-icon>Незаполненное событие</v-chip
+    <v-chip class="mb-2 mr-3" pill color="warning" v-if="accident"
+      ><v-icon left>mdi-alert-decagram-outline</v-icon>Незаполненное
+      событие</v-chip
     >
   </div>
 </template>
@@ -98,8 +84,7 @@ export default {
     accident: {
       type: Boolean,
       default: false,
-    }
+    },
   },
-  
 };
 </script>

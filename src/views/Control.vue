@@ -430,12 +430,12 @@ export default {
           }
         }
       })
-      .catch(()=>{
+      .catch(() => {
         this.$notify({
-            title: "Уведомление",
-            type: "error",
-            text: "Ошибка соединения!",
-          });
+          title: "Уведомление",
+          type: "error",
+          text: "Ошибка соединения!",
+        });
       });
   },
 };
