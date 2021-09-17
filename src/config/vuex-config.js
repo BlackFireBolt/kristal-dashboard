@@ -14,6 +14,7 @@ export const store = new vuex.Store({
     load_data: null,
     drawer: false,
     lines: [],
+    addition: {},
     user: {},
     tokenJWT: "",
   },
@@ -29,6 +30,9 @@ export const store = new vuex.Store({
     },
     SET_LINES: (state, payload) => {
       state.lines = payload;
+    },
+    SET_ADDITION: (state, payload) => {
+      state.addition = payload;
     },
     SET_LOADER: (state, payload) => {
       state.loader = payload;
@@ -61,6 +65,9 @@ export const store = new vuex.Store({
     LOAD_LINES: (state) => {
       return state.lines;
     },
+    LOAD_ADDITION: (state) => {
+      return state.addition;
+    },
     LOAD_LOADER: (state) => {
       return state.loader;
     },
@@ -90,6 +97,7 @@ export const store = new vuex.Store({
       );
       var load = data.lines;
       var lines = [];
+      var addition = {};
       var plan = Object.values(load);
       let key = Object.keys(load);
       for (var i = 0; i < plan.length; i++) {
@@ -181,6 +189,8 @@ export const store = new vuex.Store({
               },
             ],
           },
+          dialogTasks: false,
+          dialogAccidents: false,
           accidents: accidents,
           accidentStatus: AccidentStatus(accidents),
           statusPv: plan[i].boi ? plan[i].boi["1"]["status-pv"] : 0,
@@ -193,8 +203,13 @@ export const store = new vuex.Store({
         }
         lines.push(line_object);
       }
+      addition.name = {
+        department: data.dc,
+        site: data.site
+      }
       context.commit("SET_LOAD_DATA", data);
       context.commit("SET_LINES", lines);
+      context.commit("SET_ADDITION", addition);
       context.commit("SET_LOADER", false);
     },
     GET_LOAD_DATA_SINGLE_LINE: async (context, payload) => {

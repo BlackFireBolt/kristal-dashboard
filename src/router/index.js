@@ -34,31 +34,17 @@ const routes = [
         component: () => import("../views/Control.vue"),
         meta: { requiresAuth: true, title: "Панель управления линией" },
       },
-    ],
-  },
-  {
-    path: "/ot-dashboard",
-    component: () => {},
-    meta: { requiresAuth: false },
-    children: [
       {
-        alias: "",
-        path: "ot-dashboard",
-        name: "OT-dashboard",
-        component: () => {},
-        meta: { requiresAuth: false, layout: "main" },
+        path: "maintenance",
+        name: "Maintenance",
+        component: () => import("../views/Maintenance.vue"),
+        meta: { requiresAuth: true, title: "Планово-предупредительный ремонт" },
       },
       {
-        path: "admin",
-        name: "OT-admin",
-        component: () => {},
-        meta: { quest: true, layout: "main", auth: true },
-      },
-      {
-        path: "login",
-        name: "OT-login",
-        component: () => {},
-        meta: { quest: true, layout: "empty" },
+        path: "metrics",
+        name: "Metrics",
+        component: () => import("../views/Metrics.vue"),
+        meta: { requiresAuth: true, title: "Метрика" },
       },
     ],
   },
@@ -77,22 +63,11 @@ const router = new VueRouter({
 router.beforeEach((to, from, next) => {
   if (to.matched.some((record) => record.meta.requiresAuth)) {
     if (!store.getters.LOAD_AUTHENTICATION) {
+      sessionStorage.setItem('redirectPath', to.path);
       next("/login");
     } else {
       next();
     }
-  } else {
-    next();
-  }
-});
-
-router.beforeEach((to, from, next) => {
-  if (to.matched.some((record) => record.meta.quest)) {
-    if (store.getters.LOAD_AUTHENTICATION) {
-      next("/login");
-      return;
-    }
-    next();
   } else {
     next();
   }

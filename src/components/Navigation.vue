@@ -5,7 +5,7 @@
         <v-img src="https://ibiz.by/images/logo/122290.gif"></v-img>
       </v-list-item-avatar>
 
-      <v-list-item-title class="title"> Минск КРИСТАЛ</v-list-item-title>
+      <v-list-item-title class="title"> Минск КРИСТАЛЛ</v-list-item-title>
     </v-list-item>
 
     <v-divider></v-divider>
@@ -156,7 +156,8 @@ export default {
     return {
       items: [
         { title: "Панель", icon: "mdi-view-dashboard", to: "/" },
-        { title: "Управление", icon: "mdi-image", to: "/manage" },
+        { title: "ППР", icon: "mdi-cog-clockwise", to: "/maintenance" },
+        { title: "Метрика", icon: "mdi-calculator-variant-outline", to: "/metrics" },
       ],
       right: null,
       date: new Date().toISOString().substr(0, 10),

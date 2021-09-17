@@ -3,8 +3,7 @@
     <v-app-bar-nav-icon @click="drawer = !drawer"></v-app-bar-nav-icon>
 
     <v-toolbar-title
-      >{{ loadDataList.dc }} - {{ loadDataList.site }} -
-      {{ this.$route.meta.title }}
+      >{{ this.$route.meta.title }}
     </v-toolbar-title>
 
     <v-spacer></v-spacer>

@@ -1,83 +1,73 @@
 <template>
-  <v-sheet color="blue-grey lighten-5" width="100%">
-    <v-container>
-      <div class="text-h6">Лог событий:</div>
-      <v-data-table
-        dense
-        height="200px"
-        :items="loadAccidents"
-        :headers="headers"
-        show-select
-        item-key="id"
-        v-model="selected"
-        :items-per-page="5"
-      >
-        <template v-slot:top
-          ><v-btn
-            icon
-            class="mx-3"
-            :disabled="selected.length < 2"
-            @click="groupItem()"
-            ><v-icon>mdi-arrow-collapse</v-icon></v-btn
-          >
-          <v-btn
-            icon
-            class="mx-3"
-            v-bind:color="filter == true ? 'success' : ''"
-            @click="filter = !filter"
-            ><v-icon>mdi-filter</v-icon></v-btn
-          ></template
+  <v-container>
+    <v-data-table
+      dense
+      :items="loadAccidents"
+      :headers="headers"
+      show-select
+      item-key="id"
+      v-model="selected"
+    >
+      <template v-slot:top
+        ><v-btn
+          icon
+          class="mx-3"
+          :disabled="selected.length < 2"
+          @click="groupItem()"
+          ><v-icon>mdi-arrow-collapse</v-icon></v-btn
         >
-        <template v-slot:item.actions="{ item }">
-          <v-icon small class="mx-2" @click="editItem(item)">mdi-pencil</v-icon>
-          <v-icon
-            small
-            class="mx-2"
-            @click="ungroupItem(item)"
-            v-if="item.childs.length > 0"
-            >mdi-arrow-expand</v-icon
+        <v-btn
+          icon
+          class="mx-3"
+          v-bind:color="filter == true ? 'success' : ''"
+          @click="filter = !filter"
+          ><v-icon>mdi-filter</v-icon></v-btn
+        ></template
+      >
+      <template v-slot:[`item.actions`]="{ item }">
+        <v-icon small class="mx-2" @click="editItem(item)">mdi-pencil</v-icon>
+        <v-icon
+          small
+          class="mx-2"
+          @click="ungroupItem(item)"
+          v-if="item.childs.length > 0"
+          >mdi-arrow-expand</v-icon
+        >
+      </template>
+      <template v-slot:no-data>
+        <p>Событий нет</p>
+      </template>
+    </v-data-table>
+    <v-dialog v-model="dialog" width="500">
+      <v-card>
+        <v-card-title class="text-h5 grey lighten-2">
+          Изменить комментарий
+        </v-card-title>
+
+        <v-card-text>
+          <v-select
+            v-model="editedItem.message"
+            :items="accidentsType"
+            label="Причины простоев"
+            item-text="name"
+            item-value="name"
           >
-        </template>
-        <template v-slot:no-data>
-          <p>Событий нет</p>
-        </template>
-      </v-data-table>
-      <v-dialog v-model="dialog" width="500">
-        <v-card>
-          <v-card-title class="text-h5 grey lighten-2">
-            Изменить комментарий
-          </v-card-title>
+          </v-select>
+        </v-card-text>
 
-          <v-card-text>
-            <v-select
-              v-model="editedItem.message"
-              :items="accidentsType"
-              label="Причины простоев"
-              item-text="name"
-              item-value="name"
-            >
-            </v-select>
-          </v-card-text>
+        <v-divider></v-divider>
 
-          <v-divider></v-divider>
-
+        <v-card-actions>
+          <v-spacer></v-spacer>
           <v-card-actions>
             <v-spacer></v-spacer>
-            <v-card-actions>
-              <v-spacer></v-spacer>
-              <v-btn color="blue darken-1" text @click="close"> Отмена </v-btn>
-              <v-btn color="blue darken-1" text @click="save">
-                Сохранить
-              </v-btn>
-            </v-card-actions>
+            <v-btn color="blue darken-1" text @click="close"> Отмена </v-btn>
+            <v-btn color="blue darken-1" text @click="save"> Сохранить </v-btn>
           </v-card-actions>
-        </v-card>
-      </v-dialog>
-      <div align="right">
-        <v-btn class="mt-2"><v-icon>mdi-upload</v-icon>Отправить</v-btn>
-      </div>
-    </v-container>
-  </v-sheet>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+  </v-container>
 </template>
 
 <script>
@@ -148,8 +138,7 @@ export default {
     };
   },
   props: {
-    line_key: String,
-    default: null,
+    line_key: { type: String, default: null },
   },
   watch: {
     dialog(val) {

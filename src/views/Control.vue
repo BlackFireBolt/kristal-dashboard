@@ -13,7 +13,7 @@
         depressed
         color="indigo"
         dark
-        @click="$router.push('/manage')"
+        @click="$router.push('/')"
         ><v-icon dark> mdi-chevron-left </v-icon>Назад</v-btn
       >
     </v-card-text>

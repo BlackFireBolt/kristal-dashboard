@@ -3,10 +3,17 @@
     <v-flex xs12 sm8 md4>
       <v-card class="elevation-5">
         <v-toolbar dark color="primary">
-          <v-toolbar-title>Авторизация пользователя</v-toolbar-title>
-        </v-toolbar>
-        <v-card-text>
-          <v-form ref="form_auth" lazy-validation v-model="form.validate">
+          <v-toolbar-title
+            >Авторизация пользователя</v-toolbar-title
+          > </v-toolbar
+        ><v-form
+          ref="form_auth"
+          lazy-validation
+          v-model="form.validate"
+          @submit.prevent="submit"
+          v-on:keyup.enter="submit"
+        >
+          <v-card-text>
             <v-text-field
               prepend-icon="mdi-account"
               name="username"
@@ -24,12 +31,12 @@
               :rules="form.passwordRules"
               v-model="form.password"
             ></v-text-field>
+          </v-card-text>
+          <v-card-actions>
+            <v-spacer></v-spacer>
+            <v-btn type="submit" color="primary">Вход в систему</v-btn>
+          </v-card-actions>
           </v-form>
-        </v-card-text>
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn color="primary" @click="submit">Вход в систему</v-btn>
-        </v-card-actions>
       </v-card>
     </v-flex>
     <notifications position="bottom right" />
@@ -70,7 +77,8 @@ export default {
           password: this.form.password,
         })
         .then(() => {
-          this.$router.push("/");
+          this.$router.replace(sessionStorage.getItem("redirectPath") || "/");
+          sessionStorage.removeItem("redirectPath");
         });
     },
   },
