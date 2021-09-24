@@ -1,10 +1,11 @@
 version: "3.9"
-kristal-dashboard:
-  image: kristal-dashboard
-  container_name: kristal-dashboard
-  expose:
-    - 8080
-    - 50000
-  environment:
-    - "VIRTUAL_HOST=dashboard.vmvisioprom, www.dashboard.vmvisioprom, dashboard.vmvisioprom.kristal.local, www.dashboard.vmvisioprom.kristal.local, vmvisioprom.kristal.local, www.vmvisioprom.kristal.local, vmvisioprom, www.vmvisioprom"
-    - "VIRTUAL_PORT=8080"
+services: 
+  kristal-dashboard:
+    image: kristal-dashboard
+    container_name: kristal-dashboard
+    expose:
+      - 8080
+      - 50000
+    environment:
+      - "VIRTUAL_HOST=dashboard.vmvisioprom, www.dashboard.vmvisioprom, dashboard.vmvisioprom.kristal.local, www.dashboard.vmvisioprom.kristal.local, vmvisioprom.kristal.local, www.vmvisioprom.kristal.local, vmvisioprom, www.vmvisioprom"
+      - "VIRTUAL_PORT=8080"
