@@ -2,6 +2,7 @@ version: "3.9"
 services: 
   kristal-dashboard:
     restart: always
+    build: .
     container_name: kristal-dashboard
     expose:
       - 8080
