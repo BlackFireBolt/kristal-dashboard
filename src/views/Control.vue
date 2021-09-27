@@ -8,12 +8,7 @@
         :statusSp="lineData.statusSp"
         :accident="lineData.accidentStatus"
       />
-      <v-btn
-        rounded
-        depressed
-        color="indigo"
-        dark
-        @click="$router.push('/')"
+      <v-btn rounded depressed color="indigo" dark @click="$router.push('/')"
         ><v-icon dark> mdi-chevron-left </v-icon>Назад</v-btn
       >
     </v-card-text>
@@ -21,7 +16,7 @@
     <v-card-text
       ><v-divider></v-divider>
       <v-row>
-        <v-col cols="12" sm="12" md="8" xs="12">
+        <v-col cols="12" sm="12" md="7" xs="12">
           <v-card-text>
             <p v-if="lineData.timetable">
               Количество заданий: {{ lineData.timetable.length }}
@@ -88,7 +83,7 @@
             </v-card>
           </v-card-text></v-col
         >
-        <v-col cols="12" md="4" sm="12" xs="12">
+        <v-col cols="12" md="5" sm="12" xs="12">
           <div>
             <v-card class="mt-4"
               ><v-card-text>
@@ -145,6 +140,145 @@
                   <div v-else>
                     <p>Ввод кода продукции, кода объема и код тары</p>
                   </div>
+
+                  <v-data-table
+                    :headers="headers"
+                    :items="values"
+                    hide-default-footer
+                    class="elevation-1 mb-3"
+                  >
+                    <template v-slot:top>
+                      <v-toolbar flat>
+                        <v-toolbar-title>Акцизные марки</v-toolbar-title>
+                        <v-divider class="mx-4" inset vertical></v-divider>
+                        <v-spacer></v-spacer>
+                        <v-dialog v-model="dialogAdd" max-width="500px">
+                          <template v-slot:activator="{ on, attrs }">
+                            <v-btn
+                              color="primary"
+                              dark
+                              class="mb-2"
+                              v-bind="attrs"
+                              v-on="on"
+                            >
+                              Новое значение
+                            </v-btn>
+                          </template>
+                          <v-card>
+                            <v-card-title>
+                              <span class="text-h5">{{ formTitle }}</span>
+                            </v-card-title>
+
+                            <v-card-text>
+                              <v-container>
+                                <v-row>
+                                  <v-col cols="12" sm="6" md="4">
+                                    <v-select
+                                      v-model="editedItem.letter"
+                                      :items="itemsLetters"
+                                      item-text="letter"
+                                      item-value="value"
+                                      label="Буква серии АМ"
+                                      data-vv-name="Буква серии АМ"
+                                      required
+                                    ></v-select>
+                                  </v-col>
+                                  <v-col cols="12" sm="6" md="4">
+                                    <v-text-field
+                                      v-model="editedItem.series_start"
+                                      label="Начало серии"
+                                      :rules="rules"
+                                      :counter="3"
+                                    ></v-text-field>
+                                  </v-col>
+                                  <v-col cols="12" sm="6" md="4">
+                                    <v-text-field
+                                      v-model="editedItem.series_end"
+                                      label="Конец серии"
+                                      :rules="rules"
+                                      :counter="3"
+                                    ></v-text-field>
+                                  </v-col>
+                                  <v-col cols="12" sm="6" md="4">
+                                    <v-text-field
+                                      v-model="editedItem.number_start"
+                                      label="Начальный номер"
+                                      :rules="rules"
+                                      :counter="8"
+                                    ></v-text-field>
+                                  </v-col>
+                                  <v-col cols="12" sm="6" md="4">
+                                    <v-text-field
+                                      v-model="editedItem.number_end"
+                                      label="Конечный номер"
+                                      :rules="rules"
+                                      :counter="8"
+                                    ></v-text-field>
+                                  </v-col>
+                                  <v-col cols="12" sm="6" md="4">
+                                    <v-text-field
+                                      v-model="editedItem.result"
+                                      label="Итого номеров"
+                                      :rules="rules"
+                                    ></v-text-field>
+                                  </v-col>
+                                </v-row>
+                              </v-container>
+                            </v-card-text>
+
+                            <v-card-actions>
+                              <v-spacer></v-spacer>
+                              <v-btn
+                                color="blue darken-1"
+                                text
+                                @click="closeAdd"
+                              >
+                                Закрыть
+                              </v-btn>
+                              <v-btn color="blue darken-1" dark @click="save">
+                                Сохранить
+                              </v-btn>
+                            </v-card-actions>
+                          </v-card>
+                        </v-dialog>
+                        <v-dialog v-model="dialogDelete" max-width="500px">
+                          <v-card>
+                            <v-card-title class="text-h5"
+                              >Подтверждение удаления</v-card-title
+                            >
+                            <v-card-actions>
+                              <v-spacer></v-spacer>
+                              <v-btn
+                                color="blue darken-1"
+                                text
+                                @click="closeDelete"
+                                >Отмена</v-btn
+                              >
+                              <v-btn
+                                color="blue darken-1"
+                                dark
+                                @click="deleteItemConfirm"
+                                >Подтвердить</v-btn
+                              >
+                              <v-spacer></v-spacer>
+                            </v-card-actions>
+                          </v-card>
+                        </v-dialog>
+                      </v-toolbar>
+                    </template>
+                    <template v-slot:[`item.actions`]="{ item }">
+                      <v-icon small class="mr-2" @click="editItem(item)">
+                        mdi-pencil
+                      </v-icon>
+                      <v-icon small @click="deleteItem(item)">
+                        mdi-delete
+                      </v-icon>
+                    </template>
+                    <template v-slot:no-data>
+                      <p>Нет доступных значений</p>
+                    </template>
+                  </v-data-table>
+
                   <v-btn
                     block
                     elevation="10"
@@ -208,6 +342,77 @@ export default {
   components: { Status, Accidents, VuePlotly },
   data() {
     return {
+      dialogAdd: false,
+      dialogDelete: false,
+      editedItem: {
+        letter: "",
+        series_start: 0,
+        series_end: 0,
+        number_start: 0,
+        number_end: 0,
+        result: 0,
+      },
+      editedIndex: -1,
+      defaultItem: {
+        letter: "",
+        series_start: 0,
+        series_end: 0,
+        number_start: 0,
+        number_end: 0,
+        result: 0,
+      },
+      itemsLetters: [
+        {
+          letter: "А",
+          value: 837,
+        },
+        {
+          letter: "Б",
+          value: 357,
+        },
+        {
+          letter: "В",
+          value: 3213,
+        },
+        {
+          letter: "Д",
+          value: 5954,
+        },
+        {
+          letter: "И",
+          value: 378,
+        },
+        {
+          letter: "Л",
+          value: 629,
+        },
+        {
+          letter: "М",
+          value: 1587,
+        },
+        {
+          letter: "Х",
+          value: 1020,
+        },
+        {
+          letter: "Ц",
+          value: 37,
+        },
+        {
+          letter: "Я",
+          value: 183,
+        },
+      ],
+      headers: [
+        { text: "Буква серии АМ", align: "start", value: "letter" },
+        { text: "Нач.серии", value: "series_start" },
+        { text: "Кон.серии", value: "series_end" },
+        { text: "Начальный номер", value: "number_start" },
+        { text: "Конечный номер", value: "number_end" },
+        { text: "Итого номеров", value: "result" },
+        { text: "Действия", value: "actions", sortable: false },
+      ],
+      values: [],
       series: [
         {
           x: [],
@@ -235,10 +440,16 @@ export default {
         (value) => !!value || "Введите значение.",
         (value) => (value || "").indexOf(" ") < 0 || "Пробелы запрещены.",
         (value) => !isNaN(value) || "Требуется ввод цифрового значения.",
+        (value) => value[0] !== "0" || "Первый символ не должен быть нулем."
       ],
     };
   },
   computed: {
+    formTitle() {
+      return this.editedIndex === -1
+        ? "Новое значение"
+        : "Редактировать значение";
+    },
     lineData() {
       let key = this.$route.params.key;
       let lines = this.$store.getters.LOAD_LINES;
@@ -272,6 +483,12 @@ export default {
     },
   },
   watch: {
+    dialogAdd: function (value) {
+      value || this.closeAdd();
+    },
+    dialogDelete: function (value) {
+      value || this.closeDelete();
+    },
     gid: function (value) {
       this.changeExport(value);
     },
@@ -286,6 +503,42 @@ export default {
     },
   },
   methods: {
+    editItem(item) {
+      this.editedIndex = this.values.indexOf(item);
+      this.editedItem = Object.assign({}, item);
+      this.dialogAdd = true;
+    },
+    deleteItem(item) {
+      this.editedIndex = this.values.indexOf(item);
+      this.editedItem = Object.assign({}, item);
+      this.dialogDelete = true;
+    },
+    closeAdd() {
+      this.dialogAdd = false;
+      this.$nextTick(() => {
+        this.editedItem = Object.assign({}, this.defaultItem);
+        this.editedIndex = -1;
+      });
+    },
+    closeDelete() {
+      this.dialogDelete = false;
+      this.$nextTick(() => {
+        this.editedItem = Object.assign({}, this.defaultItem);
+        this.editedIndex = -1;
+      });
+    },
+    deleteItemConfirm() {
+      this.values.splice(this.editedIndex, 1);
+      this.closeDelete();
+    },
+    save() {
+      if (this.editedIndex > -1) {
+        Object.assign(this.values[this.editedIndex], this.editedItem);
+      } else {
+        this.values.push(this.editedItem);
+      }
+      this.closeAdd();
+    },
     validateField() {
       this.$refs.form.validate();
     },
