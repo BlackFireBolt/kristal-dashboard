@@ -653,7 +653,7 @@ export default {
       };
 
       axios
-        .post("http://attp.kristal.local/vue", load, {
+        .post("http://attp.kristal.local:5000/vue", load, {
           headers: { "Content-Type": "application/x-www-form-urlencoded" },
           params: { req_action: "set_data" },
         })
