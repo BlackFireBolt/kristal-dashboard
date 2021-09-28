@@ -240,12 +240,10 @@ export const store = new vuex.Store({
       let load = context.getters.LOAD_DATA.lines;
       let lines = Object.values(load);
       let keys = Object.keys(load);
-      console.log(keys, lines)
       for (let i = 0; i < lines.length; i++) {
         if (keys[i] === payload) {
           let key =  Object.keys(lines[i].product);
           let value =  Object.values(lines[i].product);
-          console.log(key, value);
           for (let j = 0; j < value.length; j++) {
             pdc.push({key: key[j], value: value[j][0].pdc})
             vlc.push({key: value[j][0].vol_val, value: value[j][0].vlc})
