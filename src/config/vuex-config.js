@@ -17,8 +17,20 @@ export const store = new vuex.Store({
     addition: {},
     user: {},
     tokenJWT: "",
+    pdc_variants: [],
+    pkc_variants: [],
+    vlc_variants: [],
   },
   mutations: {
+    SET_PDC_VARIANTS: (state, payload) => {
+      state.pdc_variants = payload;
+    },
+    SET_PKC_VARIANTS: (state, payload) => {
+      state.pkc_variants = payload;
+    },
+    SET_VLC_VARIANTS: (state, payload) => {
+      state.vlc_variants = payload;
+    },
     TOGGLE_DRAWER: (state, payload) => {
       return (state.drawer = payload);
     },
@@ -59,6 +71,15 @@ export const store = new vuex.Store({
     },
   },
   getters: {
+    LOAD_PDC_VARIANTS: (state) => {
+      return state.pdc_variants;
+    },
+    LOAD_PKC_VARIANTS: (state) => {
+      return state.pkc_variants;
+    },
+    LOAD_VLC_VARIANTS: (state) => {
+      return state.vlc_variants;
+    },
     LOAD_DATA: (state) => {
       return state.load_data;
     },
@@ -211,6 +232,30 @@ export const store = new vuex.Store({
       context.commit("SET_LINES", lines);
       context.commit("SET_ADDITION", addition);
       context.commit("SET_LOADER", false);
+    },
+    GET_PRODUCTION_DATA: async(context, payload) => {
+      let pdc = [] 
+      let vlc = [] 
+      let pkc = []
+      let load = context.getters.LOAD_DATA.lines;
+      let lines = Object.values(load);
+      let keys = Object.keys(load);
+      console.log(keys, lines)
+      for (let i = 0; i < lines.length; i++) {
+        if (keys[i] === payload) {
+          let key =  Object.keys(lines[i].product);
+          let value =  Object.values(lines[i].product);
+          console.log(key, value);
+          for (let j = 0; j < value.length; j++) {
+            pdc.push({key: key[j], value: value[j][0].pdc})
+            vlc.push({key: value[j][0].vol_val, value: value[j][0].vlc})
+            pkc.push({key: value[j][0].pkc_val, value: value[j][0].pkc})
+          }
+        }
+      }
+      context.commit("SET_PDC_VARIANTS", pdc);
+      context.commit("SET_PKC_VARIANTS", pkc);
+      context.commit("SET_VLC_VARIANTS", vlc);
     },
     GET_LOAD_DATA_SINGLE_LINE: async (context, payload) => {
       let { data } = await axios.get(

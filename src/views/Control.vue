@@ -103,13 +103,13 @@
                       :items="taskSelect"
                       item-text="product"
                       item-value="gid"
-                      label="Выберите задание"
+                      :label="taskSelectionMessage"
                       filled
                       required
                       v-if="taskSelect"
                     >
                     </v-select>
-                    <div v-if="exportParameter">
+                    <!--
                       <div class="headline pa-5">Ввод акцизной марки</div>
                       <v-row>
                         <v-col cols="12" md="6">
@@ -135,150 +135,191 @@
                         required
                         label="Серия"
                       ></v-text-field>
+                    </div>-->
+                    <div v-if="!exportParameter">
+                      <v-data-table
+                        :headers="headers"
+                        :items="values"
+                        hide-default-footer
+                        class="elevation-1 mb-3"
+                      >
+                        <template v-slot:top>
+                          <v-toolbar flat>
+                            <v-toolbar-title>Акцизные марки</v-toolbar-title>
+                            <v-divider class="mx-4" inset vertical></v-divider>
+                            <v-spacer></v-spacer>
+                            <v-dialog v-model="dialogAdd" max-width="500px">
+                              <template v-slot:activator="{ on, attrs }">
+                                <v-btn
+                                  color="primary"
+                                  dark
+                                  class="mb-2"
+                                  v-bind="attrs"
+                                  v-on="on"
+                                >
+                                  Новое значение
+                                </v-btn>
+                              </template>
+                              <v-card>
+                                <v-card-title>
+                                  <span class="text-h5">{{ formTitle }}</span>
+                                </v-card-title>
+
+                                <v-card-text>
+                                  <v-container>
+                                    <v-row>
+                                      <v-col cols="12" sm="6" md="4">
+                                        <v-select
+                                          v-model="editedItem.letter"
+                                          :items="itemsLetters"
+                                          label="Буква серии АМ"
+                                          data-vv-name="Буква серии АМ"
+                                        ></v-select>
+                                      </v-col>
+                                      <v-col cols="12" sm="6" md="4">
+                                        <v-text-field
+                                          v-model="editedItem.series_start"
+                                          label="Начало серии"
+                                          :rules="rules"
+                                          :counter="3"
+                                        ></v-text-field>
+                                      </v-col>
+                                      <v-col cols="12" sm="6" md="4">
+                                        <v-text-field
+                                          v-model="editedItem.series_end"
+                                          label="Конец серии"
+                                          :rules="rules"
+                                          :counter="3"
+                                        ></v-text-field>
+                                      </v-col>
+                                      <v-col cols="12" sm="6" md="4">
+                                        <v-text-field
+                                          v-model="editedItem.number_start"
+                                          label="Начальный номер"
+                                          :rules="rules"
+                                          :counter="8"
+                                        ></v-text-field>
+                                      </v-col>
+                                      <v-col cols="12" sm="6" md="4">
+                                        <v-text-field
+                                          v-model="editedItem.number_end"
+                                          label="Конечный номер"
+                                          :rules="rules"
+                                          :counter="8"
+                                        ></v-text-field>
+                                      </v-col>
+                                    </v-row>
+                                  </v-container>
+                                </v-card-text>
+
+                                <v-card-actions>
+                                  <v-spacer></v-spacer>
+                                  <v-btn
+                                    color="blue darken-1"
+                                    text
+                                    @click="closeAdd"
+                                  >
+                                    Закрыть
+                                  </v-btn>
+                                  <v-btn
+                                    color="blue darken-1"
+                                    dark
+                                    @click="save"
+                                  >
+                                    Сохранить
+                                  </v-btn>
+                                </v-card-actions>
+                              </v-card>
+                            </v-dialog>
+                            <v-dialog v-model="dialogDelete" max-width="500px">
+                              <v-card>
+                                <v-card-title class="text-h5"
+                                  >Подтверждение удаления</v-card-title
+                                >
+                                <v-card-actions>
+                                  <v-spacer></v-spacer>
+                                  <v-btn
+                                    color="blue darken-1"
+                                    text
+                                    @click="closeDelete"
+                                    >Отмена</v-btn
+                                  >
+                                  <v-btn
+                                    color="blue darken-1"
+                                    dark
+                                    @click="deleteItemConfirm"
+                                    >Подтвердить</v-btn
+                                  >
+                                  <v-spacer></v-spacer>
+                                </v-card-actions>
+                              </v-card>
+                            </v-dialog>
+                          </v-toolbar>
+                        </template>
+                        <template v-slot:[`item.actions`]="{ item }">
+                          <v-icon small class="mr-2" @click="editItem(item)">
+                            mdi-pencil
+                          </v-icon>
+                          <v-icon small @click="deleteItem(item)">
+                            mdi-delete
+                          </v-icon>
+                        </template>
+                        <template v-slot:no-data>
+                          <p>Нет доступных значений</p>
+                        </template>
+                      </v-data-table>
+                      <p align="right">Итого номеров: {{ taxSum }}</p>
+                      <v-select
+                        v-model="taxType"
+                        :items="taxTypes"
+                        label="Вид акцизной марки"
+                        data-vv-name="Вид акцизной марки"
+                      ></v-select>
+                    </div>
+                    <div v-else>
+                      <v-text-field
+                        class="mb-2"
+                        v-model="tax"
+                        label="Ввод суммы номеров акцизных марок"
+                        :rules="rules"
+                        :counter="5"
+                      ></v-text-field>
                     </div>
                   </div>
                   <div v-else>
-                    <p>Ввод кода продукции, кода объема и код тары</p>
+                    <v-row class="mb-2">
+                      <v-col cols="12" sm="6" md="4">
+                        <v-select
+                          v-model="vlc"
+                          :items="vlcVariants"
+                          item-text="key"
+                          item-value="value"
+                          label="Объёма"
+                          data-vv-name="Объёма"
+                        ></v-select>
+                      </v-col>
+                      <v-col cols="12" sm="6" md="4">
+                        <v-select
+                          v-model="pdc"
+                          :items="pdcVariants"
+                          item-text="key"
+                          item-value="value"
+                          label="Продукция"
+                          data-vv-name="Продукция"
+                        ></v-select>
+                      </v-col>
+                      <v-col cols="12" sm="6" md="4">
+                        <v-select
+                          v-model="pkc"
+                          :items="pkcVariants"
+                          item-text="key"
+                          item-value="value"
+                          label="Тара"
+                          data-vv-name="Тара"
+                        ></v-select>
+                      </v-col>
+                    </v-row>
                   </div>
-
-                  <v-data-table
-                    :headers="headers"
-                    :items="values"
-                    hide-default-footer
-                    class="elevation-1 mb-3"
-                  >
-                    <template v-slot:top>
-                      <v-toolbar flat>
-                        <v-toolbar-title>Акцизные марки</v-toolbar-title>
-                        <v-divider class="mx-4" inset vertical></v-divider>
-                        <v-spacer></v-spacer>
-                        <v-dialog v-model="dialogAdd" max-width="500px">
-                          <template v-slot:activator="{ on, attrs }">
-                            <v-btn
-                              color="primary"
-                              dark
-                              class="mb-2"
-                              v-bind="attrs"
-                              v-on="on"
-                            >
-                              Новое значение
-                            </v-btn>
-                          </template>
-                          <v-card>
-                            <v-card-title>
-                              <span class="text-h5">{{ formTitle }}</span>
-                            </v-card-title>
-
-                            <v-card-text>
-                              <v-container>
-                                <v-row>
-                                  <v-col cols="12" sm="6" md="4">
-                                    <v-select
-                                      v-model="editedItem.letter"
-                                      :items="itemsLetters"
-                                      item-text="letter"
-                                      item-value="value"
-                                      label="Буква серии АМ"
-                                      data-vv-name="Буква серии АМ"
-                                      required
-                                    ></v-select>
-                                  </v-col>
-                                  <v-col cols="12" sm="6" md="4">
-                                    <v-text-field
-                                      v-model="editedItem.series_start"
-                                      label="Начало серии"
-                                      :rules="rules"
-                                      :counter="3"
-                                    ></v-text-field>
-                                  </v-col>
-                                  <v-col cols="12" sm="6" md="4">
-                                    <v-text-field
-                                      v-model="editedItem.series_end"
-                                      label="Конец серии"
-                                      :rules="rules"
-                                      :counter="3"
-                                    ></v-text-field>
-                                  </v-col>
-                                  <v-col cols="12" sm="6" md="4">
-                                    <v-text-field
-                                      v-model="editedItem.number_start"
-                                      label="Начальный номер"
-                                      :rules="rules"
-                                      :counter="8"
-                                    ></v-text-field>
-                                  </v-col>
-                                  <v-col cols="12" sm="6" md="4">
-                                    <v-text-field
-                                      v-model="editedItem.number_end"
-                                      label="Конечный номер"
-                                      :rules="rules"
-                                      :counter="8"
-                                    ></v-text-field>
-                                  </v-col>
-                                  <v-col cols="12" sm="6" md="4">
-                                    <v-text-field
-                                      v-model="editedItem.result"
-                                      label="Итого номеров"
-                                      :rules="rules"
-                                    ></v-text-field>
-                                  </v-col>
-                                </v-row>
-                              </v-container>
-                            </v-card-text>
-
-                            <v-card-actions>
-                              <v-spacer></v-spacer>
-                              <v-btn
-                                color="blue darken-1"
-                                text
-                                @click="closeAdd"
-                              >
-                                Закрыть
-                              </v-btn>
-                              <v-btn color="blue darken-1" dark @click="save">
-                                Сохранить
-                              </v-btn>
-                            </v-card-actions>
-                          </v-card>
-                        </v-dialog>
-                        <v-dialog v-model="dialogDelete" max-width="500px">
-                          <v-card>
-                            <v-card-title class="text-h5"
-                              >Подтверждение удаления</v-card-title
-                            >
-                            <v-card-actions>
-                              <v-spacer></v-spacer>
-                              <v-btn
-                                color="blue darken-1"
-                                text
-                                @click="closeDelete"
-                                >Отмена</v-btn
-                              >
-                              <v-btn
-                                color="blue darken-1"
-                                dark
-                                @click="deleteItemConfirm"
-                                >Подтвердить</v-btn
-                              >
-                              <v-spacer></v-spacer>
-                            </v-card-actions>
-                          </v-card>
-                        </v-dialog>
-                      </v-toolbar>
-                    </template>
-                    <template v-slot:[`item.actions`]="{ item }">
-                      <v-icon small class="mr-2" @click="editItem(item)">
-                        mdi-pencil
-                      </v-icon>
-                      <v-icon small @click="deleteItem(item)">
-                        mdi-delete
-                      </v-icon>
-                    </template>
-                    <template v-slot:no-data>
-                      <p>Нет доступных значений</p>
-                    </template>
-                  </v-data-table>
-
                   <v-btn
                     block
                     elevation="10"
@@ -286,12 +327,19 @@
                     x-large
                     @click="sendTaskButton"
                     :disabled="
-                      gid === null || exportParameter
-                        ? !validate ||
-                          tax === null ||
-                          tax_f === null ||
-                          tax_s === null
-                        : false || lineData.status === 1
+                      maintainance
+                        ? vlc === null || pdc === null || pkc === null
+                          ? true
+                          : false
+                        : exportParameter
+                        ? gid === null || tax === null
+                          ? true
+                          : false
+                        : gid === null ||
+                          values.length === 0 ||
+                          taxType === null
+                        ? true
+                        : false
                     "
                     >Добавить задание</v-btn
                   >
@@ -319,7 +367,7 @@
             @click="stopButton"
             >Остановка линии</v-btn
           >
-          <v-btn block elevation="2" class="my-5" large @click="testStatus"
+          <v-btn block elevation="2" class="my-5" large @click="dataEraseButton"
             >Сброс данных</v-btn
           >
           <v-btn block elevation="2" class="my-5" large disabled
@@ -342,6 +390,23 @@ export default {
   components: { Status, Accidents, VuePlotly },
   data() {
     return {
+      vlc: null,
+      pdc: null,
+      pkc: null,
+      taxType: null,
+      taxTypes: [
+        "552 ЛВ 16Х90",
+        "501 ЛВ 16Х90",
+        "507 ЛВ 16Х65",
+        "572 КВ 16Х90 0,5",
+        "502 ЛВ 16Х160",
+        "511 КВ 16Х90",
+        "Акц.м.16*65ЛВИ",
+        "503 ЛВ 20Х160",
+        "514 КВ 16Х65",
+        "16*160 1 и более",
+        "504 ЛВ 16Х90",
+      ],
       dialogAdd: false,
       dialogDelete: false,
       editedItem: {
@@ -361,48 +426,7 @@ export default {
         number_end: 0,
         result: 0,
       },
-      itemsLetters: [
-        {
-          letter: "А",
-          value: 837,
-        },
-        {
-          letter: "Б",
-          value: 357,
-        },
-        {
-          letter: "В",
-          value: 3213,
-        },
-        {
-          letter: "Д",
-          value: 5954,
-        },
-        {
-          letter: "И",
-          value: 378,
-        },
-        {
-          letter: "Л",
-          value: 629,
-        },
-        {
-          letter: "М",
-          value: 1587,
-        },
-        {
-          letter: "Х",
-          value: 1020,
-        },
-        {
-          letter: "Ц",
-          value: 37,
-        },
-        {
-          letter: "Я",
-          value: 183,
-        },
-      ],
+      itemsLetters: ["А", "Б", "В", "Д", "И", "Л", "М", "Х", "Ц", "Я"],
       headers: [
         { text: "Буква серии АМ", align: "start", value: "letter" },
         { text: "Нач.серии", value: "series_start" },
@@ -440,15 +464,31 @@ export default {
         (value) => !!value || "Введите значение.",
         (value) => (value || "").indexOf(" ") < 0 || "Пробелы запрещены.",
         (value) => !isNaN(value) || "Требуется ввод цифрового значения.",
-        (value) => value[0] !== "0" || "Первый символ не должен быть нулем."
+        (value) => value[0] !== "0" || "Первый символ не должен быть нулем.",
       ],
     };
   },
   computed: {
+    taxSum() {
+      let result = 0;
+      for (let i = 0; i < this.values.length; i++) {
+        result += this.values[i].result;
+      }
+      return result;
+    },
     formTitle() {
       return this.editedIndex === -1
         ? "Новое значение"
         : "Редактировать значение";
+    },
+    vlcVariants() {
+      return this.$store.getters.LOAD_VLC_VARIANTS;
+    },
+    pkcVariants() {
+      return this.$store.getters.LOAD_PKC_VARIANTS;
+    },
+    pdcVariants() {
+      return this.$store.getters.LOAD_PDC_VARIANTS;
     },
     lineData() {
       let key = this.$route.params.key;
@@ -459,6 +499,13 @@ export default {
         }
       }
       return lines;
+    },
+    taskSelectionMessage() {
+      if (this.lineData.timetable) {
+        return "Выберите задание";
+      } else {
+        return "Выберите из доступной продукции";
+      }
     },
     taskSelect() {
       let lines = this.lineData;
@@ -532,6 +579,8 @@ export default {
       this.closeDelete();
     },
     save() {
+      this.editedItem.result =
+        this.editedItem.number_end - this.editedItem.number_start + 1;
       if (this.editedIndex > -1) {
         Object.assign(this.values[this.editedIndex], this.editedItem);
       } else {
@@ -543,31 +592,47 @@ export default {
       this.$refs.form.validate();
     },
     changeExport: function (value) {
-      let timetable = this.lineData.timetable;
-      for (let i = 0; i < timetable.length; i++) {
-        if (timetable[i].gid == value) {
-          if (timetable[i].export == 1) {
-            this.exportParameter = true;
-          } else if (timetable[i].export == 0) {
-            this.exportParameter = false;
+      if (this.lineData.timetable) {
+        let timetable = this.lineData.timetable;
+        for (let i = 0; i < timetable.length; i++) {
+          if (timetable[i].gid == value) {
+            if (timetable[i].export == 1) {
+              this.exportParameter = true;
+            } else if (timetable[i].export == 0) {
+              this.exportParameter = false;
+            }
+            break;
           }
-          break;
         }
+      } else {
+        this.exportParameter = false;
       }
     },
     sendTaskButton: function () {
-      let lines = this.lineData.timetable;
-      let gid = this.gid;
-      if (lines.length == 1) {
-        gid = lines[0].gid;
+      let tax = [];
+      for (let i = 0; i < this.values.length; i++) {
+        tax.push([
+          this.values[i].letter,
+          this.values[i].series_start,
+          this.values[i].series_end,
+          this.values[i].number_start,
+          this.values[i].number_end,
+        ]);
       }
+      let load = {
+        gid: this.maintainance ? 0 : this.gid,
+        vlc: this.vlc,
+        pdc: this.pdc,
+        pkc: this.pkc,
+        cnt: this.exportParameter ? this.tax : this.numberSum,
+        txc: this.taxType,
+        tax: tax,
+      };
+
       axios
-        .post("http://172.17.0.162:5000/vue", {
-          action: 1,
-          gid: gid,
-          tax_s: this.tax_s,
-          tax_f: this.tax_f,
-          tax: this.tax,
+        .post("http://attp.kristal.local/vue", load, {
+          headers: { "Content-Type": "application/x-www-form-urlencoded" },
+          params: { action: "set_data" },
         })
         .then(() => {
           this.$notify({
@@ -586,8 +651,11 @@ export default {
     },
     startButton: function () {
       axios
-        .post("http://172.17.0.162:5000/vue", {
-          action: 3,
+        .post("http://attp.kristal.local/vue", {
+          redkey: this.$route.params.key,
+        }, {
+          headers: { "Content-Type": "application/x-www-form-urlencoded" },
+          params: { action: "job_start" },
         })
         .then(() => {
           this.$notify({
@@ -607,12 +675,12 @@ export default {
     stopButton: function () {
       axios
         .post(
-          "http://172.17.0.162:5000/vue",
-          {
-            action: 4,
-          },
-          { headers: { "Content-Type": "application/x-www-form-urlencoded" } }
-        )
+          "http://attp.kristal.local/vue", {
+          redkey: this.$route.params.key,
+        }, {
+          headers: { "Content-Type": "application/x-www-form-urlencoded" },
+          params: { action: "job_cancel" },
+        })
         .then(() => {
           this.$notify({
             title: "Уведомление",
@@ -651,12 +719,6 @@ export default {
           });
         });
     },
-    testStatus: function () {
-      this.$store.dispatch("GET_STATUS", {
-        key: this.lineData.key,
-        status: this.lineData.status,
-      });
-    },
   },
   mounted() {
     axios
@@ -690,6 +752,7 @@ export default {
           text: "Ошибка соединения!",
         });
       });
+    this.$store.dispatch("GET_PRODUCTION_DATA", this.$route.params.key);
   },
 };
 </script>
