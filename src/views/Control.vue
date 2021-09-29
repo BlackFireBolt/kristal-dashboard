@@ -403,6 +403,7 @@
 
 <script>
 import axios from "axios";
+import FormData from "form-data";
 import Status from "../components/Status.vue";
 import Accidents from "../components/Accidents.vue";
 import VuePlotly from "@statnett/vue-plotly";
@@ -631,7 +632,7 @@ export default {
         this.exportParameter = false;
       }
     },
-    sendTaskButton: function () {
+    transformTax: function() {
       let tax = [];
       for (let i = 0; i < this.values.length; i++) {
         tax.push([
@@ -642,20 +643,21 @@ export default {
           this.values[i].number_end,
         ]);
       }
-      let load = {
-        gid: this.maintainance ? 0 : this.gid,
-        vlc: this.vlc,
-        pdc: this.pdc,
-        pkc: this.pkc,
-        cnt: this.exportParameter ? this.tax : this.taxSum,
-        txc: this.taxType,
-        tax: tax,
-      };
-
+      return tax;
+    },
+    sendTaskButton: function () {
+      let form = new FormData()
+      form.append('req_action', 'set_data')
+      form.append('gid', this.maintainance ? 0 : this.gid)
+      form.append('vlc', this.vlc)
+      form.append('pdc', this.pdc)
+      form.append('pkc', this.pkc)
+      form.append('cnt', this.exportParameter ? this.tax : this.taxSum)
+      form.append('txc', this.taxType)
+      form.append('tax', JSON.stringify( this.transformTax()))
       axios
-        .post("http://attp.kristal.local:5000/vue", load, {
-          headers: { "Content-Type": "application/x-www-form-urlencoded" },
-          params: { req_action: "set_data" },
+        .post("http://attp.kristal.local:5000/vue", form, {
+          headers: { "Content-Type": "multipart/form-data" },
         })
         .then(() => {
           this.$notify({
@@ -673,17 +675,17 @@ export default {
         });
     },
     sendTaxButton: function () {
+      let form = new FormData()
+      form.append('redkey', this.$route.params.key)
+      form.append('req_action', 'alter_tax')
+      form.append('tax', JSON.stringify( this.transformTax()))
+      form.append('cnt', this.taxSum)
       axios
         .post(
           "http://attp.kristal.local:5000/vue",
+          form,
           {
-            redkey: this.$route.params.key,
-            tax: this.values,
-            cnt: this.taxSum
-          },
-          {
-            headers: { "Content-Type": "application/x-www-form-urlencoded" },
-            params: { req_action: "alter_tax" },
+            headers: { "Content-Type": "multipart/form-data" },
           }
         )
         .then(() => {
@@ -702,15 +704,15 @@ export default {
         });
     },
     startButton: function () {
+      let form = new FormData()
+      form.append('redkey', this.$route.params.key)
+      form.append('req_action', 'job_start')
       axios
         .post(
           "http://attp.kristal.local:5000/vue",
+          form,
           {
-            redkey: this.$route.params.key,
-          },
-          {
-            headers: { "Content-Type": "application/x-www-form-urlencoded" },
-            params: { req_action: "job_start" },
+            headers: { "Content-Type": "multipart/form-data" },
           }
         )
         .then(() => {
@@ -729,15 +731,16 @@ export default {
         });
     },
     stopButton: function () {
+      let form = new FormData()
+      form.append('redkey', this.$route.params.key)
+      form.append('req_action', 'job_stop')
       axios
         .post(
           "http://attp.kristal.local:5000/vue",
+         form,
           {
-            redkey: this.$route.params.key,
-          },
-          {
-            headers: { "Content-Type": "application/x-www-form-urlencoded" },
-            params: { req_action: "job_stop" },
+            headers: { "Content-Type": "multipart/form-data" },
+
           }
         )
         .then(() => {
@@ -756,15 +759,15 @@ export default {
         });
     },
     dataEraseButton: function () {
+      let form = new FormData()
+      form.append('redkey', this.$route.params.key)
+      form.append('req_action', 'job_cancel')
       axios
         .post(
           "http://attp.kristal.local:5000/vue",
+          form,
           {
-            redkey: this.$route.params.key,
-          },
-          {
-            headers: { "Content-Type": "application/x-www-form-urlencoded" },
-            params: { req_action: "job_cancel" },
+            headers: { "Content-Type": "multipart/form-data" },
           }
         )
         .then(() => {
