@@ -1,7 +1,6 @@
 import vuex from "vuex";
 import Vue from "vue";
 import axios from "axios";
-import createPersistedState from "vuex-persistedstate";
 import { TokenValidation } from "../plugins/utils.js";
 import { StatusDecoder } from "../plugins/utils.js";
 import { AccidentStatus } from "../plugins/utils.js";
@@ -11,10 +10,10 @@ Vue.use(vuex);
 export const store = new vuex.Store({
   state: {
     loader: true,
-    load_data: null,
+    load_data: [],
     drawer: false,
     lines: [],
-    addition: {},
+    utils:[],
     user: {},
     tokenJWT: "",
     pdc_variants: [],
@@ -22,6 +21,9 @@ export const store = new vuex.Store({
     vlc_variants: [],
   },
   mutations: {
+    SET_UTILS: (state, payload) => {
+      state.utils.push(payload);
+    },
     SET_PDC_VARIANTS: (state, payload) => {
       state.pdc_variants = payload;
     },
@@ -35,16 +37,16 @@ export const store = new vuex.Store({
       return (state.drawer = payload);
     },
     SET_LOAD_DATA: (state, payload) => {
-      state.load_data = payload;
+      state.load_data.push(payload);
     },
     SET_STATUSES: (state, payload) => {
       state.statuses = payload;
     },
     SET_LINES: (state, payload) => {
-      state.lines = payload;
+      state.lines.push(payload);
     },
-    SET_ADDITION: (state, payload) => {
-      state.addition = payload;
+    UPDATE_LINES: (state, payload) => {
+      state.lines = payload;
     },
     SET_LOADER: (state, payload) => {
       state.loader = payload;
@@ -63,14 +65,18 @@ export const store = new vuex.Store({
     SET_ACCIDENTS: (state, payload) => {
       console.log(payload);
       for (let i = 0; i < state.lines.length; i++) {
-        if (state.lines[i].key === payload.key) {
-          state.lines[i].accidents = payload.accidents.sort((a, b) => b - a);
-          state.lines[i].accidentStatus = payload.status;
-        }
+        for (let j = 0; j < state.lines[i].length;j++){
+        if (state.lines[i][j].key === payload.key) {
+          state.lines[i][j].accidents = payload.accidents.sort((a, b) => b - a);
+          state.lines[i][j].accidentStatus = payload.status;
+        }}
       }
     },
   },
   getters: {
+    LOAD_UTILS: (state) => {
+      return state.utils;
+    },
     LOAD_PDC_VARIANTS: (state) => {
       return state.pdc_variants;
     },
@@ -85,9 +91,6 @@ export const store = new vuex.Store({
     },
     LOAD_LINES: (state) => {
       return state.lines;
-    },
-    LOAD_ADDITION: (state) => {
-      return state.addition;
     },
     LOAD_LOADER: (state) => {
       return state.loader;
@@ -106,19 +109,16 @@ export const store = new vuex.Store({
     TOGGLE_DRAWER: (context, payload) => {
       context.commit("TOGGLE_DRAWER", payload);
     },
-    GET_LOAD_DATA: async (context) => {
+    GET_LOAD_DATA: async (context, payload) => {
       let { data } = await axios.get(
-        "http://attp.kristal.local:5000/vue?c=" +
-          context.getters.LOAD_USER.channels.slice(-1) +
-          "&nz=" +
-          context.getters.LOAD_USER.channels.slice(-1),
+        "http://attp.kristal.local:5000/vue?c=" + payload + "&nz=1",
         {
           headers: { "Content-Type": "application/x-www-form-urlencoded" },
         }
       );
       var load = data.lines;
       var lines = [];
-      var addition = {};
+      let utils = {};
       var plan = Object.values(load);
       let key = Object.keys(load);
       for (var i = 0; i < plan.length; i++) {
@@ -191,6 +191,7 @@ export const store = new vuex.Store({
             },
           ],
           layout: {
+            autosize: true,
             showlegend: false,
             yaxis: { range: [0, 10000] },
             xaxis: { tickformat: "%H:%M:%S", type: "date" },
@@ -224,33 +225,34 @@ export const store = new vuex.Store({
         }
         lines.push(line_object);
       }
-      addition.name = {
+      utils = {
         department: data.dc,
-        site: data.site
+        site: data.site,
       }
       context.commit("SET_LOAD_DATA", data);
       context.commit("SET_LINES", lines);
-      context.commit("SET_ADDITION", addition);
+      context.commit("SET_UTILS", utils);
       context.commit("SET_LOADER", false);
     },
-    GET_PRODUCTION_DATA: async(context, payload) => {
-      let pdc = [] 
-      let vlc = [] 
-      let pkc = []
-      let load = context.getters.LOAD_DATA.lines;
-      let lines = Object.values(load);
-      let keys = Object.keys(load);
-      for (let i = 0; i < lines.length; i++) {
-        if (keys[i] === payload) {
-          let key =  Object.keys(lines[i].product);
-          let value =  Object.values(lines[i].product);
-          for (let j = 0; j < value.length; j++) {
-            pdc.push({key: key[j], value: value[j][0].pdc})
-            vlc.push({key: value[j][0].vol_val, value: value[j][0].vlc})
-            pkc.push({key: value[j][0].pkc_val, value: value[j][0].pkc})
+    GET_PRODUCTION_DATA: async (context, payload) => {
+      let pdc = [];
+      let vlc = [];
+      let pkc = [];
+      let load = context.getters.LOAD_DATA;
+      for(let i = 0; i < load.length; i++) {
+      let lines = Object.values(load[i].lines);
+      let keys = Object.keys(load[i].lines);
+      for (let j = 0; j < lines.length; j++) {
+        if (keys[j] === payload) {
+          let key = Object.keys(lines[j].product);
+          let value = Object.values(lines[j].product);
+          for (let k = 0; k < value.length; k++) {
+            pdc.push({ key: key[k], value: value[k][0].pdc });
+            vlc.push({ key: value[k][0].vol_val, value: value[k][0].vlc });
+            pkc.push({ key: value[k][0].pkc_val, value: value[k][0].pkc });
           }
         }
-      }
+      }}
       context.commit("SET_PDC_VARIANTS", pdc);
       context.commit("SET_PKC_VARIANTS", pkc);
       context.commit("SET_VLC_VARIANTS", vlc);
@@ -369,11 +371,12 @@ export const store = new vuex.Store({
     GET_STATUS: async (context, payload) => {
       let lines = context.getters.LOAD_LINES;
       for (let i = 0; i < lines.length; i++) {
-        if (lines[i].key === payload.key) {
-          lines[i].status = StatusDecoder(payload.status);
-        }
+        for (let j = 0; j < lines[i].length; j++){
+        if (lines[i][j].key === payload.key) {
+          lines[i][j].status = StatusDecoder(payload.status);
+        }}
       }
-      context.commit("SET_LINES", lines);
+      context.commit("UPDATE_LINES", lines);
     },
     LOGIN: async (context, payload) => {
       await axios
@@ -399,5 +402,4 @@ export const store = new vuex.Store({
       context.commit("LOGOUT");
     },
   },
-  plugins: [createPersistedState()],
 });

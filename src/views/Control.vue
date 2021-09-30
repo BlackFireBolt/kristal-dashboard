@@ -12,9 +12,8 @@
         ><v-icon dark> mdi-chevron-left </v-icon>Назад</v-btn
       >
     </v-card-text>
-
-    <v-card-text
-      ><v-divider></v-divider>
+    <v-card-text>
+      <v-divider></v-divider>
       <v-row
         ><v-col cols="12" md="5" sm="12" xs="12">
           <div>
@@ -481,8 +480,6 @@ export default {
       maintainance: false,
       exportParameter: false,
       gid: null,
-      tax_s: null,
-      tax_f: null,
       tax: null,
       rules: [
         (value) => !!value || "Введите значение.",
@@ -517,11 +514,12 @@ export default {
     lineData() {
       let key = this.$route.params.key;
       let lines = this.$store.getters.LOAD_LINES;
-      for (let i = 0; i < lines.length; i++) {
-        if (lines[i].key === key) {
-          return lines[i];
+      for (let i = 0; i < lines.length; i++)
+        for (let j = 0; j < lines[i].length; j++) {
+          if (lines[i][j].key === key) {
+            return lines[i][j];
+          }
         }
-      }
       return lines;
     },
     taskSelectionMessage() {
@@ -546,7 +544,7 @@ export default {
         for (let i = 0; i < Object.keys(lines.product).length; i++) {
           timetable.push({
             product: Object.keys(lines.product)[i],
-            gid: i,
+            gid: 0,
           });
         }
         return timetable;
@@ -632,7 +630,7 @@ export default {
         this.exportParameter = false;
       }
     },
-    transformTax: function() {
+    transformTax: function () {
       let tax = [];
       for (let i = 0; i < this.values.length; i++) {
         tax.push([
@@ -646,15 +644,16 @@ export default {
       return tax;
     },
     sendTaskButton: function () {
-      let form = new FormData()
-      form.append('req_action', 'set_data')
-      form.append('gid', this.maintainance ? 0 : this.gid)
-      form.append('vlc', this.vlc)
-      form.append('pdc', this.pdc)
-      form.append('pkc', this.pkc)
-      form.append('cnt', this.exportParameter ? this.tax : this.taxSum)
-      form.append('txc', this.taxType)
-      form.append('tax', JSON.stringify( this.transformTax()))
+      let form = new FormData();
+      form.append("redkey", this.$route.params.key);
+      form.append("req_action", "set_data");
+      form.append("gid", this.maintainance ? 0 : this.gid);
+      form.append("vlc", this.vlc);
+      form.append("pdc", this.pdc);
+      form.append("pkc", this.pkc);
+      form.append("cnt", this.exportParameter ? this.tax : this.taxSum);
+      form.append("txc", this.taxType);
+      form.append("tax", JSON.stringify(this.transformTax()));
       axios
         .post("http://attp.kristal.local:5000/vue", form, {
           headers: { "Content-Type": "multipart/form-data" },
@@ -675,19 +674,15 @@ export default {
         });
     },
     sendTaxButton: function () {
-      let form = new FormData()
-      form.append('redkey', this.$route.params.key)
-      form.append('req_action', 'alter_tax')
-      form.append('tax', JSON.stringify( this.transformTax()))
-      form.append('cnt', this.taxSum)
+      let form = new FormData();
+      form.append("redkey", this.$route.params.key);
+      form.append("req_action", "alter_tax");
+      form.append("tax", JSON.stringify(this.transformTax()));
+      form.append("cnt", this.taxSum);
       axios
-        .post(
-          "http://attp.kristal.local:5000/vue",
-          form,
-          {
-            headers: { "Content-Type": "multipart/form-data" },
-          }
-        )
+        .post("http://attp.kristal.local:5000/vue", form, {
+          headers: { "Content-Type": "multipart/form-data" },
+        })
         .then(() => {
           this.$notify({
             title: "Уведомление",
@@ -704,17 +699,13 @@ export default {
         });
     },
     startButton: function () {
-      let form = new FormData()
-      form.append('redkey', this.$route.params.key)
-      form.append('req_action', 'job_start')
+      let form = new FormData();
+      form.append("redkey", this.$route.params.key);
+      form.append("req_action", "job_start");
       axios
-        .post(
-          "http://attp.kristal.local:5000/vue",
-          form,
-          {
-            headers: { "Content-Type": "multipart/form-data" },
-          }
-        )
+        .post("http://attp.kristal.local:5000/vue", form, {
+          headers: { "Content-Type": "multipart/form-data" },
+        })
         .then(() => {
           this.$notify({
             title: "Уведомление",
@@ -731,18 +722,13 @@ export default {
         });
     },
     stopButton: function () {
-      let form = new FormData()
-      form.append('redkey', this.$route.params.key)
-      form.append('req_action', 'job_stop')
+      let form = new FormData();
+      form.append("redkey", this.$route.params.key);
+      form.append("req_action", "job_stop");
       axios
-        .post(
-          "http://attp.kristal.local:5000/vue",
-         form,
-          {
-            headers: { "Content-Type": "multipart/form-data" },
-
-          }
-        )
+        .post("http://attp.kristal.local:5000/vue", form, {
+          headers: { "Content-Type": "multipart/form-data" },
+        })
         .then(() => {
           this.$notify({
             title: "Уведомление",
@@ -759,17 +745,13 @@ export default {
         });
     },
     dataEraseButton: function () {
-      let form = new FormData()
-      form.append('redkey', this.$route.params.key)
-      form.append('req_action', 'job_cancel')
+      let form = new FormData();
+      form.append("redkey", this.$route.params.key);
+      form.append("req_action", "job_cancel");
       axios
-        .post(
-          "http://attp.kristal.local:5000/vue",
-          form,
-          {
-            headers: { "Content-Type": "multipart/form-data" },
-          }
-        )
+        .post("http://attp.kristal.local:5000/vue", form, {
+          headers: { "Content-Type": "multipart/form-data" },
+        })
         .then(() => {
           this.$notify({
             title: "Уведомление",

@@ -181,8 +181,9 @@ export default {
       let lines = this.$store.getters.LOAD_LINES;
       let result = [];
       for (var i = 0; i < lines.length; i++) {
-        result.push({ key: lines[i].key, name: "Линия №" + lines[i].line_id });
-      }
+        for (var j = 0; j < lines[i].length; j++) {
+        result.push({ key: lines[i][j].key, name: "Линия №" + lines[i][j].line_id });
+      }}
       return result;
     },
   },

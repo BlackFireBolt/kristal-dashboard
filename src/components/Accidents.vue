@@ -149,8 +149,10 @@ export default {
     loadAccidents() {
       let lines = this.$store.getters.LOAD_LINES;
       for (let i = 0; i < lines.length; i++) {
-        if (lines[i].key === this.line_key) {
-          return lines[i].accidents;
+        for (let j = 0; j < lines[i].length; j++) {
+          if (lines[i][j].key === this.line_key) {
+            return lines[i][j].accidents;
+          }
         }
       }
       return false;
