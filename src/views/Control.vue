@@ -338,7 +338,7 @@
             <p v-else>Нет заданий</p>
             <p>Количество бутылок в текущем задании: {{ lineData.statusPv }}</p>
             </v-col>
-            <v-col cols="12" md="6" sm="12" xs="12">
+            <!--<v-col cols="12" md="6" sm="12" xs="12">
               <div v-if="lineData.info">
              <p>Информация с счетчиков:</p>
               <div class="overline mb-4">Счетчик {{ lineData.info[0].bid }}, акцизный</div>
@@ -403,7 +403,7 @@
               <p v-else>Нет данных</p>
               </div>
             <p v-else >Нет данных со счетчиков</p>
-            </v-col>
+            </v-col>-->
             </v-row>
           </v-card-text>
           <v-divider></v-divider>
