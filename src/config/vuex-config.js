@@ -4,8 +4,18 @@ import axios from "axios";
 import { TokenValidation } from "../plugins/utils.js";
 import { StatusDecoder } from "../plugins/utils.js";
 import { AccidentStatus } from "../plugins/utils.js";
+import createPersistedState from 'vuex-persistedstate'
 
 Vue.use(vuex);
+
+const dataState = createPersistedState({
+  reducer: (state) => {
+    return {
+      tokenJWT: state.tokenJWT,
+      user: state.user
+    }
+  }
+})
 
 export const store = new vuex.Store({
   state: {
@@ -173,18 +183,18 @@ export const store = new vuex.Store({
           series: [
             {
               x: plan[i].plot_last
-                ? plan[i].plot_last.boi["1"][0]
-                : [Date.now()],
-              y: plan[i].plot_last ? plan[i].plot_last.boi["1"][1] : [0],
+                ? plan[i].plot_last.boi["1"] ? plan[i].plot_last.boi["1"][0] 
+                : [Date.now()] : [Date.now()],
+              y: plan[i].plot_last ? plan[i].plot_last.boi["1"] ? plan[i].plot_last.boi["1"][1] : [0] : [0],
               type: "scatter",
               line: { shape: "hv" },
               name: "Первый счетчик",
             },
             {
               x: plan[i].plot_last
-                ? plan[i].plot_last.boi["2"][0]
-                : [Date.now()],
-              y: plan[i].plot_last ? plan[i].plot_last.boi["2"][1] : [0],
+                ? plan[i].plot_last.boi["2"] ? plan[i].plot_last.boi["2"][0]
+                : [Date.now()] : [Date.now()],
+              y: plan[i].plot_last ? plan[i].plot_last.boi["2"] ? plan[i].plot_last.boi["2"][1] : [0] : [0],
               type: "scatter",
               line: { shape: "hv" },
               name: "Второй счетчик",
@@ -402,4 +412,5 @@ export const store = new vuex.Store({
       context.commit("LOGOUT");
     },
   },
+  plugins: [dataState]
 });
