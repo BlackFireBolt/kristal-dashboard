@@ -74,16 +74,16 @@
                         :accident="item.accidentStatus" /></v-container
                   ></v-sheet>
                   <v-sheet width="100%" height="100%">
-                    <v-container fluid style="margin: 0px; padding: 0px; width: 100%">
+                    <!--<v-container>
                       <vue-plotly
                         :id="item.key"
                         :refers="item.key"
                         :data="item.series"
                         :layout="item.layout"
-                        :options="options"
+                        
  
                         :autoResize="true"
-                    /></v-container>
+                    /></v-container>-->
                   </v-sheet>
                 </v-card-text>
                 <v-card-actions>
@@ -165,13 +165,13 @@
 
 <script>
 import Status from "../components/Status.vue";
-import VuePlotly from "@statnett/vue-plotly";
+/*import VuePlotly from "@statnett/vue-plotly";VuePlotly*/
 import Accidents from "../components/Accidents.vue";
 import Tasks from "../components/Tasks.vue";
 
 export default {
   name: "Dashboard",
-  components: { Status, VuePlotly, Accidents, Tasks },
+  components: { Status, Accidents, Tasks },
   data() {
     return {
       panel: [1],

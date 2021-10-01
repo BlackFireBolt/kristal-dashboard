@@ -330,11 +330,81 @@
         >
         <v-col cols="12" sm="12" md="7" xs="12" order-md="first">
           <v-card-text>
+            <v-row>
+              <v-col cols="12" md="6" sm="12" xs="12">
             <p v-if="lineData.timetable">
               Количество заданий: {{ lineData.timetable.length }}
             </p>
             <p v-else>Нет заданий</p>
             <p>Количество бутылок в текущем задании: {{ lineData.statusPv }}</p>
+            </v-col>
+            <v-col cols="12" md="6" sm="12" xs="12">
+              <div v-if="lineData.info">
+             <p>Информация с счетчиков:</p>
+              <div class="overline mb-4">Счетчик {{ lineData.info[0].bid }}, акцизный</div>
+              <v-simple-table dense v-if="lineData.info[0].info">
+                <template v-slot:default>
+                    <thead>
+                      <tr>
+                        <th class="text-left">Название параметра</th>
+                        <th class="text-left">Значение</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td>Продукция</td>
+                        <td>{{ lineData.info[0].info.pdc }}</td>
+                      </tr>
+                      <tr>
+                        <td>Тара (код)</td>
+                        <td>{{ lineData.info[0].info.pkc }}</td>
+                      </tr>
+                      <tr>
+                        <td>Акциз</td>
+                        <td>{{ lineData.info[0].info.tax }}</td>
+                      </tr>
+                      <tr>
+                        <td>Объем (код)</td>
+                        <td>{{ lineData.info[0].info.vlc }}</td>
+                      </tr>
+                    </tbody>
+                  </template>
+              </v-simple-table>
+              <p v-else>Нет данных</p>
+              <div class="overline mb-4">Счетчик {{ lineData.info[1].bid }}, разливной</div>
+              <v-simple-table dense v-if="lineData.info[1].info">
+                <template v-slot:default>
+                    <thead>
+                      <tr>
+                        <th class="text-left">Название параметра</th>
+                        <th class="text-left">Значение</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td>Продукция</td>
+                        <td>{{ lineData.info[1].info.pdc }}</td>
+                      </tr>
+                      <tr>
+                        <td>Тара (код)</td>
+                        <td>{{ lineData.info[1].info.pkc }}</td>
+                      </tr>
+                      <tr>
+                        <td>Акциз</td>
+                        <td>{{ lineData.info[1].info.tax }}</td>
+                      </tr>
+                      <tr>
+                        <td>Объем (код)</td>
+                        <td>{{ lineData.info[1].info.vlc }}</td>
+                      </tr>
+                    </tbody>
+                  </template>
+              </v-simple-table>
+              <p v-else>Нет данных</p>
+              </div>
+            <p v-else >Нет данных со счетчиков</p>
+            </v-col>
+            </v-row>
           </v-card-text>
           <v-divider></v-divider>
           <v-container>
@@ -541,7 +611,9 @@ export default {
         }
         return timetable;
       } else {
+        console.log(Object.keys(lines.product))
         for (let i = 0; i < Object.keys(lines.product).length; i++) {
+          console.log(Object.keys(lines.product)[i])
           timetable.push({
             product: Object.keys(lines.product)[i],
             gid: 0,
@@ -770,7 +842,7 @@ export default {
   },
   mounted() {
     axios
-      .get("http://attp.kristal.local:5000/chart?c=c1_s1&a=1", {
+      .get("http://attp.kristal.local:5000/chart?c=" + this.$route.params.key.slice(0, 5) +"&a=1", {
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
       })
       .then((response) => {

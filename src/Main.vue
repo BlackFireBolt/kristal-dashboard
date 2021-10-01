@@ -69,7 +69,6 @@ export default {
             let data = Object.values(load_data)[0];
             if (data.bitstatus) {
               let payload = this.linesList;
-
               for (let i = 0; i < payload.length; i++) {
                 for (let j = 0; j < payload[i].length; j++) {
                   if (payload[i][j].key === key) {
@@ -107,11 +106,17 @@ export default {
                       if (boi["1"]["status-sp"]) {
                         payload[i][j].statusSp = boi["1"]["status-sp"];
                       }
+                      if(boi["1"]["info"]) {
+                        payload[i][j].info = boi["1"]["info"];
+                      }
                     }
                     if (boi["2"]) {
                       if (boi["2"]["spd"] && boi["2"]["stats-ts"]) {
                         payload[i][j].series[1].x.push(boi["2"]["stats-ts"]);
                         payload[i][j].series[1].y.push(boi["2"]["spd"]);
+                      }
+                      if(boi["2"]["info"]) {
+                        payload[i][j].info = boi["2"]["info"];
                       }
                     }
                     if (

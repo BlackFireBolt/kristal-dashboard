@@ -4,7 +4,7 @@ import axios from "axios";
 import { TokenValidation } from "../plugins/utils.js";
 import { StatusDecoder } from "../plugins/utils.js";
 import { AccidentStatus } from "../plugins/utils.js";
-import createPersistedState from 'vuex-persistedstate'
+import createPersistedState from "vuex-persistedstate";
 
 Vue.use(vuex);
 
@@ -12,10 +12,10 @@ const dataState = createPersistedState({
   reducer: (state) => {
     return {
       tokenJWT: state.tokenJWT,
-      user: state.user
-    }
-  }
-})
+      user: state.user,
+    };
+  },
+});
 
 export const store = new vuex.Store({
   state: {
@@ -23,7 +23,7 @@ export const store = new vuex.Store({
     load_data: [],
     drawer: false,
     lines: [],
-    utils:[],
+    utils: [],
     user: {},
     tokenJWT: "",
     pdc_variants: [],
@@ -75,11 +75,14 @@ export const store = new vuex.Store({
     SET_ACCIDENTS: (state, payload) => {
       console.log(payload);
       for (let i = 0; i < state.lines.length; i++) {
-        for (let j = 0; j < state.lines[i].length;j++){
-        if (state.lines[i][j].key === payload.key) {
-          state.lines[i][j].accidents = payload.accidents.sort((a, b) => b - a);
-          state.lines[i][j].accidentStatus = payload.status;
-        }}
+        for (let j = 0; j < state.lines[i].length; j++) {
+          if (state.lines[i][j].key === payload.key) {
+            state.lines[i][j].accidents = payload.accidents.sort(
+              (a, b) => b - a
+            );
+            state.lines[i][j].accidentStatus = payload.status;
+          }
+        }
       }
     },
   },
@@ -183,23 +186,62 @@ export const store = new vuex.Store({
           series: [
             {
               x: plan[i].plot_last
-                ? plan[i].plot_last.boi["1"] ? plan[i].plot_last.boi["1"][0] 
-                : [Date.now()] : [Date.now()],
-              y: plan[i].plot_last ? plan[i].plot_last.boi["1"] ? plan[i].plot_last.boi["1"][1] : [0] : [0],
+                ? plan[i].plot_last.boi["1"]
+                  ? plan[i].plot_last.boi["1"][0]
+                  : [Date.now()]
+                : [Date.now()],
+              y: plan[i].plot_last
+                ? plan[i].plot_last.boi["1"]
+                  ? plan[i].plot_last.boi["1"][1]
+                  : [0]
+                : [0],
               type: "scatter",
               line: { shape: "hv" },
-              name: "Первый счетчик",
+              name: "Акцизный счетчик",
             },
             {
               x: plan[i].plot_last
-                ? plan[i].plot_last.boi["2"] ? plan[i].plot_last.boi["2"][0]
-                : [Date.now()] : [Date.now()],
-              y: plan[i].plot_last ? plan[i].plot_last.boi["2"] ? plan[i].plot_last.boi["2"][1] : [0] : [0],
+                ? plan[i].plot_last.boi["2"]
+                  ? plan[i].plot_last.boi["2"][0]
+                  : [Date.now()]
+                : [Date.now()],
+              y: plan[i].plot_last
+                ? plan[i].plot_last.boi["2"]
+                  ? plan[i].plot_last.boi["2"][1]
+                  : [0]
+                : [0],
               type: "scatter",
               line: { shape: "hv" },
-              name: "Второй счетчик",
+              name: "Разливной счетчик",
             },
           ],
+          info: plan[i].boi
+          ? [
+            {
+              bid: plan[i].boi["1"]
+                  ? plan[i].boi["1"].bid
+                  : null
+                ,
+              info: plan[i].boi["1"]
+                  ? plan[i].boi["1"].info
+                    ? plan[i].boi["1"].info
+                    : null
+                  : null
+                ,
+            },
+            {
+              bid:  plan[i].boi["2"]
+                  ? plan[i].boi["2"].bid
+                  : null
+                ,
+              info: plan[i].boi["2"]
+                  ? plan[i].boi["2"].info
+                    ? plan[i].boi["2"].info
+                    : null
+                  : null
+                ,
+            },
+          ] : null,
           layout: {
             autosize: true,
             showlegend: false,
@@ -238,7 +280,7 @@ export const store = new vuex.Store({
       utils = {
         department: data.dc,
         site: data.site,
-      }
+      };
       context.commit("SET_LOAD_DATA", data);
       context.commit("SET_LINES", lines);
       context.commit("SET_UTILS", utils);
@@ -249,20 +291,21 @@ export const store = new vuex.Store({
       let vlc = [];
       let pkc = [];
       let load = context.getters.LOAD_DATA;
-      for(let i = 0; i < load.length; i++) {
-      let lines = Object.values(load[i].lines);
-      let keys = Object.keys(load[i].lines);
-      for (let j = 0; j < lines.length; j++) {
-        if (keys[j] === payload) {
-          let key = Object.keys(lines[j].product);
-          let value = Object.values(lines[j].product);
-          for (let k = 0; k < value.length; k++) {
-            pdc.push({ key: key[k], value: value[k][0].pdc });
-            vlc.push({ key: value[k][0].vol_val, value: value[k][0].vlc });
-            pkc.push({ key: value[k][0].pkc_val, value: value[k][0].pkc });
+      for (let i = 0; i < load.length; i++) {
+        let lines = Object.values(load[i].lines);
+        let keys = Object.keys(load[i].lines);
+        for (let j = 0; j < lines.length; j++) {
+          if (keys[j] === payload) {
+            let key = Object.keys(lines[j].product);
+            let value = Object.values(lines[j].product);
+            for (let k = 0; k < value.length; k++) {
+              pdc.push({ key: key[k], value: value[k][0].pdc });
+              vlc.push({ key: value[k][0].vol_val, value: value[k][0].vlc });
+              pkc.push({ key: value[k][0].pkc_val, value: value[k][0].pkc });
+            }
           }
         }
-      }}
+      }
       context.commit("SET_PDC_VARIANTS", pdc);
       context.commit("SET_PKC_VARIANTS", pkc);
       context.commit("SET_VLC_VARIANTS", vlc);
@@ -381,10 +424,11 @@ export const store = new vuex.Store({
     GET_STATUS: async (context, payload) => {
       let lines = context.getters.LOAD_LINES;
       for (let i = 0; i < lines.length; i++) {
-        for (let j = 0; j < lines[i].length; j++){
-        if (lines[i][j].key === payload.key) {
-          lines[i][j].status = StatusDecoder(payload.status);
-        }}
+        for (let j = 0; j < lines[i].length; j++) {
+          if (lines[i][j].key === payload.key) {
+            lines[i][j].status = StatusDecoder(payload.status);
+          }
+        }
       }
       context.commit("UPDATE_LINES", lines);
     },
@@ -412,5 +456,5 @@ export const store = new vuex.Store({
       context.commit("LOGOUT");
     },
   },
-  plugins: [dataState]
+  plugins: [dataState],
 });
