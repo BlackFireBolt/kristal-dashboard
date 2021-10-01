@@ -74,7 +74,7 @@
                         :accident="item.accidentStatus" /></v-container
                   ></v-sheet>
                   <v-sheet width="100%" height="100%">
-                    <!--<v-container>
+                    <v-container>
                       <vue-plotly
                         :id="item.key"
                         :refers="item.key"
@@ -83,7 +83,7 @@
                         
  
                         :autoResize="true"
-                    /></v-container>-->
+                    /></v-container>
                   </v-sheet>
                 </v-card-text>
                 <v-card-actions>
@@ -103,7 +103,7 @@
                   </v-btn>
                 </v-card-actions>
               </v-card>
-              <div v-for="item in linesList" :key="item.id">
+              <div v-for="item in department" :key="item.id">
                 <v-dialog
                   :retain-focus="false"
                   scrollable
@@ -165,13 +165,13 @@
 
 <script>
 import Status from "../components/Status.vue";
-/*import VuePlotly from "@statnett/vue-plotly";VuePlotly*/
+import VuePlotly from "@statnett/vue-plotly";
 import Accidents from "../components/Accidents.vue";
 import Tasks from "../components/Tasks.vue";
 
 export default {
   name: "Dashboard",
-  components: { Status, Accidents, Tasks },
+  components: { Status, VuePlotly, Accidents, Tasks },
   data() {
     return {
       panel: [1],

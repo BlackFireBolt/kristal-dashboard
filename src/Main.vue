@@ -81,7 +81,7 @@ export default {
                       type: "info",
                       text:
                         "Изменение статуса линии №" +
-                        payload[i][j].line_id +
+                        payload[i][j].key +
                         "!",
                     });
                     break;
@@ -107,7 +107,10 @@ export default {
                         payload[i][j].statusSp = boi["1"]["status-sp"];
                       }
                       if(boi["1"]["info"]) {
-                        payload[i][j].info = boi["1"]["info"];
+                        payload[i][j].info[0].pdc = boi["1"]["info"].pdc;
+                        payload[i][j].info[0].pkc = boi["1"]["info"].pkc;
+                        payload[i][j].info[0].vlc = boi["1"]["info"].vlc;
+                        payload[i][j].info[0].txc = boi["1"]["info"].txc;
                       }
                     }
                     if (boi["2"]) {
@@ -116,7 +119,10 @@ export default {
                         payload[i][j].series[1].y.push(boi["2"]["spd"]);
                       }
                       if(boi["2"]["info"]) {
-                        payload[i][j].info = boi["2"]["info"];
+                        payload[i][j].info[1].pdc = boi["2"]["info"].pdc;
+                        payload[i][j].info[1].pkc = boi["2"]["info"].pkc;
+                        payload[i][j].info[1].vlc = boi["2"]["info"].vlc;
+                        payload[i][j].info[1].txc = boi["2"]["info"].txc;
                       }
                     }
                     if (
