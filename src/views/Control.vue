@@ -403,6 +403,7 @@
               <p v-else>Нет данных</p>
               </div>
             <p v-else >Нет данных со счетчиков</p>
+            <div>{{lineData.hw_events}}</div>
             </v-col>
             </v-row>
           </v-card-text>
@@ -610,8 +611,7 @@ export default {
           });
         }
         return timetable;
-      } else {
-
+      } else if (lines.product) {
         for (let i = 0; i < Object.keys(lines.product).length; i++) {
           timetable.push({
             product: Object.keys(lines.product)[i],
@@ -620,6 +620,7 @@ export default {
         }
         return timetable;
       }
+      return null;
     },
   },
   watch: {
