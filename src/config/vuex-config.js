@@ -242,7 +242,7 @@ export const store = new vuex.Store({
                 ,
             },
           ] : null,
-          hw_events:plan[i].boi ? plan[i].hw_events ? plan[i].hw_events : null : null,
+          hw_events:plan[i].boi ? plan[i].boi["1"].hw_events ? plan[i].boi["1"].hw_events : null : null,
           layout: {
             autosize: true,
             showlegend: false,

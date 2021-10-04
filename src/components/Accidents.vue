@@ -155,7 +155,7 @@ export default {
           }
         }
       }
-      return false;
+      return null;
     },
   },
   methods: {

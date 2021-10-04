@@ -2,7 +2,7 @@
   <v-navigation-drawer v-model="drawer" stateless app :mini-variant="mini">
     <v-list-item class="px-2">
       <v-list-item-avatar>
-        <v-img src="https://ibiz.by/images/logo/122290.gif"></v-img>
+        <v-img src="../assets/img/122290.gif"></v-img>
       </v-list-item-avatar>
 
       <v-list-item-title class="title"> Минск КРИСТАЛЛ</v-list-item-title>

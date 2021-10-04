@@ -606,7 +606,7 @@ export default {
       if (lines.timetable) {
         for (let i = 0; i < lines.timetable.length; i++) {
           timetable.push({
-            product: lines.timetable[i].product,
+            product: lines.timetable[i].product + ' --- ' + lines.timetable[i].packing,
             gid: lines.timetable[i].gid,
           });
         }
