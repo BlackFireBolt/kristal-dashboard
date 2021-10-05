@@ -264,12 +264,36 @@ export const store = new vuex.Store({
               },
             ],
           },
+          layoutLow: {
+            height: 250,
+            autosize: true,
+            showlegend: false,
+            yaxis: { range: [0, 10000] },
+            xaxis: { tickformat: "%H:%M:%S", type: "date" },
+            shapes: [
+              {
+                type: "line",
+                xref: "paper",
+                x0: 0,
+                y0: plan[i].plan ? plan[i].plan.avgspd : 6000,
+                x1: 1,
+                y1: plan[i].plan ? plan[i].plan.avgspd : 6000,
+                line: {
+                  color: "rgb(255, 0, 0)",
+                  width: 4,
+                  dash: "dot",
+                },
+              },
+            ],
+          },
           dialogTasks: false,
           dialogAccidents: false,
           accidents: accidents,
           accidentStatus: AccidentStatus(accidents),
-          statusPv: plan[i].boi ? plan[i].boi["1"]["status-pv"] : 0,
-          statusSp: plan[i].boi ? plan[i].boi["1"]["status-sp"] : 0,
+          statusPvFirst: plan[i].boi ? plan[i].boi["1"]["status-pv"] : 0,
+          statusSpFirst: plan[i].boi ? plan[i].boi["1"]["status-sp"] : 0,
+          statusPvSecond: plan[i].boi ? plan[i].boi["2"]["status-pv"] : 0,
+          statusSpSecond: plan[i].boi ? plan[i].boi["2"]["status-sp"] : 0,
         };
         if (plan[i].plan) {
           line_object.timetable = plan[i].plan.timetable;

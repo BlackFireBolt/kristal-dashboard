@@ -9,7 +9,7 @@
           </template>
         </v-expansion-panel-header>
         <v-expansion-panel-content>
-          <v-row>
+          <v-row no-gutters>
             <v-col
               cols="12"
               md="6"
@@ -18,11 +18,24 @@
               v-for="item in department"
               :key="item.id"
             >
-              <v-card class="mb-4">
+              <v-card tile outlined>
                 <v-card-text>
                   <v-app-bar flat dense color="white">
                     <v-card-title>Линия №{{ item.line_id }}</v-card-title>
                     <v-spacer></v-spacer>
+                    <v-btn
+                    color="primary"
+                    @click="
+                      $router.push({
+                        name: 'Control',
+                        params: {
+                          key: item.key,
+                        },
+                      })
+                    "
+                  >
+                    Управление
+                  </v-btn>
                     <div v-if="item.timetable" class="mx-2">
                       <v-badge
                         overlap
@@ -65,12 +78,14 @@
                       <v-icon dark> mdi-cog-outline </v-icon>
                     </v-btn>
                   </v-app-bar>
-                  <v-sheet width="100%" height="150">
+                  <v-sheet width="100%" height="120">
                     <v-container
                       ><status
                         :status="item.status"
-                        :statusPv="item.statusPv"
-                        :statusSp="item.statusSp"
+                        :statusPvFirst="item.statusPvFirst"
+                        :statusSpFirst="item.statusSpFirst"
+                        :statusPvSecond="item.statusPvSecond"
+                        :statusSpSecond="item.statusSpSecond"
                         :accident="item.accidentStatus" /></v-container
                   ></v-sheet>
                   <v-sheet width="100%" height="100%">
@@ -79,29 +94,11 @@
                         :id="item.key"
                         :refers="item.key"
                         :data="item.series"
-                        :layout="item.layout"
-                        
- 
+                        :layout="item.layoutLow"
                         :autoResize="true"
                     /></v-container>
                   </v-sheet>
                 </v-card-text>
-                <v-card-actions>
-                  <v-btn
-                    block
-                    color="primary"
-                    @click="
-                      $router.push({
-                        name: 'Control',
-                        params: {
-                          key: item.key,
-                        },
-                      })
-                    "
-                  >
-                    Управление
-                  </v-btn>
-                </v-card-actions>
               </v-card>
               <div v-for="item in department" :key="item.id">
                 <v-dialog
