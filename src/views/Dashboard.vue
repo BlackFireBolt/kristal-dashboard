@@ -1,6 +1,6 @@
 <template>
   <div>
-    <v-expansion-panels multiple v-model="panel">
+    <v-expansion-panels accordion focusable tile multiple v-model="panel">
       <v-expansion-panel v-for="(department, index) in linesList" :key="index">
         <v-expansion-panel-header>
           {{ loadUtils[index].department }} --- {{ loadUtils[index].site }}
