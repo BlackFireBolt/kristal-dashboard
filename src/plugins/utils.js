@@ -65,6 +65,9 @@ export function StatusDecoder(status) {
   if (Number(decoded[16]) || Number(decoded[36])) {
     result = result | 1024;
   }
+  if (Number(decoded[15]) && Number(decoded[35])) {
+    result = result | 2048;
+  }
   return result;
 }
 

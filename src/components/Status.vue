@@ -3,6 +3,12 @@
     <v-chip small class="mb-2 mr-3" color="success" pill v-if="(status & 1) == 1"
       ><v-icon left>mdi-check-decagram</v-icon>Работает</v-chip
     >
+    <v-chip small class="mb-2 mr-3"  pill v-else
+      ><v-icon left>mdi-check-decagram</v-icon>Не работает</v-chip
+    >
+    <v-chip small class="mb-2 mr-3" color="success" pill v-if="(status & 2048) == 2048"
+      ><v-icon left>mdi-check-decagram</v-icon>Включена</v-chip
+    >
     <v-chip small class="mb-2 mr-3" pill v-else
       ><v-icon left>mdi-check-decagram</v-icon>Отключена</v-chip
     >

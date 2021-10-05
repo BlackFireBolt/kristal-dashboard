@@ -4,8 +4,10 @@
       <v-card-title>Линия №{{ lineData.line_id }}</v-card-title>
       <status
         :status="lineData.status"
-        :statusPv="lineData.statusPv"
-        :statusSp="lineData.statusSp"
+        :statusPvFirst="lineData.statusPvFirst"
+        :statusSpFirst="lineData.statusSpFirst"
+        :statusPvSecond="lineData.statusPvSecond"
+        :statusSpSecond="lineData.statusSpSecond"
         :accident="lineData.accidentStatus"
       />
       <v-btn rounded depressed color="indigo" dark @click="$router.push('/')"
