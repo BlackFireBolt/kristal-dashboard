@@ -23,7 +23,7 @@
       color="info"
       pill
       small
-      v-if="(status & 1) == 1 && statusPvFirst"
+      v-if="(status & 2) == 2 && statusPvFirst"
       >А -- {{ statusPvFirst
       }}<span v-if="statusSpFirst">/{{ statusSpFirst }}</span></v-chip
     >
@@ -32,7 +32,7 @@
       color="info"
       pill
       small
-      v-if="(status & 1) == 1 && statusPvSecond"
+      v-if="(status & 2) == 2 && statusPvSecond"
       >Р -- {{ statusPvSecond
       }}<span v-if="statusSpSecond">/{{ statusSpSecond }}</span></v-chip
     ><!-- ------------------------------------------------------ -->
