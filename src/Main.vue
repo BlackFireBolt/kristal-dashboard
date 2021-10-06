@@ -101,10 +101,10 @@ export default {
                         payload[i][j].series[0].y.push(boi["1"]["spd"]);
                       }
                       if (boi["1"]["status-pv"]) {
-                        payload[i][j].statusPv = boi["1"]["status-pv"];
+                        payload[i][j].statusPvFirst = boi["1"]["status-pv"];
                       }
                       if (boi["1"]["status-sp"]) {
-                        payload[i][j].statusSp = boi["1"]["status-sp"];
+                        payload[i][j].statusSpFirst = boi["1"]["status-sp"];
                       }
                       if(boi["1"]["info"]) {
                         payload[i][j].info[0].pdc = boi["1"]["info"].pdc;
@@ -123,6 +123,12 @@ export default {
                         payload[i][j].info[1].pkc = boi["2"]["info"].pkc;
                         payload[i][j].info[1].vlc = boi["2"]["info"].vlc;
                         payload[i][j].info[1].txc = boi["2"]["info"].txc;
+                      }
+                      if (boi["2"]["status-pv"]) {
+                        payload[i][j].statusPvSecond = boi["2"]["status-pv"];
+                      }
+                      if (boi["2"]["status-sp"]) {
+                        payload[i][j].statusSpSecond = boi["2"]["status-sp"];
                       }
                     }
                     if (
