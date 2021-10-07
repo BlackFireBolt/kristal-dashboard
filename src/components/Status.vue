@@ -23,18 +23,18 @@
       color="info"
       pill
       small
-      v-if="(status & 2) == 2 && statusPvFirst"
+      v-if="(status & 2) == 2"
       >А -- {{ statusPvFirst
-      }}<span v-if="statusSpFirst">/{{ statusSpFirst }}</span></v-chip
+      }}<span>/{{ statusSpFirst }}</span></v-chip
     >
     <v-chip
       class="mb-2 mr-3"
       color="info"
       pill
       small
-      v-if="(status & 2) == 2 && statusPvSecond"
+      v-if="(status & 2) == 2"
       >Р -- {{ statusPvSecond
-      }}<span v-if="statusSpSecond">/{{ statusSpSecond }}</span></v-chip
+      }}<span>/{{ statusSpSecond }}</span></v-chip
     ><!-- ------------------------------------------------------ -->
     <v-chip small class="mb-2 mr-3" pill v-if="status == -1"
       ><v-icon left>mdi-wrench</v-icon>Состояние неизвестно</v-chip
