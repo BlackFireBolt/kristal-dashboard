@@ -1,8 +1,8 @@
 <template>
   <div>
-    <v-expansion-panels accordion focusable tile multiple v-model="panel">
+    <v-expansion-panels :readonly="readonly" accordion focusable tile multiple v-model="panel">
       <v-expansion-panel v-for="(department, index) in linesList" :key="index">
-        <v-expansion-panel-header>
+        <v-expansion-panel-header class="body-1">
           {{ loadUtils[index].department }} --- {{ loadUtils[index].site }}
           <template v-slot:actions>
             <v-icon color="primary"> $expand </v-icon>
@@ -24,18 +24,18 @@
                     <v-card-title>Линия №{{ item.line_id }}</v-card-title>
                     <v-spacer></v-spacer>
                     <v-btn
-                    color="primary"
-                    @click="
-                      $router.push({
-                        name: 'Control',
-                        params: {
-                          key: item.key,
-                        },
-                      })
-                    "
-                  >
-                    Управление
-                  </v-btn>
+                      color="primary"
+                      @click="
+                        $router.push({
+                          name: 'Control',
+                          params: {
+                            key: item.key,
+                          },
+                        })
+                      "
+                    >
+                      Управление
+                    </v-btn>
                     <div v-if="item.timetable" class="mx-2">
                       <v-badge
                         overlap
@@ -175,6 +175,7 @@ export default {
       options: {
         responsive: true,
       },
+      readonly: false,
     };
   },
   watch: {
@@ -186,6 +187,9 @@ export default {
     },
   },
   computed: {
+    loadUser() {
+      return this.$store.getters.LOAD_USER;
+    },
     linesList() {
       return this.$store.getters.LOAD_LINES;
     },
@@ -197,7 +201,12 @@ export default {
     },
   },
   created() {
-    this.panel = JSON.parse(this.$cookie.get("panel"));
+    if (this.loadUser.channels.length == 1) {
+      this.panel = [0];
+      this.readonly = true;
+    } else {
+      this.panel = JSON.parse(this.$cookie.get("panel"));
+    }
   },
 };
 </script>

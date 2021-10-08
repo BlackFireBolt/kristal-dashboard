@@ -18,6 +18,21 @@ const dataState = createPersistedState({
   },
 });
 
+const getDefaultState = () => {
+  return {
+    loader: true,
+    load_data: [],
+    drawer: false,
+    lines: [],
+    utils: [],
+    user: {},
+    tokenJWT: "",
+    pdc_variants: [],
+    pkc_variants: [],
+    vlc_variants: [],
+  };
+};
+
 export const store = new vuex.Store({
   state: {
     loader: true,
@@ -85,6 +100,9 @@ export const store = new vuex.Store({
           }
         }
       }
+    },
+    RESET_STATE: (state) => {
+      Object.assign(state, getDefaultState());
     },
   },
   getters: {
@@ -236,15 +254,18 @@ export const store = new vuex.Store({
                 },
               ]
             : null,
-          hw_events: [plan[i].boi
-            ? plan[i].boi["1"].hw_events
+          hw_events: [
+            plan[i].boi
               ? plan[i].boi["1"].hw_events
-              : null
-            : null, plan[i].boi
-            ? plan[i].boi["2"].hw_events
+                ? plan[i].boi["1"].hw_events
+                : null
+              : null,
+            plan[i].boi
               ? plan[i].boi["2"].hw_events
-              : null
-            : null],
+                ? plan[i].boi["2"].hw_events
+                : null
+              : null,
+          ],
           layout: {
             autosize: true,
             showlegend: false,
@@ -464,18 +485,17 @@ export const store = new vuex.Store({
       form.append("username", payload.username);
       form.append("password", payload.password);
       await axios
-        .post(
-          "http://auth.vmvisioprom.kristal.local/api/security/login",
-          form,
-          {
-            headers: {
-              "Content-Type": "application/x-www-form-urlencoded",
-            },
-          }
-        )
+        .post("http://auth.vmvisioprom.kristal.local/api/security/login", form, {
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+          },
+        })
         .then((response) => {
           payload.name = response.data.name;
-          payload.channels = response.data.channels;
+          payload.role_name = response.data.role_name;
+          payload.channels = response.data.role_channels;
+          payload.rights = response.data.role_rights;
+          payload.superuser = response.data.superuser;
           context.commit("SET_USER", payload);
           context.commit("SET_TOKEN", { token: response.data.access_token });
         })
@@ -489,7 +509,7 @@ export const store = new vuex.Store({
         });
     },
     LOGOUT: (context) => {
-      context.commit("LOGOUT");
+      context.commit("RESET_STATE");
     },
   },
   plugins: [dataState],

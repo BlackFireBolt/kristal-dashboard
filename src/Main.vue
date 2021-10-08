@@ -47,11 +47,16 @@ export default {
     this.$store.commit("SET_LOADER", true);
   },
   mounted() {
-    let channels_temp = ["c1_s1", "c2_s2", "c2_s3"];
-    for (let i = 0; i < channels_temp.length; i++) {
-      this.$store.dispatch("GET_LOAD_DATA", channels_temp[i]).then(() => {
+    var channels = []
+    if (this.$store.getters.LOAD_USER.superuser){
+      channels = ["c1_s1", "c2_s2", "c2_s3"];
+    } else {
+      channels = this.$store.getters.LOAD_USER.channels
+    }
+    for (let i = 0; i < channels.length; i++) {
+      this.$store.dispatch("GET_LOAD_DATA", channels[i]).then(() => {
         let server_side = new EventSource(
-          "http://attp.kristal.local:5000/stream?chan=" + channels_temp[i] // check bad data?s
+          "http://attp.kristal.local:5000/stream?chan=" + channels[i] // check bad data?s
         );
         server_side.addEventListener(
           "control",
@@ -183,7 +188,7 @@ export default {
           this.$notify({
             title: "Уведомление",
             type: "success",
-            text: `Соединение установлено (${channels_temp[i]})!`,
+            text: `Соединение установлено (${channels[i]})!`,
           });
           this.status = "Сервер на связи";
           this.statusColor = "green--text";
@@ -193,7 +198,7 @@ export default {
           this.$notify({
             title: "Уведомление",
             type: "error",
-            text: `Соединение с сервером закрыто (${channels_temp[i]})!`,
+            text: `Соединение с сервером закрыто (${channels[i]})!`,
           });
           this.status = "Соединение с сервером закрыто";
           this.statusColor = "red--text";
@@ -210,7 +215,7 @@ export default {
             type: "error",
             text: "Ошибка соединения!",
           });
-          this.status = `Связь с сервером отсутствует (${channels_temp[i]})`;
+          this.status = `Связь с сервером отсутствует (${channels[i]})`;
           this.statusColor = "red--text";
         };
         this.$store.commit("SET_LOADER", false);
