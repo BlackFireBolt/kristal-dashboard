@@ -341,8 +341,27 @@
             <p>Количество бутылок в текущем задании: {{ lineData.statusPv }}</p>
             </v-col>
             <v-col cols="12" md="6" sm="12" xs="12">
-              <div v-if="lineData.info">
-             <p>Информация с счетчиков:</p>
+              <v-dialog
+      v-model="dialogInfo"
+      width="500"
+    >
+      <template v-slot:activator="{ on, attrs }">
+        <v-btn
+          color="red lighten-2"
+          dark
+          v-bind="attrs"
+          v-on="on"
+        >
+          Информация с счетчиков
+        </v-btn>
+      </template>
+
+      <v-card>
+        <v-card-title class="text-h5 grey lighten-2">
+          Информация с счетчиков
+        </v-card-title>
+
+        <v-card-text><div v-if="lineData.info">
               <div class="overline mb-4">Счетчик {{ lineData.info[0].bid }}, акцизный</div>
               <v-simple-table dense v-if="lineData.info[0].info">
                 <template v-slot:default>
@@ -405,7 +424,25 @@
               <p v-else>Нет данных</p>
               </div>
             <p v-else >Нет данных со счетчиков</p>
+            <v-divider class="my-9"></v-divider>
             <div>{{lineData.hw_events}}</div>
+        </v-card-text>
+
+        <v-divider></v-divider>
+
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn
+            color="primary"
+            text
+            @click="dialogInfo = false"
+          >
+            Закрыть
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+              
             </v-col>
             </v-row>
           </v-card-text>
@@ -485,6 +522,7 @@ export default {
   components: { Status, Accidents, VuePlotly },
   data() {
     return {
+      dialogInfo: false,
       taxAdd: false,
       vlc: null,
       pdc: null,

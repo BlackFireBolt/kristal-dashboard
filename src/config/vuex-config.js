@@ -216,33 +216,34 @@ export const store = new vuex.Store({
             },
           ],
           info: plan[i].boi
-          ? [
-            {
-              bid: plan[i].boi["1"]
-                  ? plan[i].boi["1"].bid
-                  : null
-                ,
-              info: plan[i].boi["1"]
-                  ? plan[i].boi["1"].info
+            ? [
+                {
+                  bid: plan[i].boi["1"] ? plan[i].boi["1"].bid : null,
+                  info: plan[i].boi["1"]
                     ? plan[i].boi["1"].info
-                    : null
-                  : null
-                ,
-            },
-            {
-              bid:  plan[i].boi["2"]
-                  ? plan[i].boi["2"].bid
-                  : null
-                ,
-              info: plan[i].boi["2"]
-                  ? plan[i].boi["2"].info
+                      ? plan[i].boi["1"].info
+                      : null
+                    : null,
+                },
+                {
+                  bid: plan[i].boi["2"] ? plan[i].boi["2"].bid : null,
+                  info: plan[i].boi["2"]
                     ? plan[i].boi["2"].info
-                    : null
-                  : null
-                ,
-            },
-          ] : null,
-          hw_events:plan[i].boi ? plan[i].boi["1"].hw_events ? plan[i].boi["1"].hw_events : null : null,
+                      ? plan[i].boi["2"].info
+                      : null
+                    : null,
+                },
+              ]
+            : null,
+          hw_events: [plan[i].boi
+            ? plan[i].boi["1"].hw_events
+              ? plan[i].boi["1"].hw_events
+              : null
+            : null, plan[i].boi
+            ? plan[i].boi["2"].hw_events
+              ? plan[i].boi["2"].hw_events
+              : null
+            : null],
           layout: {
             autosize: true,
             showlegend: false,
@@ -459,9 +460,15 @@ export const store = new vuex.Store({
     },
     LOGIN: async (context, payload) => {
       await axios
-        .post("http://172.17.1.160:5050/login", payload, {
-          headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        })
+        .post(
+          "http://172.17.1.160:5050/login",
+          { username: payload.username, password: payload.password },
+          {
+            headers: {
+              "Content-Type": "application/x-www-form-urlencoded",
+            },
+          }
+        )
         .then((response) => {
           payload.name = response.data.name;
           payload.channels = response.data.channels;
