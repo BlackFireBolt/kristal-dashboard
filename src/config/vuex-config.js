@@ -477,7 +477,7 @@ export const store = new vuex.Store({
           payload.name = response.data.name;
           payload.channels = response.data.channels;
           context.commit("SET_USER", payload);
-          context.commit("SET_TOKEN", { token: response.data.token });
+          context.commit("SET_TOKEN", { token: response.data.access_token });
         })
         .catch((error) => {
           Vue.notify({
