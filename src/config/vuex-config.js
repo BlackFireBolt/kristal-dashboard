@@ -5,6 +5,7 @@ import { TokenValidation } from "../plugins/utils.js";
 import { StatusDecoder } from "../plugins/utils.js";
 import { AccidentStatus } from "../plugins/utils.js";
 import createPersistedState from "vuex-persistedstate";
+import FormData from "form-data";
 
 Vue.use(vuex);
 
@@ -459,10 +460,13 @@ export const store = new vuex.Store({
       context.commit("UPDATE_LINES", lines);
     },
     LOGIN: async (context, payload) => {
+      let form = new FormData();
+      form.append("username", payload.username);
+      form.append("password", payload.password);
       await axios
         .post(
-          "http://172.17.1.160:5050/login",
-          { username: payload.username, password: payload.password },
+          "http://auth.vmvisioprom.kristal.local/api/security/login",
+          form,
           {
             headers: {
               "Content-Type": "application/x-www-form-urlencoded",
