@@ -89,14 +89,13 @@
                         :accident="item.accidentStatus" /></v-container
                   ></v-sheet>
                   <v-sheet width="100%" height="100%">
-                    <v-container>
                       <vue-plotly
                         :id="item.key"
                         :refers="item.key"
                         :data="item.series"
                         :layout="item.layoutLow"
                         :autoResize="true"
-                    /></v-container>
+                    />
                   </v-sheet>
                 </v-card-text>
               </v-card>

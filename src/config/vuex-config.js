@@ -313,10 +313,10 @@ export const store = new vuex.Store({
           dialogAccidents: false,
           accidents: accidents,
           accidentStatus: AccidentStatus(accidents),
-          statusPvFirst: plan[i].boi ? plan[i].boi["1"]["status-pv"] : 0,
-          statusSpFirst: plan[i].boi ? plan[i].boi["1"]["status-sp"] : 0,
-          statusPvSecond: plan[i].boi ? plan[i].boi["2"]["status-pv"] : 0,
-          statusSpSecond: plan[i].boi ? plan[i].boi["2"]["status-sp"] : 0,
+          statusPvFirst: plan[i].boi ? plan[i].boi["1"]["status-pv"] ? plan[i].boi["1"]["status-pv"] : 0 : 0,
+          statusSpFirst: plan[i].boi ? plan[i].boi["1"]["status-sp"] ? plan[i].boi["1"]["status-sp"] : 0 : 0,
+          statusPvSecond: plan[i].boi ? plan[i].boi["2"]["status-pv"] ? plan[i].boi["2"]["status-pv"] : 0 : 0,
+          statusSpSecond: plan[i].boi ? plan[i].boi["2"]["status-sp"] ? plan[i].boi["2"]["status-sp"] : 0 : 0,
         };
         if (plan[i].plan) {
           line_object.timetable = plan[i].plan.timetable;
