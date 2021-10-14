@@ -57,33 +57,6 @@
                       v-if="taskSelect && !taxAdd"
                     >
                     </v-select>
-                    <!--
-                      <div class="headline pa-5">Ввод акцизной марки</div>
-                      <v-row>
-                        <v-col cols="12" md="6">
-                          <v-text-field
-                            v-model="tax_s"
-                            :rules="rules"
-                            required
-                            label="Начальное значение"
-                          ></v-text-field>
-                        </v-col>
-                        <v-col cols="12" md="6">
-                          <v-text-field
-                            :rules="rules"
-                            v-model="tax_f"
-                            required
-                            label="Конечное значение"
-                          ></v-text-field>
-                        </v-col>
-                      </v-row>
-                      <v-text-field
-                        :rules="rules"
-                        v-model="tax"
-                        required
-                        label="Серия"
-                      ></v-text-field>
-                    </div>-->
                     <v-data-table
                       :headers="headers"
                       :items="values"
@@ -217,7 +190,9 @@
                     </p>
                     <v-select
                       v-model="taxType"
-                      :items="taxTypes"
+                      :items="txcVariants"
+                      item-text="value"
+                      item-value="key"
                       label="Вид акцизной марки"
                       data-vv-name="Вид акцизной марки"
                       v-if="!exportParameter && !taxAdd"
@@ -272,7 +247,7 @@
                     color="success"
                     x-large
                     v-if="!taxAdd"
-                    @click="sendTaskButton"
+                    @click.stop="loginCheck(1)"
                     :disabled="
                       maintainance
                         ? vlc === null || pdc === null || pkc === null
@@ -295,7 +270,7 @@
                     color="primary"
                     x-large
                     v-else
-                    @click="sendTaxButton"
+                    @click.stop="loginCheck(2)"
                     :disabled="values.length === 0 ? true : false"
                     >Добавить акциз</v-btn
                   >
@@ -310,7 +285,7 @@
             class="my-5"
             color="success"
             x-large
-            @click="startButton"
+            @click.stop="loginCheck(3)"
             :disabled="lineData.status === -1"
             >Старт линии</v-btn
           >
@@ -320,130 +295,232 @@
             color="error"
             class="my-5"
             x-large
-            @click="stopButton"
+            @click.stop="loginCheck(4)"
             >Остановка линии</v-btn
           >
-          <v-btn block elevation="2" class="my-5" large @click="dataEraseButton"
-            >Сброс данных</v-btn
+          <v-btn
+            block
+            elevation="2"
+            class="my-5"
+            large
+            @click.stop="loginCheck(5)"
           >
-          <v-btn block elevation="2" class="my-5" large disabled
-            >Выгрузка данных</v-btn
-          ></v-col
-        >
+            Сброс данных
+          </v-btn>
+          <v-btn block elevation="2" class="my-5" large disabled>
+            Выгрузка данных
+          </v-btn>
+          <v-dialog v-model="dialogPIN" max-width="290">
+            <v-card>
+              <v-card-title class="text-h5"> Введите ПИН-код </v-card-title>
+
+              <v-card-text>
+                <div class="numpad">
+                  <v-text-field
+                    v-model="numpad.pin"
+                    type="number"
+                    placeholder="0"
+                    clearable
+                    :counter="numpad.limit"
+                  >
+                  </v-text-field>
+                  <v-row
+                    class="flex-nowrap justify-between"
+                    v-for="(r, rix) in 3"
+                    v-bind:key="r"
+                  >
+                    <v-col v-for="(c, cix) in 3" v-bind:key="c">
+                      <v-btn dark @click="add(numpad.numbers[rix][cix])">
+                        {{ numpad.numbers[rix][cix] }}
+                      </v-btn>
+                    </v-col>
+                  </v-row>
+                  <v-row>
+                    <v-col>
+                      <v-btn dark block @click="add(0)"> 0 </v-btn>
+                    </v-col>
+                  </v-row>
+                </div>
+              </v-card-text>
+
+              <v-card-actions>
+                <v-spacer></v-spacer>
+                <v-btn color="green darken-1" dark @click="securityCheck">
+                  Ввод
+                </v-btn>
+                <v-btn color="green darken-1" text @click="dialogPIN = false">
+                  Отмена
+                </v-btn>
+              </v-card-actions>
+            </v-card>
+          </v-dialog>
+          <v-dialog v-model="dialogLogin" max-width="500" persistent>
+            <v-card>
+              <v-card-title class="text-h5">
+                Требуется авторизация
+              </v-card-title>
+
+              <v-form
+                ref="form_auth"
+                lazy-validation
+                v-model="form.validate"
+                @submit.prevent="submit"
+                v-on:keyup.enter="submit"
+              >
+                <v-card-text>
+                  <v-text-field
+                    prepend-icon="mdi-account"
+                    name="username"
+                    label="Логин"
+                    type="text"
+                    :rules="form.usernameRules"
+                    v-model="form.username"
+                  ></v-text-field>
+                  <v-text-field
+                    id="password"
+                    prepend-icon="mdi-lock"
+                    name="password"
+                    label="Пароль"
+                    type="password"
+                    :rules="form.passwordRules"
+                    v-model="form.password"
+                  ></v-text-field>
+                </v-card-text>
+
+                <v-card-actions>
+                  <v-spacer></v-spacer>
+                  <v-btn type="submit" color="primary darken-1" dark>
+                    Ввод
+                  </v-btn>
+                  <v-btn
+                    color="green darken-1"
+                    text
+                    @click="dialogLogin = false"
+                  >
+                    Отмена
+                  </v-btn>
+                </v-card-actions></v-form
+              >
+            </v-card>
+          </v-dialog>
+        </v-col>
         <v-col cols="12" sm="12" md="7" xs="12" order-md="first">
           <v-card-text>
             <v-row>
               <v-col cols="12" md="6" sm="12" xs="12">
-            <p v-if="lineData.timetable">
-              Количество заданий: {{ lineData.timetable.length }}
-            </p>
-            <p v-else>Нет заданий</p>
-            <p>Количество бутылок в текущем задании: {{ lineData.statusPv }}</p>
-            </v-col>
-            <v-col cols="12" md="6" sm="12" xs="12">
-              <v-dialog
-      v-model="dialogInfo"
-      width="500"
-    >
-      <template v-slot:activator="{ on, attrs }">
-        <v-btn
-          color="red lighten-2"
-          dark
-          v-bind="attrs"
-          v-on="on"
-        >
-          Информация с счетчиков
-        </v-btn>
-      </template>
-
-      <v-card>
-        <v-card-title class="text-h5 grey lighten-2">
-          Информация с счетчиков
-        </v-card-title>
-
-        <v-card-text><div v-if="lineData.info">
-              <div class="overline mb-4">Счетчик {{ lineData.info[0].bid }}, акцизный</div>
-              <v-simple-table dense v-if="lineData.info[0].info">
-                <template v-slot:default>
-                    <thead>
-                      <tr>
-                        <th class="text-left">Название параметра</th>
-                        <th class="text-left">Значение</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr>
-                        <td>Продукция</td>
-                        <td>{{ lineData.info[0].info.pdc }}</td>
-                      </tr>
-                      <tr>
-                        <td>Тара (код)</td>
-                        <td>{{ lineData.info[0].info.pkc }}</td>
-                      </tr>
-                      <tr>
-                        <td>Акциз</td>
-                        <td>{{ lineData.info[0].info.tax }}</td>
-                      </tr>
-                      <tr>
-                        <td>Объем (код)</td>
-                        <td>{{ lineData.info[0].info.vlc }}</td>
-                      </tr>
-                    </tbody>
+                <p v-if="lineData.timetable">
+                  Количество заданий: {{ lineData.timetable.length }}
+                </p>
+                <p v-else>Нет заданий</p>
+                <p>
+                  Количество бутылок в текущем задании: {{ lineData.statusPv }}
+                </p>
+              </v-col>
+              <v-col cols="12" md="6" sm="12" xs="12" class="text-right">
+                <v-dialog v-model="dialogInfo" width="500">
+                  <template v-slot:activator="{ on, attrs }">
+                    <v-btn color="red lighten-2" dark v-bind="attrs" v-on="on">
+                      Информация с счетчиков
+                    </v-btn>
                   </template>
-              </v-simple-table>
-              <p v-else>Нет данных</p>
-              <div class="overline mb-4">Счетчик {{ lineData.info[1].bid }}, разливной</div>
-              <v-simple-table dense v-if="lineData.info[1].info">
-                <template v-slot:default>
-                    <thead>
-                      <tr>
-                        <th class="text-left">Название параметра</th>
-                        <th class="text-left">Значение</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr>
-                        <td>Продукция</td>
-                        <td>{{ lineData.info[1].info.pdc }}</td>
-                      </tr>
-                      <tr>
-                        <td>Тара (код)</td>
-                        <td>{{ lineData.info[1].info.pkc }}</td>
-                      </tr>
-                      <tr>
-                        <td>Акциз</td>
-                        <td>{{ lineData.info[1].info.tax }}</td>
-                      </tr>
-                      <tr>
-                        <td>Объем (код)</td>
-                        <td>{{ lineData.info[1].info.vlc }}</td>
-                      </tr>
-                    </tbody>
-                  </template>
-              </v-simple-table>
-              <p v-else>Нет данных</p>
-              </div>
-            <p v-else >Нет данных со счетчиков</p>
-            <v-divider class="my-9"></v-divider>
-            <div>{{lineData.hw_events}}</div>
-        </v-card-text>
 
-        <v-divider></v-divider>
+                  <v-card>
+                    <v-card-title class="text-h5 grey lighten-2">
+                      Информация с счетчиков
+                    </v-card-title>
 
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn
-            color="primary"
-            text
-            @click="dialogInfo = false"
-          >
-            Закрыть
-          </v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
-              
-            </v-col>
+                    <v-card-text
+                      ><div v-if="lineData.info">
+                        <div class="overline mb-4">
+                          Счетчик {{ lineData.info[0].bid }}, акцизный
+                        </div>
+                        <v-simple-table dense v-if="lineData.info[0].info">
+                          <template v-slot:default>
+                            <thead>
+                              <tr>
+                                <th class="text-left">Название параметра</th>
+                                <th class="text-left">Значение</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              <tr>
+                                <td>Продукция</td>
+                                <td>{{ lineData.info[0].info.pdc }}</td>
+                              </tr>
+                              <tr>
+                                <td>Тара (код)</td>
+                                <td>{{ lineData.info[0].info.pkc }}</td>
+                              </tr>
+                              <tr>
+                                <td>Акциз</td>
+                                <td>{{ lineData.info[0].info.tax }}</td>
+                              </tr>
+                              <tr>
+                                <td>Объем (код)</td>
+                                <td>{{ lineData.info[0].info.vlc }}</td>
+                              </tr>
+                            </tbody>
+                          </template>
+                        </v-simple-table>
+                        <p v-else>Нет данных</p>
+                        <div class="overline mb-4">
+                          Счетчик {{ lineData.info[1].bid }}, разливной
+                        </div>
+                        <v-simple-table dense v-if="lineData.info[1].info">
+                          <template v-slot:default>
+                            <thead>
+                              <tr>
+                                <th class="text-left">Название параметра</th>
+                                <th class="text-left">Значение</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              <tr>
+                                <td>Продукция</td>
+                                <td>{{ lineData.info[1].info.pdc }}</td>
+                              </tr>
+                              <tr>
+                                <td>Тара (код)</td>
+                                <td>{{ lineData.info[1].info.pkc }}</td>
+                              </tr>
+                              <tr>
+                                <td>Акциз</td>
+                                <td>{{ lineData.info[1].info.tax }}</td>
+                              </tr>
+                              <tr>
+                                <td>Объем (код)</td>
+                                <td>{{ lineData.info[1].info.vlc }}</td>
+                              </tr>
+                            </tbody>
+                          </template>
+                        </v-simple-table>
+                        <p v-else>Нет данных</p>
+                      </div>
+                      <p v-else>Нет данных со счетчиков</p>
+                      <v-divider class="my-9"></v-divider>
+                      <div>{{ lineData.hw_events }}</div>
+                    </v-card-text>
+
+                    <v-divider></v-divider>
+
+                    <v-card-actions>
+                      <v-spacer></v-spacer>
+                      <v-btn color="primary" text @click="dialogInfo = false">
+                        Закрыть
+                      </v-btn>
+                    </v-card-actions>
+                  </v-card>
+                </v-dialog>
+                <v-btn
+                  class="ml-4"
+                  color="green lighten-2"
+                  dark
+                  href="http://attp:5000/loglog"
+                  target="_blank"
+                >
+                  ЛОГ
+                </v-btn>
+              </v-col>
             </v-row>
           </v-card-text>
           <v-divider></v-divider>
@@ -516,31 +593,38 @@ import FormData from "form-data";
 import Status from "../components/Status.vue";
 import Accidents from "../components/Accidents.vue";
 import VuePlotly from "@statnett/vue-plotly";
+import { TokenValidation } from "../plugins/utils.js";
 
 export default {
   name: "Control",
   components: { Status, Accidents, VuePlotly },
   data() {
     return {
+      form: {
+        validate: false,
+        username: "",
+        password: "",
+        usernameRules: [(value) => !!value || "Введите значение."],
+        passwordRules: [(value) => !!value || "Введите значение."],
+      },
+      task: null,
+      numpad: {
+        limit: 6,
+        pin: "",
+        numbers: [
+          [1, 2, 3],
+          [4, 5, 6],
+          [7, 8, 9],
+        ],
+      },
+      dialogLogin: false,
+      dialogPIN: false,
       dialogInfo: false,
       taxAdd: false,
       vlc: null,
       pdc: null,
       pkc: null,
       taxType: null,
-      taxTypes: [
-        "552 ЛВ 16Х90",
-        "501 ЛВ 16Х90",
-        "507 ЛВ 16Х65",
-        "572 КВ 16Х90 0,5",
-        "502 ЛВ 16Х160",
-        "511 КВ 16Х90",
-        "Акц.м.16*65ЛВИ",
-        "503 ЛВ 20Х160",
-        "514 КВ 16Х65",
-        "16*160 1 и более",
-        "504 ЛВ 16Х90",
-      ],
       dialogAdd: false,
       dialogDelete: false,
       editedItem: {
@@ -601,6 +685,9 @@ export default {
     };
   },
   computed: {
+    loadUser() {
+      return this.$store.getters.LOAD_USER;
+    },
     taxSum() {
       let result = 0;
       for (let i = 0; i < this.values.length; i++) {
@@ -621,6 +708,9 @@ export default {
     },
     pdcVariants() {
       return this.$store.getters.LOAD_PDC_VARIANTS;
+    },
+    txcVariants() {
+      return this.$store.getters.LOAD_TXC_VARIANTS;
     },
     lineData() {
       let key = this.$route.params.key;
@@ -646,7 +736,8 @@ export default {
       if (lines.timetable) {
         for (let i = 0; i < lines.timetable.length; i++) {
           timetable.push({
-            product: lines.timetable[i].product + ' --- ' + lines.timetable[i].packing,
+            product:
+              lines.timetable[i].product + " --- " + lines.timetable[i].packing,
             gid: lines.timetable[i].gid,
           });
         }
@@ -682,8 +773,208 @@ export default {
     tax: function () {
       this.validateField();
     },
+    username: function () {
+      this.validateFieldAuth();
+    },
+    password: function () {
+      this.validateFieldAuth();
+    },
   },
   methods: {
+    async sendCommand(form, success, error, journal) {
+      await axios
+        .post("http://attp.kristal.local:5000/vue", form, {
+          headers: { "Content-Type": "multipart/form-data" },
+          timeout: 1000 * 5,
+        })
+        .then(() => {
+          axios.post(
+            "http://auth.vmvisioprom.kristal.local/api/log/",
+            journal,
+            { header: { "Content-type": "application/json" } }
+          );
+          this.$notify({
+            title: "Уведомление",
+            type: "success",
+            text: success,
+          });
+        })
+        .catch(() => {
+          journal.description = journal.description + " ERROR";
+          axios.post(
+            "http://auth.vmvisioprom.kristal.local/api/log/",
+            journal,
+            { header: { "Content-type": "application/json" } }
+          );
+          this.$notify({
+            title: "Уведомление",
+            type: "error",
+            text: error,
+          });
+        });
+    },
+    validateFieldAuth() {
+      this.$refs.form_auth.validate();
+    },
+    async submit() {
+      this.validateFieldAuth();
+      await this.$store
+        .dispatch("LOGIN", {
+          username: this.form.username,
+          password: this.form.password,
+        })
+        .then(() => {
+          this.form.username = "";
+          this.form.password = "";
+          this.loginCheck();
+        });
+    },
+    loginCheck(task) {
+      this.task = task;
+      if (!TokenValidation(this.$store.getters.LOAD_TOKEN)) {
+        this.dialogLogin = true;
+        this.dialogPIN = false;
+      } else {
+        this.dialogLogin = false;
+        this.dialogPIN = true;
+      }
+    },
+    async securityCheck() {
+      this.loginCheck(this.task);
+      await axios
+        .get(
+          "http://auth.vmvisioprom.kristal.local/api/security/security_check/",
+          {
+            headers: {
+              Authorization: "Bearer " + this.$store.getters.LOAD_TOKEN,
+            },
+            params: { pin_code: this.numpad.pin },
+          }
+        )
+        .then(() => {
+          var form = new FormData();
+          switch (this.task) {
+            case 1:
+              form.append("redkey", this.$route.params.key);
+              form.append("req_action", "set_data");
+              form.append("gid", this.maintainance ? 0 : this.gid);
+              form.append("vlc", this.vlc);
+              form.append("pdc", this.pdc);
+              form.append("pkc", this.pkc);
+              form.append("cnt", this.exportParameter ? this.tax : this.taxSum);
+              form.append("txc", this.taxType);
+              form.append("tax", JSON.stringify(this.transformTax()));
+              this.sendCommand(
+                form,
+                "Задание отправлено на счетчики.",
+                "Ошибка ввода задания. Повторите ввод!",
+                {
+                  user: this.loadUser.name,
+                  description:
+                    this.$route.params.key +
+                    " set_data, gid: " +
+                    this.maintainance
+                      ? 0
+                      : this.gid +
+                        " tax: " +
+                        JSON.stringify(this.transformTax()),
+                }
+              );
+              break;
+            case 2:
+              form.append("redkey", this.$route.params.key);
+              form.append("req_action", "alter_tax");
+              form.append("tax", JSON.stringify(this.transformTax()));
+              form.append("cnt", this.taxSum);
+              this.sendCommand(
+                form,
+                "Отправлено обновление акцизных марок.",
+                "Ошибка ввода акцизных марок. Повторите ввод!",
+                {
+                  user: this.loadUser.name,
+                  description:
+                    this.$route.params.key +
+                    " alter_tax tax: " +
+                    JSON.stringify(this.transformTax()) +
+                    " " +
+                    this.taxSum,
+                }
+              );
+              break;
+            case 3:
+              form.append("redkey", this.$route.params.key);
+              form.append("req_action", "job_start");
+              this.sendCommand(
+                form,
+                "Отправлена команда запуска линии.",
+                "Ошибка отправки команды запуска. Попробуйте снова!",
+                {
+                  user: this.loadUser.name,
+                  description: this.$route.params.key + " job_start",
+                }
+              );
+              break;
+            case 4:
+              form.append("redkey", this.$route.params.key);
+              form.append("req_action", "job_stop");
+              this.sendCommand(
+                form,
+                "Отправлена команда остановки линии.",
+                "Ошибка отправки команды остановки. Попробуйте снова!",
+                {
+                  user: this.loadUser.name,
+                  description: this.$route.params.key + " job_stop",
+                }
+              );
+              break;
+            case 5:
+              form.append("redkey", this.$route.params.key);
+              form.append("req_action", "job_cancel");
+              this.sendCommand(
+                form,
+                "Отправлена команда очистки задания.",
+                "Ошибка отправки команды очистки задания. Попробуйте снова!",
+                {
+                  user: this.loadUser.name,
+                  description: this.$route.params.key + " job_cancel",
+                }
+              );
+              break;
+            default:
+              this.$notify({
+                title: "Уведомление",
+                type: "error",
+                text: "Ошибка отправки команды. Попробуйте снова!",
+              });
+              console.log("error");
+          }
+        })
+        .catch((error) => {
+          axios.post(
+            "http://auth.vmvisioprom.kristal.local/api/log/",
+            {
+              user: this.loadUser.name,
+              description: "SECURITY ERROR WHILE SENDING COMMAND",
+            },
+            { header: { "Content-type": "application/json" } }
+          );
+          console.log(error);
+          this.$notify({
+            title: "Уведомление",
+            type: "error",
+            text: "Ошибка безопасности!",
+          });
+        });
+      this.numpad.pin = 0;
+      this.dialogPIN = false;
+    },
+    add(digit) {
+      if (this.numpad.pin && this.numpad.pin.length < this.numpad.limit) {
+        this.numpad.pin = this.numpad.pin.toString() + digit;
+      } else {
+        this.numpad.pin = digit.toString();
+      }
+    },
     editItem(item) {
       this.editedIndex = this.values.indexOf(item);
       this.editedItem = Object.assign({}, item);
@@ -755,152 +1046,36 @@ export default {
       }
       return tax;
     },
-    sendTaskButton: function () {
-      let form = new FormData();
-      form.append("redkey", this.$route.params.key);
-      form.append("req_action", "set_data");
-      form.append("gid", this.maintainance ? 0 : this.gid);
-      form.append("vlc", this.vlc);
-      form.append("pdc", this.pdc);
-      form.append("pkc", this.pkc);
-      form.append("cnt", this.exportParameter ? this.tax : this.taxSum);
-      form.append("txc", this.taxType);
-      form.append("tax", JSON.stringify(this.transformTax()));
-      axios
-        .post("http://attp.kristal.local:5000/vue", form, {
-          headers: { "Content-Type": "multipart/form-data" },
-        })
-        .then(() => {
-          this.$notify({
-            title: "Уведомление",
-            type: "success",
-            text: "Задание отправлено на счетчики.",
-          });
-        })
-        .catch(() => {
-          this.$notify({
-            title: "Уведомление",
-            type: "error",
-            text: "Ошибка ввода задания. Повторите ввод!",
-          });
-        });
-    },
-    sendTaxButton: function () {
-      let form = new FormData();
-      form.append("redkey", this.$route.params.key);
-      form.append("req_action", "alter_tax");
-      form.append("tax", JSON.stringify(this.transformTax()));
-      form.append("cnt", this.taxSum);
-      axios
-        .post("http://attp.kristal.local:5000/vue", form, {
-          headers: { "Content-Type": "multipart/form-data" },
-        })
-        .then(() => {
-          this.$notify({
-            title: "Уведомление",
-            type: "success",
-            text: "Отправлена команда запуска линии.",
-          });
-        })
-        .catch(() => {
-          this.$notify({
-            title: "Уведомление",
-            type: "error",
-            text: "Ошибка отправки команды запуска. Попробуйте снова!",
-          });
-        });
-    },
-    startButton: function () {
-      let form = new FormData();
-      form.append("redkey", this.$route.params.key);
-      form.append("req_action", "job_start");
-      axios
-        .post("http://attp.kristal.local:5000/vue", form, {
-          headers: { "Content-Type": "multipart/form-data" },
-        })
-        .then(() => {
-          this.$notify({
-            title: "Уведомление",
-            type: "success",
-            text: "Отправлена команда запуска линии.",
-          });
-        })
-        .catch(() => {
-          this.$notify({
-            title: "Уведомление",
-            type: "error",
-            text: "Ошибка отправки команды запуска. Попробуйте снова!",
-          });
-        });
-    },
-    stopButton: function () {
-      let form = new FormData();
-      form.append("redkey", this.$route.params.key);
-      form.append("req_action", "job_stop");
-      axios
-        .post("http://attp.kristal.local:5000/vue", form, {
-          headers: { "Content-Type": "multipart/form-data" },
-        })
-        .then(() => {
-          this.$notify({
-            title: "Уведомление",
-            type: "success",
-            text: "Отправлена команда остановки линии.",
-          });
-        })
-        .catch(() => {
-          this.$notify({
-            title: "Уведомление",
-            type: "error",
-            text: "Ошибка отправки команды остановки. Попробуйте снова!",
-          });
-        });
-    },
-    dataEraseButton: function () {
-      let form = new FormData();
-      form.append("redkey", this.$route.params.key);
-      form.append("req_action", "job_cancel");
-      axios
-        .post("http://attp.kristal.local:5000/vue", form, {
-          headers: { "Content-Type": "multipart/form-data" },
-        })
-        .then(() => {
-          this.$notify({
-            title: "Уведомление",
-            type: "success",
-            text: "Отправлена команда запуска линии.",
-          });
-        })
-        .catch(() => {
-          this.$notify({
-            title: "Уведомление",
-            type: "error",
-            text: "Ошибка отправки команды запуска. Попробуйте снова!",
-          });
-        });
-    },
   },
   mounted() {
     axios
-      .get("http://attp.kristal.local:5000/chart?c=" + this.$route.params.key.slice(0, 5) +"&a=1", {
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      })
+      .get(
+        "http://attp.kristal.local:5000/chart?c=" +
+          this.$route.params.key.slice(0, 5) +
+          "&a=15",
+        {
+          headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        }
+      )
       .then((response) => {
         let keys = Object.keys(response.data.lines);
         let plots = Object.values(response.data.lines);
+        console.log(keys);
+        console.log(plots);
         for (let i = 0; i < keys.length; i++) {
           if (this.$route.params.key === keys[i]) {
+            console.log("suc");
             if (plots[i].plot["1"]) {
-              for (let k = 0; k < plots[i].plot["1"].length; k++) {
-                this.series[0].x.push(plots[i].plot["1"][k][0]);
-                this.series[0].y.push(plots[i].plot["1"][k][1]);
-              }
+              console.log("ces");
+
+              this.series[0].x = plots[i].plot["1"][0];
+              this.series[0].y = plots[i].plot["1"][1];
+
+              console.log(this.series[0]);
             }
             if (plots[i].plot["2"]) {
-              for (let k = 0; k < plots[i].plot["2"].length; k++) {
-                this.series[1].x.push(plots[i].plot["2"][k][0]);
-                this.series[1].y.push(plots[i].plot["2"][k][1]);
-              }
+              this.series[1].x = plots[i].plot["2"][0];
+              this.series[1].y = plots[i].plot["2"][1];
             }
           }
         }
@@ -916,3 +1091,14 @@ export default {
   },
 };
 </script>
+
+<style>
+.numpad input::-webkit-outer-spin-button,
+.numpad input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+.numpad input[type="number"] {
+  -moz-appearance: textfield;
+}
+</style>

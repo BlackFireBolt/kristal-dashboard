@@ -30,6 +30,7 @@ const getDefaultState = () => {
     pdc_variants: [],
     pkc_variants: [],
     vlc_variants: [],
+    txc: [],
   };
 };
 
@@ -45,6 +46,7 @@ export const store = new vuex.Store({
     pdc_variants: [],
     pkc_variants: [],
     vlc_variants: [],
+    txc_variants: [],
   },
   mutations: {
     SET_UTILS: (state, payload) => {
@@ -58,6 +60,9 @@ export const store = new vuex.Store({
     },
     SET_VLC_VARIANTS: (state, payload) => {
       state.vlc_variants = payload;
+    },
+    SET_TXC_VARIANTS: (state, payload) => {
+      state.txc_variants = payload;
     },
     TOGGLE_DRAWER: (state, payload) => {
       return (state.drawer = payload);
@@ -117,6 +122,9 @@ export const store = new vuex.Store({
     },
     LOAD_VLC_VARIANTS: (state) => {
       return state.vlc_variants;
+    },
+    LOAD_TXC_VARIANTS: (state) => {
+      return state.txc_variants;
     },
     LOAD_DATA: (state) => {
       return state.load_data;
@@ -313,10 +321,26 @@ export const store = new vuex.Store({
           dialogAccidents: false,
           accidents: accidents,
           accidentStatus: AccidentStatus(accidents),
-          statusPvFirst: plan[i].boi ? plan[i].boi["1"]["status-pv"] ? plan[i].boi["1"]["status-pv"] : 0 : 0,
-          statusSpFirst: plan[i].boi ? plan[i].boi["1"]["status-sp"] ? plan[i].boi["1"]["status-sp"] : 0 : 0,
-          statusPvSecond: plan[i].boi ? plan[i].boi["2"]["status-pv"] ? plan[i].boi["2"]["status-pv"] : 0 : 0,
-          statusSpSecond: plan[i].boi ? plan[i].boi["2"]["status-sp"] ? plan[i].boi["2"]["status-sp"] : 0 : 0,
+          statusPvFirst: plan[i].boi
+            ? plan[i].boi["1"]["status-pv"]
+              ? plan[i].boi["1"]["status-pv"]
+              : 0
+            : 0,
+          statusSpFirst: plan[i].boi
+            ? plan[i].boi["1"]["status-sp"]
+              ? plan[i].boi["1"]["status-sp"]
+              : 0
+            : 0,
+          statusPvSecond: plan[i].boi
+            ? plan[i].boi["2"]["status-pv"]
+              ? plan[i].boi["2"]["status-pv"]
+              : 0
+            : 0,
+          statusSpSecond: plan[i].boi
+            ? plan[i].boi["2"]["status-sp"]
+              ? plan[i].boi["2"]["status-sp"]
+              : 0
+            : 0,
         };
         if (plan[i].plan) {
           line_object.timetable = plan[i].plan.timetable;
@@ -338,6 +362,7 @@ export const store = new vuex.Store({
       let pdc = [];
       let vlc = [];
       let pkc = [];
+      let txc = [];
       let load = context.getters.LOAD_DATA;
       for (let i = 0; i < load.length; i++) {
         let lines = Object.values(load[i].lines);
@@ -351,12 +376,18 @@ export const store = new vuex.Store({
               vlc.push({ key: value[k][0].vol_val, value: value[k][0].vlc });
               pkc.push({ key: value[k][0].pkc_val, value: value[k][0].pkc });
             }
+            key = Object.keys(lines[j].txc);
+            value = Object.values(lines[j].txc);
+            for (let k = 0; k < value.length; k++) {
+              txc.push({ key: key[k], value: value[k] });
+            }
           }
         }
       }
       context.commit("SET_PDC_VARIANTS", pdc);
       context.commit("SET_PKC_VARIANTS", pkc);
       context.commit("SET_VLC_VARIANTS", vlc);
+      context.commit("SET_TXC_VARIANTS", txc);
     },
     GET_LOAD_DATA_SINGLE_LINE: async (context, payload) => {
       let { data } = await axios.get(
@@ -485,11 +516,15 @@ export const store = new vuex.Store({
       form.append("username", payload.username);
       form.append("password", payload.password);
       await axios
-        .post("http://auth.vmvisioprom.kristal.local/api/security/login", form, {
-          headers: {
-            "Content-Type": "application/x-www-form-urlencoded",
-          },
-        })
+        .post(
+          "http://auth.vmvisioprom.kristal.local/api/security/login",
+          form,
+          {
+            headers: {
+              "Content-Type": "application/x-www-form-urlencoded",
+            },
+          }
+        )
         .then((response) => {
           payload.name = response.data.name;
           payload.role_name = response.data.role_name;
@@ -498,6 +533,11 @@ export const store = new vuex.Store({
           payload.superuser = response.data.superuser;
           context.commit("SET_USER", payload);
           context.commit("SET_TOKEN", { token: response.data.access_token });
+          axios.post(
+            "http://auth.vmvisioprom.kristal.local/api/log/",
+            { user: payload.name, description: "SUCCESS LOGIN" },
+            { header: { "Content-type": "application/json" } }
+          );
         })
         .catch((error) => {
           Vue.notify({
@@ -505,10 +545,20 @@ export const store = new vuex.Store({
             type: "error",
             text: "Ошибка авторизации!",
           });
+          axios.post(
+            "http://auth.vmvisioprom.kristal.local/api/log/",
+            { user: "Unknown", description: "LOGIN ERROR" },
+            { header: { "Content-type": "application/json" } }
+          );
           console.log("Auth error: ", error);
         });
     },
-    LOGOUT: (context) => {
+    LOGOUT: async (context) => {
+      await axios.post(
+        "http://auth.vmvisioprom.kristal.local/api/log/",
+        { user: context.getters.LOAD_USER.name, description: "LOGOUT" },
+        { header: { "Content-type": "application/json" } }
+      );
       context.commit("RESET_STATE");
     },
   },
