@@ -9,7 +9,7 @@ services:
     expose:
       - 8080
     environment:
-      - VIRTUAL_HOST=mcd,www.mcd,mcd.kristal.local,www.mcd.kristal.local,vmvisioprom.kristal.local,www.vmvisioprom.kristal.local,vmvisioprom,www.vmvisioprom"
+      - VIRTUAL_HOST=mcd,mcd.kristal.local,vmvisioprom.kristal.local,vmvisioprom"
       - VIRTUAL_PORT=8080
       - VIRTUAL_NETWORK=proxy-network
 networks:

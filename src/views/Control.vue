@@ -915,10 +915,7 @@ export default {
                   user: this.loadUser.name,
                   description:
                     this.$route.params.key +
-                    " set_data, gid: " +
-                    this.maintainance
-                      ? 0
-                      : this.gid +
+                    " set_data, gid: " + this.gid +
                         " tax: " +
                         JSON.stringify(this.transformTax()),
                 }
