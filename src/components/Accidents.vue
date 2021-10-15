@@ -19,7 +19,7 @@
         <v-btn
           icon
           class="mx-3"
-          v-bind:color="filter == true ? 'success' : ''"
+          v-bind:color="filter === true ? 'success' : ''"
           @click="filter = !filter"
           ><v-icon>mdi-filter</v-icon></v-btn
         ></template
@@ -155,7 +155,7 @@ export default {
           }
         }
       }
-      return null;
+      return [];
     },
   },
   methods: {

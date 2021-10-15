@@ -8,6 +8,11 @@ export function TokenValidation(token) {
   return now < exp;
 }
 
+/*export function eventsParser(events) {
+  let result = [];
+
+}*/
+
 export function StatusDecoder(status) {
   let decoded = status.toString(2).split("").reverse();
   let result = 0;

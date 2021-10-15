@@ -21,7 +21,7 @@
           <div>
             <v-card class="mt-4"
               ><v-card-text>
-                <v-form ref="form" lazy-validation v-model="validate">
+                
                   <v-row
                     ><v-col cols="12" sm="6"
                       ><v-switch
@@ -69,7 +69,7 @@
                           <v-toolbar-title>Акцизные марки</v-toolbar-title>
                           <v-divider class="mx-4" inset vertical></v-divider>
                           <v-spacer></v-spacer>
-                          <v-dialog v-model="dialogAdd" max-width="500px">
+                          <v-dialog v-model="dialogAdd" max-width="650px">
                             <template v-slot:activator="{ on, attrs }">
                               <v-btn
                                 color="primary"
@@ -85,7 +85,7 @@
                               <v-card-title>
                                 <span class="text-h5">{{ formTitle }}</span>
                               </v-card-title>
-
+<v-form ref="form" lazy-validation v-model="validate">
                               <v-card-text>
                                 <v-container>
                                   <v-row>
@@ -94,6 +94,7 @@
                                         v-model="editedItem.letter"
                                         :items="itemsLetters"
                                         label="Буква серии АМ"
+                                        :rules="ruleLetter"
                                         data-vv-name="Буква серии АМ"
                                       ></v-select>
                                     </v-col>
@@ -101,7 +102,7 @@
                                       <v-text-field
                                         v-model="editedItem.series_start"
                                         label="Начало серии"
-                                        :rules="rules"
+                                        :rules="ruleSeriesStart"
                                         :counter="3"
                                       ></v-text-field>
                                     </v-col>
@@ -109,7 +110,7 @@
                                       <v-text-field
                                         v-model="editedItem.series_end"
                                         label="Конец серии"
-                                        :rules="rules"
+                                        :rules="ruleSeriesEnd"
                                         :counter="3"
                                       ></v-text-field>
                                     </v-col>
@@ -117,7 +118,7 @@
                                       <v-text-field
                                         v-model="editedItem.number_start"
                                         label="Начальный номер"
-                                        :rules="rules"
+                                        :rules="ruleNumberStart"
                                         :counter="8"
                                       ></v-text-field>
                                     </v-col>
@@ -125,7 +126,7 @@
                                       <v-text-field
                                         v-model="editedItem.number_end"
                                         label="Конечный номер"
-                                        :rules="rules"
+                                        :rules="ruleNumberEnd"
                                         :counter="8"
                                       ></v-text-field>
                                     </v-col>
@@ -142,10 +143,10 @@
                                 >
                                   Закрыть
                                 </v-btn>
-                                <v-btn color="blue darken-1" dark @click="save">
+                                <v-btn color="primary" :disabled="!validate" @click="save">
                                   Сохранить
                                 </v-btn>
-                              </v-card-actions>
+                              </v-card-actions></v-form>
                             </v-card>
                           </v-dialog>
                           <v-dialog v-model="dialogDelete" max-width="500px">
@@ -215,8 +216,8 @@
                           :items="vlcVariants"
                           item-text="key"
                           item-value="value"
-                          label="Объёма"
-                          data-vv-name="Объёма"
+                          label="Объём"
+                          data-vv-name="Объём"
                         ></v-select>
                       </v-col>
                       <v-col cols="12" sm="6" md="4">
@@ -274,7 +275,7 @@
                     :disabled="values.length === 0 ? true : false"
                     >Добавить акциз</v-btn
                   >
-                </v-form>
+                
               </v-card-text>
             </v-card>
           </div>
@@ -676,12 +677,38 @@ export default {
       exportParameter: false,
       gid: null,
       tax: null,
-      rules: [
+      ruleSeriesStart: [
         (value) => !!value || "Введите значение.",
         (value) => (value || "").indexOf(" ") < 0 || "Пробелы запрещены.",
         (value) => !isNaN(value) || "Требуется ввод цифрового значения.",
         (value) => value[0] !== "0" || "Первый символ не должен быть нулем.",
+        (value) => value.length <= 3 || "Превышено количество символов."
       ],
+      ruleSeriesEnd:[
+        (value) => !!value || "Введите значение.",
+        (value) => (value || "").indexOf(" ") < 0 || "Пробелы запрещены.",
+        (value) => !isNaN(value) || "Требуется ввод цифрового значения.",
+        (value) => value[0] !== "0" || "Первый символ не должен быть нулем.",
+        (value) => value.length <= 3 || "Превышено количество символов.",
+        (value) => parseInt(value) >= parseInt(this.editedItem.series_start) || "Значение конца серии меньше старта."
+      ], 
+      ruleNumberStart:[
+        (value) => !!value || "Введите значение.",
+        (value) => (value || "").indexOf(" ") < 0 || "Пробелы запрещены.",
+        (value) => !isNaN(value) || "Требуется ввод цифрового значения.",
+        (value) => value[0] !== "0" || "Первый символ не должен быть нулем.",
+        (value) => value.length <= 8 || "Превышено количество символов.",
+      ],
+      ruleNumberEnd:[
+        (value) => !!value || "Введите значение.",
+        (value) => (value || "").indexOf(" ") < 0 || "Пробелы запрещены.",
+        (value) => !isNaN(value) || "Требуется ввод цифрового значения.",
+        (value) => value[0] !== "0" || "Первый символ не должен быть нулем.",
+        (value) => value.length <= 8 || "Превышено количество символов.",
+        (value) => parseInt(value) >= parseInt(this.editedItem.number_start) || "Значение конца номера меньше старта."
+      ],
+      ruleLetter:[(value) => !!value || "Введите значение"],
+      buttonAdd: true,
     };
   },
   computed: {
@@ -755,6 +782,16 @@ export default {
     },
   },
   watch: {
+    taxAdd: function(value){
+      if (value === true) {
+        this.maintainance = false;
+      }
+    },
+    maintainance: function(value){
+      if (value === true) {
+        this.taxAdd = false;
+      }
+    },
     dialogAdd: function (value) {
       value || this.closeAdd();
     },
@@ -764,20 +801,26 @@ export default {
     gid: function (value) {
       this.changeExport(value);
     },
-    tax_s: function () {
-      this.validateField();
-    },
-    tax_f: function () {
-      this.validateField();
-    },
-    tax: function () {
-      this.validateField();
-    },
     username: function () {
       this.validateFieldAuth();
     },
     password: function () {
       this.validateFieldAuth();
+    },
+    'editedItem.letter': function (){
+      this.validateField();
+    },
+    'editedItem.series_start': function (){
+      this.validateField();
+    },
+    'editedItem.series_end': function (){
+      this.validateField();
+    },
+    'editedItem.number_start': function (){
+      this.validateField();
+    },
+    'editedItem.number_end': function (){
+      this.validateField();
     },
   },
   methods: {
@@ -1015,6 +1058,7 @@ export default {
     },
     validateField() {
       this.$refs.form.validate();
+      
     },
     changeExport: function (value) {
       if (this.lineData.timetable) {
