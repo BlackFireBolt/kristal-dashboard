@@ -17,7 +17,7 @@
     <v-card-text>
       <v-divider></v-divider>
       <v-row
-        ><v-col cols="12" md="5" sm="12" xs="12">
+        ><v-col cols="12" md="5" sm="12" xs="12" v-if="(loadUser.rights & 2) == 2">
           <div>
             <v-card class="mt-4"
               ><v-card-text>

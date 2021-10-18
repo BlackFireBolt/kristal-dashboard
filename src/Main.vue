@@ -51,18 +51,20 @@ export default {
     this.$store.commit("SET_LOADER", true);
   },
   mounted() {
-    var channels = [];
-    if (this.$store.getters.LOAD_USER.superuser) {
-      channels = ["c1_s1", "c2_s2", "c2_s3"];
-    } else {
-      channels = this.$store.getters.LOAD_USER.channels;
-    }
-    for (let i = 0; i < channels.length; i++) {
-      this.$store.dispatch("GET_LOAD_DATA", channels[i]).then(() => {
-        this.$store.dispatch("GET_LOAD_STREAM", channels[i]).then(() => {
-          this.$store.commit("SET_LOADER", false);
+    if ((this.$store.getters.LOAD_USER.rights & 1) == 1) {
+      var channels = [];
+      if (this.$store.getters.LOAD_USER.superuser) {
+        channels = ["c1_s1", "c2_s2", "c2_s3"];
+      } else {
+        channels = this.$store.getters.LOAD_USER.channels;
+      }
+      for (let i = 0; i < channels.length; i++) {
+        this.$store.dispatch("GET_LOAD_DATA", channels[i]).then(() => {
+          this.$store.dispatch("GET_LOAD_STREAM", channels[i]).then(() => {
+            this.$store.commit("SET_LOADER", false);
+          });
         });
-      });
+      }
     }
     this.$store.commit("SET_LOADER", false);
   },
