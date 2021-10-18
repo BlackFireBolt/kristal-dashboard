@@ -20,6 +20,9 @@ const dataState = createPersistedState({
 
 const getDefaultState = () => {
   return {
+    sse: [],
+    status: null,
+    statusColor: null,
     loader: true,
     load_data: [],
     drawer: false,
@@ -34,8 +37,26 @@ const getDefaultState = () => {
   };
 };
 
+const getDeafultStateWithUser = () => {
+  return {
+    sse: [],
+    status: null,
+    statusColor: null,
+    load_data: [],
+    lines: [],
+    utils: [],
+    pdc_variants: [],
+    pkc_variants: [],
+    vlc_variants: [],
+    txc: [],
+  };
+};
+
 export const store = new vuex.Store({
   state: {
+    sse: [],
+    status: null,
+    statusColor: null,
     loader: true,
     load_data: [],
     drawer: false,
@@ -49,6 +70,18 @@ export const store = new vuex.Store({
     txc_variants: [],
   },
   mutations: {
+    RESET_SSE: (state) => {
+      state.sse = [];
+    },
+    SET_SSE: (state, payload) => {
+      state.sse.push(payload);
+    },
+    SET_STATUS_COLOR: (state, payload) => {
+      state.statusColor = payload;
+    },
+    SET_STATUS: (state, payload) => {
+      state.status = payload;
+    },
     SET_UTILS: (state, payload) => {
       state.utils.push(payload);
     },
@@ -109,8 +142,20 @@ export const store = new vuex.Store({
     RESET_STATE: (state) => {
       Object.assign(state, getDefaultState());
     },
+    RESET_STATE_WITH_USER: (state) => {
+      Object.assign(state, getDeafultStateWithUser());
+    },
   },
   getters: {
+    LOAD_SSE: (state) => {
+      return state.sse;
+    },
+    LOAD_STATUS_COLOR: (state) => {
+      return state.statusColor;
+    },
+    LOAD_STATUS: (state) => {
+      return state.status;
+    },
     LOAD_UTILS: (state) => {
       return state.utils;
     },
@@ -146,6 +191,16 @@ export const store = new vuex.Store({
     },
   },
   actions: {
+    CLOSE_SSE: (context) => {
+      let sse = context.getters.LOAD_SSE;
+      if (sse !== []) {
+        for (let i = 0; i < sse.length; i++) {
+          sse[i].close();
+        }
+      }
+      context.commit("RESET_SSE");
+      console.log("closed all");
+    },
     TOGGLE_DRAWER: (context, payload) => {
       context.commit("TOGGLE_DRAWER", payload);
     },
@@ -154,6 +209,7 @@ export const store = new vuex.Store({
         "http://attp.kristal.local:5000/vue?c=" + payload + "&nz=1",
         {
           headers: { "Content-Type": "application/x-www-form-urlencoded" },
+          timeout: 1000 * 5,
         }
       );
       var load = data.lines;
@@ -358,6 +414,167 @@ export const store = new vuex.Store({
       context.commit("SET_UTILS", utils);
       context.commit("SET_LOADER", false);
     },
+    GET_LOAD_STREAM: async (context, payload) => {
+      let server_side = new EventSource(
+        "http://attp.kristal.local:5000/stream?chan=" + payload // check bad data?s
+      );
+      server_side.addEventListener(
+        "control",
+        () => {
+          /*this.$store.dispatch("GET_CONTROL", event.data);*/
+        },
+        false
+      );
+      server_side.addEventListener(
+        "message",
+        (event) => {
+          /*this.$store.dispatch("GET_MESSAGES", event.data);*/
+          var load_data = JSON.parse(event.data.replace(/^\s+|\s+$/g, ""));
+          let key = Object.keys(load_data)[0];
+          let data = Object.values(load_data)[0];
+          if (data.bitstatus) {
+            let payload = context.getters.LOAD_LINES;
+            for (let i = 0; i < payload.length; i++) {
+              for (let j = 0; j < payload[i].length; j++) {
+                if (payload[i][j].key === key) {
+                  context.dispatch("GET_STATUS", {
+                    key: key,
+                    status: data.bitstatus,
+                  });
+                  Vue.notify({
+                    title: "Уведомление",
+                    type: "info",
+                    text: "Изменение статуса линии №" + payload[i][j].key + "!",
+                  });
+                  break;
+                }
+              }
+            }
+          }
+          if (data.boi) {
+            let boi = data.boi;
+            let payload = context.getters.LOAD_LINES;
+            for (let i = 0; i < payload.length; i++) {
+              for (let j = 0; j < payload[i].length; j++) {
+                if (payload[i][j].key === key) {
+                  if (boi["1"]) {
+                    if (boi["1"]["spd"] && boi["1"]["stats-ts"]) {
+                      payload[i][j].series[0].x.push(boi["1"]["stats-ts"]);
+                      payload[i][j].series[0].y.push(boi["1"]["spd"]);
+                    }
+                    if (boi["1"]["status-pv"]) {
+                      payload[i][j].statusPvFirst = boi["1"]["status-pv"];
+                    }
+                    if (boi["1"]["status-sp"]) {
+                      payload[i][j].statusSpFirst = boi["1"]["status-sp"];
+                    }
+                    if (boi["1"]["info"]) {
+                      payload[i][j].info[0].pdc = boi["1"]["info"].pdc;
+                      payload[i][j].info[0].pkc = boi["1"]["info"].pkc;
+                      payload[i][j].info[0].vlc = boi["1"]["info"].vlc;
+                      payload[i][j].info[0].txc = boi["1"]["info"].txc;
+                    }
+                  }
+                  if (boi["2"]) {
+                    if (boi["2"]["spd"] && boi["2"]["stats-ts"]) {
+                      payload[i][j].series[1].x.push(boi["2"]["stats-ts"]);
+                      payload[i][j].series[1].y.push(boi["2"]["spd"]);
+                    }
+                    if (boi["2"]["info"]) {
+                      payload[i][j].info[1].pdc = boi["2"]["info"].pdc;
+                      payload[i][j].info[1].pkc = boi["2"]["info"].pkc;
+                      payload[i][j].info[1].vlc = boi["2"]["info"].vlc;
+                      payload[i][j].info[1].txc = boi["2"]["info"].txc;
+                    }
+                    if (boi["2"]["status-pv"]) {
+                      payload[i][j].statusPvSecond = boi["2"]["status-pv"];
+                    }
+                    if (boi["2"]["status-sp"]) {
+                      payload[i][j].statusSpSecond = boi["2"]["status-sp"];
+                    }
+                  }
+                  if (
+                    Date.now() - payload[i][j].series[0].x[0] >= 1200000 &&
+                    payload[i][j].series[0].x.length > 10
+                  ) {
+                    payload[i][j].series[0].x.shift();
+                    payload[i][j].series[0].y.shift();
+                  }
+                  if (
+                    Date.now() - payload[i][j].series[1].x[0] >= 1200000 &&
+                    payload[i][j].series[1].x.length > 10
+                  ) {
+                    payload[i][j].series[1].x.shift();
+                    payload[i][j].series[1].y.shift();
+                  }
+                  context.commit("UPDATE_LINES", payload);
+                  break;
+                }
+              }
+            }
+          }
+          if (data.timetable && data.lredkey) {
+            let payload = context.getters.LOAD_LINES;
+            for (let i = 0; i < payload.length; i++) {
+              for (let j = 0; j < payload[i].length; j++) {
+                if (payload[i][j].key === data.lredkey) {
+                  payload[i][j].timetable = data.timetable;
+                  console.log("check");
+                  context.commit("UPDATE_LINES", payload);
+                  break;
+                }
+              }
+            }
+          }
+        },
+        false
+      );
+      server_side.addEventListener(
+        "broadcast",
+        (event) => {
+          let data = JSON.parse(event.data);
+          if (data.msg) {
+            console.log("GOT BROADCAST!", data);
+          }
+        },
+        false
+      );
+      server_side.onopen = () => {
+        console.log("eventstream opened");
+        Vue.notify({
+          title: "Уведомление",
+          type: "success",
+          text: `Соединение установлено (${payload})!`,
+        });
+        context.commit("SET_STATUS", "Сервер на связи");
+        context.commit("SET_STATUS_COLOR", "green--text");
+      };
+      server_side.onclose = () => {
+        server_side.close();
+        Vue.notify({
+          title: "Уведомление",
+          type: "error",
+          text: `Соединение с сервером закрыто (${payload})!`,
+        });
+        context.commit("SET_STATUS", "Соединение с сервером закрыто");
+        context.commit("SET_STATUS_COLOR", "red--text");
+        console.log("CONNECTION CLOSED");
+      };
+      server_side.onerror = () => {
+        console.log("error");
+        Vue.notify({
+          title: "Уведомление",
+          type: "error",
+          text: "Ошибка соединения!",
+        });
+        context.commit(
+          "SET_STATUS",
+          `Связь с сервером отсутствует (${payload})`
+        );
+        context.commit("SET_STATUS_COLOR", "red--text");
+      };
+      context.commit("SET_SSE", server_side);
+    },
     GET_PRODUCTION_DATA: async (context, payload) => {
       let pdc = [];
       let vlc = [];
@@ -557,7 +774,7 @@ export const store = new vuex.Store({
       await axios.post(
         "http://auth.vmvisioprom.kristal.local/api/log/",
         { user: context.getters.LOAD_USER.name, description: "LOGOUT" },
-        { header: { "Content-type": "application/json" } }
+        { header: { "Content-type": "application/json" }, timeout: 1000 * 5 }
       );
       context.commit("RESET_STATE");
     },

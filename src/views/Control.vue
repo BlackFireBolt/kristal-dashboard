@@ -21,71 +21,74 @@
           <div>
             <v-card class="mt-4"
               ><v-card-text>
-                
-                  <v-row
-                    ><v-col cols="12" sm="6"
-                      ><v-switch
-                        class="my-3"
-                        label="Наладка"
-                        color="warning"
-                        v-model="maintainance"
-                        :false-value="false"
-                        :true-value="true"
-                        hide-details
-                      ></v-switch
-                    ></v-col>
-                    <v-col cols="12" sm="6"
-                      ><v-switch
-                        class="my-3"
-                        label="Добавить акциз"
-                        color="primary"
-                        v-model="taxAdd"
-                        :false-value="false"
-                        :true-value="true"
-                        hide-details
-                      ></v-switch></v-col
-                  ></v-row>
-                  <div v-if="!maintainance">
-                    <v-select
-                      v-model="gid"
-                      :items="taskSelect"
-                      item-text="product"
-                      item-value="gid"
-                      :label="taskSelectionMessage"
-                      filled
-                      required
-                      v-if="taskSelect && !taxAdd"
-                    >
-                    </v-select>
-                    <v-data-table
-                      :headers="headers"
-                      :items="values"
-                      hide-default-footer
-                      class="elevation-1 mb-3"
-                      v-if="!exportParameter || taxAdd"
-                    >
-                      <template v-slot:top>
-                        <v-toolbar flat>
-                          <v-toolbar-title>Акцизные марки</v-toolbar-title>
-                          <v-divider class="mx-4" inset vertical></v-divider>
-                          <v-spacer></v-spacer>
-                          <v-dialog v-model="dialogAdd" max-width="650px">
-                            <template v-slot:activator="{ on, attrs }">
-                              <v-btn
-                                color="primary"
-                                dark
-                                class="mb-2"
-                                v-bind="attrs"
-                                v-on="on"
-                              >
-                                Новое значение
-                              </v-btn>
-                            </template>
-                            <v-card>
-                              <v-card-title>
-                                <span class="text-h5">{{ formTitle }}</span>
-                              </v-card-title>
-<v-form ref="form" lazy-validation v-model="validate">
+                <v-row
+                  ><v-col cols="12" sm="6"
+                    ><v-switch
+                      class="my-3"
+                      label="Наладка"
+                      color="warning"
+                      v-model="maintainance"
+                      :false-value="false"
+                      :true-value="true"
+                      hide-details
+                    ></v-switch
+                  ></v-col>
+                  <v-col cols="12" sm="6"
+                    ><v-switch
+                      class="my-3"
+                      label="Добавить акциз"
+                      color="primary"
+                      v-model="taxAdd"
+                      :false-value="false"
+                      :true-value="true"
+                      hide-details
+                    ></v-switch></v-col
+                ></v-row>
+                <div v-if="!maintainance">
+                  <v-select
+                    v-model="gid"
+                    :items="taskSelect"
+                    item-text="product"
+                    item-value="gid"
+                    :label="taskSelectionMessage"
+                    filled
+                    required
+                    v-if="taskSelect && !taxAdd"
+                  >
+                  </v-select>
+                  <v-data-table
+                    :headers="headers"
+                    :items="values"
+                    hide-default-footer
+                    class="elevation-1 mb-3"
+                    v-if="!exportParameter || taxAdd"
+                  >
+                    <template v-slot:top>
+                      <v-toolbar flat>
+                        <v-toolbar-title>Акцизные марки</v-toolbar-title>
+                        <v-divider class="mx-4" inset vertical></v-divider>
+                        <v-spacer></v-spacer>
+                        <v-dialog v-model="dialogAdd" max-width="650px">
+                          <template v-slot:activator="{ on, attrs }">
+                            <v-btn
+                              color="primary"
+                              dark
+                              class="mb-2"
+                              v-bind="attrs"
+                              v-on="on"
+                            >
+                              Новое значение
+                            </v-btn>
+                          </template>
+                          <v-card>
+                            <v-card-title>
+                              <span class="text-h5">{{ formTitle }}</span>
+                            </v-card-title>
+                            <v-form
+                              ref="form"
+                              lazy-validation
+                              v-model="validate"
+                            >
                               <v-card-text>
                                 <v-container>
                                   <v-row>
@@ -143,139 +146,141 @@
                                 >
                                   Закрыть
                                 </v-btn>
-                                <v-btn color="primary" :disabled="!validate" @click="save">
+                                <v-btn
+                                  color="primary"
+                                  :disabled="!validate"
+                                  @click="save"
+                                >
                                   Сохранить
                                 </v-btn>
-                              </v-card-actions></v-form>
-                            </v-card>
-                          </v-dialog>
-                          <v-dialog v-model="dialogDelete" max-width="500px">
-                            <v-card>
-                              <v-card-title class="text-h5"
-                                >Подтверждение удаления</v-card-title
+                              </v-card-actions></v-form
+                            >
+                          </v-card>
+                        </v-dialog>
+                        <v-dialog v-model="dialogDelete" max-width="500px">
+                          <v-card>
+                            <v-card-title class="text-h5"
+                              >Подтверждение удаления</v-card-title
+                            >
+                            <v-card-actions>
+                              <v-spacer></v-spacer>
+                              <v-btn
+                                color="blue darken-1"
+                                text
+                                @click="closeDelete"
+                                >Отмена</v-btn
                               >
-                              <v-card-actions>
-                                <v-spacer></v-spacer>
-                                <v-btn
-                                  color="blue darken-1"
-                                  text
-                                  @click="closeDelete"
-                                  >Отмена</v-btn
-                                >
-                                <v-btn
-                                  color="blue darken-1"
-                                  dark
-                                  @click="deleteItemConfirm"
-                                  >Подтвердить</v-btn
-                                >
-                                <v-spacer></v-spacer>
-                              </v-card-actions>
-                            </v-card>
-                          </v-dialog>
-                        </v-toolbar>
-                      </template>
-                      <template v-slot:[`item.actions`]="{ item }">
-                        <v-icon small class="mr-2" @click="editItem(item)">
-                          mdi-pencil
-                        </v-icon>
-                        <v-icon small @click="deleteItem(item)">
-                          mdi-delete
-                        </v-icon>
-                      </template>
-                      <template v-slot:no-data>
-                        <p>Нет доступных значений</p>
-                      </template>
-                    </v-data-table>
-                    <p align="right" v-if="!exportParameter || taxAdd">
-                      Итого номеров: {{ taxSum }}
-                    </p>
-                    <v-select
-                      v-model="taxType"
-                      :items="txcVariants"
-                      item-text="value"
-                      item-value="key"
-                      label="Вид акцизной марки"
-                      data-vv-name="Вид акцизной марки"
-                      v-if="!exportParameter && !taxAdd"
-                    ></v-select>
+                              <v-btn
+                                color="blue darken-1"
+                                dark
+                                @click="deleteItemConfirm"
+                                >Подтвердить</v-btn
+                              >
+                              <v-spacer></v-spacer>
+                            </v-card-actions>
+                          </v-card>
+                        </v-dialog>
+                      </v-toolbar>
+                    </template>
+                    <template v-slot:[`item.actions`]="{ item }">
+                      <v-icon small class="mr-2" @click="editItem(item)">
+                        mdi-pencil
+                      </v-icon>
+                      <v-icon small @click="deleteItem(item)">
+                        mdi-delete
+                      </v-icon>
+                    </template>
+                    <template v-slot:no-data>
+                      <p>Нет доступных значений</p>
+                    </template>
+                  </v-data-table>
+                  <p align="right" v-if="!exportParameter || taxAdd">
+                    Итого номеров: {{ taxSum }}
+                  </p>
+                  <v-select
+                    v-model="taxType"
+                    :items="txcVariants"
+                    item-text="value"
+                    item-value="key"
+                    label="Вид акцизной марки"
+                    data-vv-name="Вид акцизной марки"
+                    v-if="!exportParameter && !taxAdd"
+                  ></v-select>
 
-                    <v-text-field
-                      class="mb-2"
-                      v-model="tax"
-                      label="Ввод суммы номеров акцизных марок"
-                      :rules="rules"
-                      :counter="5"
-                      v-if="exportParameter && !taxAdd"
-                    ></v-text-field>
-                  </div>
-                  <div v-else>
-                    <v-row class="mb-2">
-                      <v-col cols="12" sm="6" md="4">
-                        <v-select
-                          v-model="vlc"
-                          :items="vlcVariants"
-                          item-text="key"
-                          item-value="value"
-                          label="Объём"
-                          data-vv-name="Объём"
-                        ></v-select>
-                      </v-col>
-                      <v-col cols="12" sm="6" md="4">
-                        <v-select
-                          v-model="pdc"
-                          :items="pdcVariants"
-                          item-text="key"
-                          item-value="value"
-                          label="Продукция"
-                          data-vv-name="Продукция"
-                        ></v-select>
-                      </v-col>
-                      <v-col cols="12" sm="6" md="4">
-                        <v-select
-                          v-model="pkc"
-                          :items="pkcVariants"
-                          item-text="key"
-                          item-value="value"
-                          label="Тара"
-                          data-vv-name="Тара"
-                        ></v-select>
-                      </v-col>
-                    </v-row>
-                  </div>
-                  <v-btn
-                    block
-                    elevation="10"
-                    color="success"
-                    x-large
-                    v-if="!taxAdd"
-                    @click.stop="loginCheck(1)"
-                    :disabled="
-                      maintainance
-                        ? vlc === null || pdc === null || pkc === null
-                          ? true
-                          : false
-                        : exportParameter
-                        ? gid === null || tax === null
-                          ? true
-                          : false
-                        : gid === null ||
-                          values.length === 0 ||
-                          taxType === null
+                  <v-text-field
+                    class="mb-2"
+                    v-model="tax"
+                    label="Ввод суммы номеров акцизных марок"
+                    :rules="rules"
+                    :counter="5"
+                    v-if="exportParameter && !taxAdd"
+                  ></v-text-field>
+                </div>
+                <div v-else>
+                  <v-row class="mb-2">
+                    <v-col cols="12" sm="6" md="4">
+                      <v-select
+                        v-model="vlc"
+                        :items="vlcVariants"
+                        item-text="key"
+                        item-value="value"
+                        label="Объём"
+                        data-vv-name="Объём"
+                      ></v-select>
+                    </v-col>
+                    <v-col cols="12" sm="6" md="4">
+                      <v-select
+                        v-model="pdc"
+                        :items="pdcVariants"
+                        item-text="key"
+                        item-value="value"
+                        label="Продукция"
+                        data-vv-name="Продукция"
+                      ></v-select>
+                    </v-col>
+                    <v-col cols="12" sm="6" md="4">
+                      <v-select
+                        v-model="pkc"
+                        :items="pkcVariants"
+                        item-text="key"
+                        item-value="value"
+                        label="Тара"
+                        data-vv-name="Тара"
+                      ></v-select>
+                    </v-col>
+                  </v-row>
+                </div>
+                <v-btn
+                  block
+                  elevation="10"
+                  color="success"
+                  x-large
+                  v-if="!taxAdd"
+                  @click.stop="loginCheck(1)"
+                  :disabled="
+                    maintainance
+                      ? vlc === null || pdc === null || pkc === null
                         ? true
                         : false
-                    "
-                    >Добавить задание</v-btn
-                  ><v-btn
-                    block
-                    elevation="10"
-                    color="primary"
-                    x-large
-                    v-else
-                    @click.stop="loginCheck(2)"
-                    :disabled="values.length === 0 ? true : false"
-                    >Добавить акциз</v-btn
-                  >
-                
+                      : exportParameter
+                      ? gid === null || tax === null
+                        ? true
+                        : false
+                      : gid === null || values.length === 0 || taxType === null
+                      ? true
+                      : false
+                  "
+                  >Добавить задание</v-btn
+                ><v-btn
+                  block
+                  elevation="10"
+                  color="primary"
+                  x-large
+                  v-else
+                  @click.stop="loginCheck(2)"
+                  :disabled="values.length === 0 ? true : false"
+                  >Добавить акциз</v-btn
+                >
               </v-card-text>
             </v-card>
           </div>
@@ -682,32 +687,36 @@ export default {
         (value) => (value || "").indexOf(" ") < 0 || "Пробелы запрещены.",
         (value) => !isNaN(value) || "Требуется ввод цифрового значения.",
         (value) => value[0] !== "0" || "Первый символ не должен быть нулем.",
-        (value) => value.length <= 3 || "Превышено количество символов."
+        (value) => value.length <= 3 || "Превышено количество символов.",
       ],
-      ruleSeriesEnd:[
+      ruleSeriesEnd: [
         (value) => !!value || "Введите значение.",
         (value) => (value || "").indexOf(" ") < 0 || "Пробелы запрещены.",
         (value) => !isNaN(value) || "Требуется ввод цифрового значения.",
         (value) => value[0] !== "0" || "Первый символ не должен быть нулем.",
         (value) => value.length <= 3 || "Превышено количество символов.",
-        (value) => parseInt(value) >= parseInt(this.editedItem.series_start) || "Значение конца серии меньше старта."
-      ], 
-      ruleNumberStart:[
+        (value) =>
+          parseInt(value) >= parseInt(this.editedItem.series_start) ||
+          "Значение конца серии меньше старта.",
+      ],
+      ruleNumberStart: [
         (value) => !!value || "Введите значение.",
         (value) => (value || "").indexOf(" ") < 0 || "Пробелы запрещены.",
         (value) => !isNaN(value) || "Требуется ввод цифрового значения.",
         (value) => value[0] !== "0" || "Первый символ не должен быть нулем.",
         (value) => value.length <= 8 || "Превышено количество символов.",
       ],
-      ruleNumberEnd:[
+      ruleNumberEnd: [
         (value) => !!value || "Введите значение.",
         (value) => (value || "").indexOf(" ") < 0 || "Пробелы запрещены.",
         (value) => !isNaN(value) || "Требуется ввод цифрового значения.",
         (value) => value[0] !== "0" || "Первый символ не должен быть нулем.",
         (value) => value.length <= 8 || "Превышено количество символов.",
-        (value) => parseInt(value) >= parseInt(this.editedItem.number_start) || "Значение конца номера меньше старта."
+        (value) =>
+          parseInt(value) >= parseInt(this.editedItem.number_start) ||
+          "Значение конца номера меньше старта.",
       ],
-      ruleLetter:[(value) => !!value || "Введите значение"],
+      ruleLetter: [(value) => !!value || "Введите значение"],
       buttonAdd: true,
     };
   },
@@ -782,12 +791,12 @@ export default {
     },
   },
   watch: {
-    taxAdd: function(value){
+    taxAdd: function (value) {
       if (value === true) {
         this.maintainance = false;
       }
     },
-    maintainance: function(value){
+    maintainance: function (value) {
       if (value === true) {
         this.taxAdd = false;
       }
@@ -807,19 +816,19 @@ export default {
     password: function () {
       this.validateFieldAuth();
     },
-    'editedItem.letter': function (){
+    "editedItem.letter": function () {
       this.validateField();
     },
-    'editedItem.series_start': function (){
+    "editedItem.series_start": function () {
       this.validateField();
     },
-    'editedItem.series_end': function (){
+    "editedItem.series_end": function () {
       this.validateField();
     },
-    'editedItem.number_start': function (){
+    "editedItem.number_start": function () {
       this.validateField();
     },
-    'editedItem.number_end': function (){
+    "editedItem.number_end": function () {
       this.validateField();
     },
   },
@@ -915,9 +924,10 @@ export default {
                   user: this.loadUser.name,
                   description:
                     this.$route.params.key +
-                    " set_data, gid: " + this.gid +
-                        " tax: " +
-                        JSON.stringify(this.transformTax()),
+                    " set_data, gid: " +
+                    this.gid +
+                    " tax: " +
+                    JSON.stringify(this.transformTax()),
                 }
               );
               break;
@@ -1055,7 +1065,6 @@ export default {
     },
     validateField() {
       this.$refs.form.validate();
-      
     },
     changeExport: function (value) {
       if (this.lineData.timetable) {
