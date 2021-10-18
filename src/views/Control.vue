@@ -122,7 +122,7 @@
                                         v-model="editedItem.number_start"
                                         label="Начальный номер"
                                         :rules="ruleNumberStart"
-                                        :counter="8"
+                                        :counter="9"
                                       ></v-text-field>
                                     </v-col>
                                     <v-col cols="12" sm="6" md="4">
@@ -130,7 +130,7 @@
                                         v-model="editedItem.number_end"
                                         label="Конечный номер"
                                         :rules="ruleNumberEnd"
-                                        :counter="8"
+                                        :counter="9"
                                       ></v-text-field>
                                     </v-col>
                                   </v-row>
@@ -256,7 +256,7 @@
                   color="success"
                   x-large
                   v-if="!taxAdd"
-                  @click.stop="loginCheck(1)"
+                  @click.stop="securityCheck(1)"
                   :disabled="
                     maintainance
                       ? vlc === null || pdc === null || pkc === null
@@ -277,7 +277,7 @@
                   color="primary"
                   x-large
                   v-else
-                  @click.stop="loginCheck(2)"
+                  @click.stop="securityCheck(2)"
                   :disabled="values.length === 0 ? true : false"
                   >Добавить акциз</v-btn
                 >
@@ -291,7 +291,7 @@
             class="my-5"
             color="success"
             x-large
-            @click.stop="loginCheck(3)"
+            @click.stop="securityCheck(3)"
             :disabled="lineData.status === -1"
             >Старт линии</v-btn
           >
@@ -301,7 +301,7 @@
             color="error"
             class="my-5"
             x-large
-            @click.stop="loginCheck(4)"
+            @click.stop="securityCheck(4)"
             >Остановка линии</v-btn
           >
           <v-btn
@@ -309,57 +309,13 @@
             elevation="2"
             class="my-5"
             large
-            @click.stop="loginCheck(5)"
+            @click.stop="securityCheck(5)"
           >
             Сброс данных
           </v-btn>
           <v-btn block elevation="2" class="my-5" large disabled>
             Выгрузка данных
           </v-btn>
-          <v-dialog v-model="dialogPIN" max-width="290">
-            <v-card>
-              <v-card-title class="text-h5"> Введите ПИН-код </v-card-title>
-
-              <v-card-text>
-                <div class="numpad">
-                  <v-text-field
-                    v-model="numpad.pin"
-                    type="number"
-                    placeholder="0"
-                    clearable
-                    :counter="numpad.limit"
-                  >
-                  </v-text-field>
-                  <v-row
-                    class="flex-nowrap justify-between"
-                    v-for="(r, rix) in 3"
-                    v-bind:key="r"
-                  >
-                    <v-col v-for="(c, cix) in 3" v-bind:key="c">
-                      <v-btn dark @click="add(numpad.numbers[rix][cix])">
-                        {{ numpad.numbers[rix][cix] }}
-                      </v-btn>
-                    </v-col>
-                  </v-row>
-                  <v-row>
-                    <v-col>
-                      <v-btn dark block @click="add(0)"> 0 </v-btn>
-                    </v-col>
-                  </v-row>
-                </div>
-              </v-card-text>
-
-              <v-card-actions>
-                <v-spacer></v-spacer>
-                <v-btn color="green darken-1" dark @click="securityCheck">
-                  Ввод
-                </v-btn>
-                <v-btn color="green darken-1" text @click="dialogPIN = false">
-                  Отмена
-                </v-btn>
-              </v-card-actions>
-            </v-card>
-          </v-dialog>
           <v-dialog v-model="dialogLogin" max-width="500" persistent>
             <v-card>
               <v-card-title class="text-h5">
@@ -614,17 +570,7 @@ export default {
         passwordRules: [(value) => !!value || "Введите значение."],
       },
       task: null,
-      numpad: {
-        limit: 6,
-        pin: "",
-        numbers: [
-          [1, 2, 3],
-          [4, 5, 6],
-          [7, 8, 9],
-        ],
-      },
       dialogLogin: false,
-      dialogPIN: false,
       dialogInfo: false,
       taxAdd: false,
       vlc: null,
@@ -704,14 +650,14 @@ export default {
         (value) => (value || "").indexOf(" ") < 0 || "Пробелы запрещены.",
         (value) => !isNaN(value) || "Требуется ввод цифрового значения.",
         (value) => value[0] !== "0" || "Первый символ не должен быть нулем.",
-        (value) => value.length <= 8 || "Превышено количество символов.",
+        (value) => value.length <= 9 || "Превышено количество символов.",
       ],
       ruleNumberEnd: [
         (value) => !!value || "Введите значение.",
         (value) => (value || "").indexOf(" ") < 0 || "Пробелы запрещены.",
         (value) => !isNaN(value) || "Требуется ввод цифрового значения.",
         (value) => value[0] !== "0" || "Первый символ не должен быть нулем.",
-        (value) => value.length <= 8 || "Превышено количество символов.",
+        (value) => value.length <= 9 || "Превышено количество символов.",
         (value) =>
           parseInt(value) >= parseInt(this.editedItem.number_start) ||
           "Значение конца номера меньше старта.",
@@ -816,21 +762,6 @@ export default {
     password: function () {
       this.validateFieldAuth();
     },
-    "editedItem.letter": function () {
-      this.validateField();
-    },
-    "editedItem.series_start": function () {
-      this.validateField();
-    },
-    "editedItem.series_end": function () {
-      this.validateField();
-    },
-    "editedItem.number_start": function () {
-      this.validateField();
-    },
-    "editedItem.number_end": function () {
-      this.validateField();
-    },
   },
   methods: {
     async sendCommand(form, success, error, journal) {
@@ -878,151 +809,145 @@ export default {
         .then(() => {
           this.form.username = "";
           this.form.password = "";
-          this.loginCheck();
+          this.securityCheck(this.task);
         });
     },
-    loginCheck(task) {
-      this.task = task;
+    loginCheck() {
       if (!TokenValidation(this.$store.getters.LOAD_TOKEN)) {
         this.dialogLogin = true;
-        this.dialogPIN = false;
+        return false;
       } else {
         this.dialogLogin = false;
-        this.dialogPIN = true;
+        return true;
       }
     },
-    async securityCheck() {
-      this.loginCheck(this.task);
-      await axios
-        .get(
-          "http://auth.vmvisioprom.kristal.local/api/security/security_check/",
-          {
-            headers: {
-              Authorization: "Bearer " + this.$store.getters.LOAD_TOKEN,
-            },
-            params: { pin_code: this.numpad.pin },
-          }
-        )
-        .then(() => {
-          var form = new FormData();
-          switch (this.task) {
-            case 1:
-              form.append("redkey", this.$route.params.key);
-              form.append("req_action", "set_data");
-              form.append("gid", this.maintainance ? 0 : this.gid);
-              form.append("vlc", this.vlc);
-              form.append("pdc", this.pdc);
-              form.append("pkc", this.pkc);
-              form.append("cnt", this.exportParameter ? this.tax : this.taxSum);
-              form.append("txc", this.taxType);
-              form.append("tax", JSON.stringify(this.transformTax()));
-              this.sendCommand(
-                form,
-                "Задание отправлено на счетчики.",
-                "Ошибка ввода задания. Повторите ввод!",
-                {
-                  user: this.loadUser.name,
-                  description:
-                    this.$route.params.key +
-                    " set_data, gid: " +
-                    this.gid +
-                    " tax: " +
-                    JSON.stringify(this.transformTax()),
-                }
-              );
-              break;
-            case 2:
-              form.append("redkey", this.$route.params.key);
-              form.append("req_action", "alter_tax");
-              form.append("tax", JSON.stringify(this.transformTax()));
-              form.append("cnt", this.taxSum);
-              this.sendCommand(
-                form,
-                "Отправлено обновление акцизных марок.",
-                "Ошибка ввода акцизных марок. Повторите ввод!",
-                {
-                  user: this.loadUser.name,
-                  description:
-                    this.$route.params.key +
-                    " alter_tax tax: " +
-                    JSON.stringify(this.transformTax()) +
-                    " " +
-                    this.taxSum,
-                }
-              );
-              break;
-            case 3:
-              form.append("redkey", this.$route.params.key);
-              form.append("req_action", "job_start");
-              this.sendCommand(
-                form,
-                "Отправлена команда запуска линии.",
-                "Ошибка отправки команды запуска. Попробуйте снова!",
-                {
-                  user: this.loadUser.name,
-                  description: this.$route.params.key + " job_start",
-                }
-              );
-              break;
-            case 4:
-              form.append("redkey", this.$route.params.key);
-              form.append("req_action", "job_stop");
-              this.sendCommand(
-                form,
-                "Отправлена команда остановки линии.",
-                "Ошибка отправки команды остановки. Попробуйте снова!",
-                {
-                  user: this.loadUser.name,
-                  description: this.$route.params.key + " job_stop",
-                }
-              );
-              break;
-            case 5:
-              form.append("redkey", this.$route.params.key);
-              form.append("req_action", "job_cancel");
-              this.sendCommand(
-                form,
-                "Отправлена команда очистки задания.",
-                "Ошибка отправки команды очистки задания. Попробуйте снова!",
-                {
-                  user: this.loadUser.name,
-                  description: this.$route.params.key + " job_cancel",
-                }
-              );
-              break;
-            default:
-              this.$notify({
-                title: "Уведомление",
-                type: "error",
-                text: "Ошибка отправки команды. Попробуйте снова!",
-              });
-              console.log("error");
-          }
-        })
-        .catch((error) => {
-          axios.post(
-            "http://auth.vmvisioprom.kristal.local/api/log/",
+    async securityCheck(task) {
+      this.task = task;
+      if (this.loginCheck()) {
+        await axios
+          .get(
+            "http://auth.vmvisioprom.kristal.local/api/security/security_check/",
             {
-              user: this.loadUser.name,
-              description: "SECURITY ERROR WHILE SENDING COMMAND",
-            },
-            { header: { "Content-type": "application/json" } }
-          );
-          console.log(error);
-          this.$notify({
-            title: "Уведомление",
-            type: "error",
-            text: "Ошибка безопасности!",
+              headers: {
+                Authorization: "Bearer " + this.$store.getters.LOAD_TOKEN,
+              },
+            }
+          )
+          .then(() => {
+            var form = new FormData();
+            switch (this.task) {
+              case 1:
+                form.append("redkey", this.$route.params.key);
+                form.append("req_action", "set_data");
+                form.append("gid", this.maintainance ? 0 : this.gid);
+                form.append("vlc", this.vlc);
+                form.append("pdc", this.pdc);
+                form.append("pkc", this.pkc);
+                form.append(
+                  "cnt",
+                  this.exportParameter ? this.tax : this.taxSum
+                );
+                form.append("txc", this.taxType);
+                form.append("tax", JSON.stringify(this.transformTax()));
+                this.sendCommand(
+                  form,
+                  "Задание отправлено на счетчики.",
+                  "Ошибка ввода задания. Повторите ввод!",
+                  {
+                    user: this.loadUser.name,
+                    description:
+                      this.$route.params.key +
+                      " set_data, gid: " +
+                      this.gid +
+                      " tax: " +
+                      JSON.stringify(this.transformTax()),
+                  }
+                );
+                break;
+              case 2:
+                form.append("redkey", this.$route.params.key);
+                form.append("req_action", "alter_tax");
+                form.append("tax", JSON.stringify(this.transformTax()));
+                form.append("cnt", this.taxSum);
+                this.sendCommand(
+                  form,
+                  "Отправлено обновление акцизных марок.",
+                  "Ошибка ввода акцизных марок. Повторите ввод!",
+                  {
+                    user: this.loadUser.name,
+                    description:
+                      this.$route.params.key +
+                      " alter_tax tax: " +
+                      JSON.stringify(this.transformTax()) +
+                      " " +
+                      this.taxSum,
+                  }
+                );
+                break;
+              case 3:
+                form.append("redkey", this.$route.params.key);
+                form.append("req_action", "job_start");
+                this.sendCommand(
+                  form,
+                  "Отправлена команда запуска линии.",
+                  "Ошибка отправки команды запуска. Попробуйте снова!",
+                  {
+                    user: this.loadUser.name,
+                    description: this.$route.params.key + " job_start",
+                  }
+                );
+                break;
+              case 4:
+                form.append("redkey", this.$route.params.key);
+                form.append("req_action", "job_stop");
+                this.sendCommand(
+                  form,
+                  "Отправлена команда остановки линии.",
+                  "Ошибка отправки команды остановки. Попробуйте снова!",
+                  {
+                    user: this.loadUser.name,
+                    description: this.$route.params.key + " job_stop",
+                  }
+                );
+                break;
+              case 5:
+                form.append("redkey", this.$route.params.key);
+                form.append("req_action", "job_cancel");
+                this.sendCommand(
+                  form,
+                  "Отправлена команда очистки задания.",
+                  "Ошибка отправки команды очистки задания. Попробуйте снова!",
+                  {
+                    user: this.loadUser.name,
+                    description: this.$route.params.key + " job_cancel",
+                  }
+                );
+                break;
+              default:
+                this.$notify({
+                  title: "Уведомление",
+                  type: "error",
+                  text: "Ошибка отправки команды. Попробуйте снова!",
+                });
+                console.log("error");
+            }
+          })
+          .catch((error) => {
+            axios.post(
+              "http://auth.vmvisioprom.kristal.local/api/log/",
+              {
+                user: this.loadUser.name,
+                description: "SECURITY ERROR WHILE SENDING COMMAND",
+              },
+              { header: { "Content-type": "application/json" } }
+            );
+            console.log(error);
+            this.$notify({
+              title: "Уведомление",
+              type: "error",
+              text: "Ошибка безопасности!",
+            });
           });
-        });
-      this.numpad.pin = 0;
-      this.dialogPIN = false;
-    },
-    add(digit) {
-      if (this.numpad.pin && this.numpad.pin.length < this.numpad.limit) {
-        this.numpad.pin = this.numpad.pin.toString() + digit;
-      } else {
-        this.numpad.pin = digit.toString();
       }
     },
     editItem(item) {
@@ -1054,17 +979,17 @@ export default {
       this.closeDelete();
     },
     save() {
-      this.editedItem.result =
-        this.editedItem.number_end - this.editedItem.number_start + 1;
-      if (this.editedIndex > -1) {
-        Object.assign(this.values[this.editedIndex], this.editedItem);
-      } else {
-        this.values.push(this.editedItem);
+      if (this.$refs.form.validate()) {
+        this.editedItem.result =
+          this.editedItem.number_end - this.editedItem.number_start + 1;
+        if (this.editedIndex > -1) {
+          Object.assign(this.values[this.editedIndex], this.editedItem);
+        } else {
+          this.values.push(this.editedItem);
+        }
+        this.$refs.form.resetValidation();
+        this.closeAdd();
       }
-      this.closeAdd();
-    },
-    validateField() {
-      this.$refs.form.validate();
     },
     changeExport: function (value) {
       if (this.lineData.timetable) {
