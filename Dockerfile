@@ -1,4 +1,4 @@
-FROM node:latest
+FROM node:16.13
 RUN npm install -g http-server
 WORKDIR /app
 COPY package*.json ./
