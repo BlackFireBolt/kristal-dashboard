@@ -82,5 +82,9 @@ export default {
         });
     },
   },
+  mounted(){
+    console.log(this.$store)
+  this.$store.getters["RESET_STATE"];
+  }
 };
 </script>

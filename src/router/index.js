@@ -20,16 +20,10 @@ const routes = [
         path: "dashboard",
         name: "Dashboard",
         component: () => import("../views/Dashboard.vue"),
-        meta: { requiresAuth: true, title: "Панель администратора" },
+        meta: { requiresAuth: true, title: "Панель мониторинга" },
       },
       {
-        path: "manage",
-        name: "Manage",
-        component: () => import("../views/Manage.vue"),
-        meta: { requiresAuth: true, title: "Панель управления" },
-      },
-      {
-        path: "manage/control/:key",
+        path: "control/:key",
         name: "Control",
         component: () => import("../views/Control.vue"),
         meta: { requiresAuth: true, title: "Панель управления линией" },
@@ -46,6 +40,19 @@ const routes = [
         component: () => import("../views/Metrics.vue"),
         meta: { requiresAuth: true, title: "Метрика" },
       },
+      {
+        path: "adminpage",
+        name: "AdminPage",
+        component: () => import("../views/AdminPage.vue"),
+        meta: { requiresAuth: true, title: "Панель администратора"},
+        beforeEnter: (to, from, next) => {
+          if((store.getters.LOAD_USER.rights & 448) == 448){
+            next();
+          } else {
+            next ("/login");
+          }
+        }
+      }
     ],
   },
   {
@@ -55,7 +62,7 @@ const routes = [
 ];
 
 const router = new VueRouter({
-  mode: "hash",
+  mode: "history",
   base: process.env.BASE_URL,
   routes,
   scrollBehavior() {

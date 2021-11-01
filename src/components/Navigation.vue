@@ -10,7 +10,7 @@
 
     <v-divider></v-divider>
 
-    <v-list dense nav>
+    <v-list dense nav rounded>
       <v-list-item
         v-for="item in items"
         :key="item.title"
@@ -145,6 +145,17 @@
         </template>
       </v-dialog>
     </v-list>
+    <v-divider></v-divider>
+    <v-list dense nav rounded v-if="(loadUser.rights & 448) == 448">
+      <v-list-item to="/adminpage">
+        <v-list-item-icon>
+          <v-icon>mdi-account-tie</v-icon>
+        </v-list-item-icon>
+        <v-list-item-content>
+          <v-list-item-title>Администрирование</v-list-item-title>
+        </v-list-item-content>
+      </v-list-item>
+    </v-list>
   </v-navigation-drawer>
 </template>
 
@@ -157,7 +168,11 @@ export default {
       items: [
         { title: "Панель", icon: "mdi-view-dashboard", to: "/" },
         { title: "ППР", icon: "mdi-cog-clockwise", to: "/maintenance" },
-        { title: "Метрика", icon: "mdi-calculator-variant-outline", to: "/metrics" },
+        {
+          title: "Метрика",
+          icon: "mdi-calculator-variant-outline",
+          to: "/metrics",
+        },
       ],
       right: null,
       date: new Date().toISOString().substr(0, 10),
@@ -177,13 +192,20 @@ export default {
         this.$store.commit("TOGGLE_DRAWER", value);
       },
     },
+    loadUser() {
+      return this.$store.getters.LOAD_USER;
+    },
     lineSelect() {
       let lines = this.$store.getters.LOAD_LINES;
       let result = [];
       for (var i = 0; i < lines.length; i++) {
         for (var j = 0; j < lines[i].length; j++) {
-        result.push({ key: lines[i][j].key, name: "Линия №" + lines[i][j].line_id });
-      }}
+          result.push({
+            key: lines[i][j].key,
+            name: "Линия №" + lines[i][j].line_id,
+          });
+        }
+      }
       return result;
     },
   },

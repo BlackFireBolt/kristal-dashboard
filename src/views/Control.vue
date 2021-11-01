@@ -17,7 +17,13 @@
     <v-card-text>
       <v-divider></v-divider>
       <v-row
-        ><v-col cols="12" md="5" sm="12" xs="12" v-if="(loadUser.rights & 2) == 2">
+        ><v-col
+          cols="12"
+          md="5"
+          sm="12"
+          xs="12"
+          v-if="(loadUser.rights & 2) == 2"
+        >
           <div>
             <v-card class="mt-4"
               ><v-card-text>
@@ -199,14 +205,13 @@
                   </p>
                   <v-select
                     v-model="taxType"
-                    :items="txcVariants"
+                    :items="lineData.txc_variants"
                     item-text="value"
                     item-value="key"
                     label="Вид акцизной марки"
                     data-vv-name="Вид акцизной марки"
                     v-if="!exportParameter && !taxAdd"
                   ></v-select>
-
                   <v-text-field
                     class="mb-2"
                     v-model="tax"
@@ -221,7 +226,7 @@
                     <v-col cols="12" sm="6" md="4">
                       <v-select
                         v-model="vlc"
-                        :items="vlcVariants"
+                        :items="lineData.vlc_variants"
                         item-text="key"
                         item-value="value"
                         label="Объём"
@@ -231,7 +236,7 @@
                     <v-col cols="12" sm="6" md="4">
                       <v-select
                         v-model="pdc"
-                        :items="pdcVariants"
+                        :items="lineData.pdc_variants"
                         item-text="key"
                         item-value="value"
                         label="Продукция"
@@ -241,7 +246,7 @@
                     <v-col cols="12" sm="6" md="4">
                       <v-select
                         v-model="pkc"
-                        :items="pkcVariants"
+                        :items="lineData.pkc_variants"
                         item-text="key"
                         item-value="value"
                         label="Тара"
@@ -379,7 +384,7 @@
                 </p>
               </v-col>
               <v-col cols="12" md="6" sm="12" xs="12" class="text-right">
-                <v-dialog v-model="dialogInfo" width="500">
+                <v-dialog v-model="dialogInfo" width="800">
                   <template v-slot:activator="{ on, attrs }">
                     <v-btn color="red lighten-2" dark v-bind="attrs" v-on="on">
                       Информация с счетчиков
@@ -487,6 +492,15 @@
           </v-card-text>
           <v-divider></v-divider>
           <v-container>
+            <v-btn
+              @click="downloadData"
+              icon
+              elevation="2"
+              class="mb-2"
+              outlined
+              color="green"
+              ><v-icon>mdi-update</v-icon></v-btn
+            >
             <vue-plotly
               :id="lineData.key"
               :refers="lineData.key"
@@ -562,6 +576,7 @@ export default {
   components: { Status, Accidents, VuePlotly },
   data() {
     return {
+      chartTimeout: null,
       form: {
         validate: false,
         username: "",
@@ -613,14 +628,14 @@ export default {
           y: [],
           type: "scatter",
           line: { shape: "hv" },
-          name: "Первый счетчик",
+          name: "Акцизный счетчик",
         },
         {
           x: [],
           y: [],
           type: "scatter",
           line: { shape: "hv" },
-          name: "Второй счетчик",
+          name: "Разливной счетчик",
         },
       ],
       validate: false,
@@ -682,18 +697,6 @@ export default {
         ? "Новое значение"
         : "Редактировать значение";
     },
-    vlcVariants() {
-      return this.$store.getters.LOAD_VLC_VARIANTS;
-    },
-    pkcVariants() {
-      return this.$store.getters.LOAD_PKC_VARIANTS;
-    },
-    pdcVariants() {
-      return this.$store.getters.LOAD_PDC_VARIANTS;
-    },
-    txcVariants() {
-      return this.$store.getters.LOAD_TXC_VARIANTS;
-    },
     lineData() {
       let key = this.$route.params.key;
       let lines = this.$store.getters.LOAD_LINES;
@@ -718,8 +721,8 @@ export default {
       if (lines.timetable) {
         for (let i = 0; i < lines.timetable.length; i++) {
           timetable.push({
-            product:
-              lines.timetable[i].product + " --- " + lines.timetable[i].packing,
+            product: lines.timetable[i].export === 0 ?
+              lines.timetable[i].product + " --- " + lines.timetable[i].packing : lines.timetable[i].product + " --- " + lines.timetable[i].packing + " --- " + "ЭКСПОРТ",
             gid: lines.timetable[i].gid,
           });
         }
@@ -1021,48 +1024,53 @@ export default {
       }
       return tax;
     },
-  },
-  mounted() {
-    axios
-      .get(
-        "http://attp.kristal.local:5000/chart?c=" +
-          this.$route.params.key.slice(0, 5) +
-          "&a=15",
-        {
-          headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        }
-      )
-      .then((response) => {
-        let keys = Object.keys(response.data.lines);
-        let plots = Object.values(response.data.lines);
-        console.log(keys);
-        console.log(plots);
-        for (let i = 0; i < keys.length; i++) {
-          if (this.$route.params.key === keys[i]) {
-            console.log("suc");
-            if (plots[i].plot["1"]) {
-              console.log("ces");
-
-              this.series[0].x = plots[i].plot["1"][0];
-              this.series[0].y = plots[i].plot["1"][1];
-
-              console.log(this.series[0]);
-            }
-            if (plots[i].plot["2"]) {
-              this.series[1].x = plots[i].plot["2"][0];
-              this.series[1].y = plots[i].plot["2"][1];
+    async downloadData() {
+      console.log("DOWNLOAD");
+      await axios
+        .get(
+          "http://attp.kristal.local:5000/chart?c=" +
+            this.$route.params.key.slice(0, 5) +
+            "&a=15",
+          {
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+            timeout: 1000 * 5,
+          }
+        )
+        .then((response) => {
+          let keys = Object.keys(response.data.lines);
+          let plots = Object.values(response.data.lines);
+          for (let i = 0; i < keys.length; i++) {
+            if (this.$route.params.key === keys[i]) {
+              if (plots[i].plot["1"]) {
+                this.series[0].x = plots[i].plot["1"][0];
+                this.series[0].y = plots[i].plot["1"][1];
+              }
+              if (plots[i].plot["2"]) {
+                this.series[1].x = plots[i].plot["2"][0];
+                this.series[1].y = plots[i].plot["2"][1];
+              }
             }
           }
-        }
-      })
-      .catch(() => {
-        this.$notify({
-          title: "Уведомление",
-          type: "error",
-          text: "Ошибка соединения!",
+        })
+        .catch(() => {
+          this.$notify({
+            title: "Уведомление",
+            type: "error",
+            text: "Ошибка соединения!",
+          });
         });
-      });
-    this.$store.dispatch("GET_PRODUCTION_DATA", this.$route.params.key);
+    },
+  },
+  mounted() {
+    this.downloadData();
+    this.chartTimeout = setInterval(() => {
+      this.downloadData();
+    }, 60000);
+    console.log(this.$route.params.key);
+  },
+  beforeDestroy() {
+    console.log("destroy");
+    clearInterval(this.chartTimeout);
   },
 };
 </script>

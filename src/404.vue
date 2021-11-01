@@ -16,6 +16,9 @@
 <script>
 export default {
   name: "Error",
+  mounted(){
+    this.$store.commit("RESET_STATE");
+  }
 };
 </script>
 

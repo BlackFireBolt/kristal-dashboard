@@ -30,10 +30,6 @@ const getDefaultState = () => {
     utils: [],
     user: {},
     tokenJWT: "",
-    pdc_variants: [],
-    pkc_variants: [],
-    vlc_variants: [],
-    txc: [],
   };
 };
 
@@ -45,10 +41,6 @@ const getDeafultStateWithUser = () => {
     load_data: [],
     lines: [],
     utils: [],
-    pdc_variants: [],
-    pkc_variants: [],
-    vlc_variants: [],
-    txc: [],
   };
 };
 
@@ -64,10 +56,6 @@ export const store = new vuex.Store({
     utils: [],
     user: {},
     tokenJWT: "",
-    pdc_variants: [],
-    pkc_variants: [],
-    vlc_variants: [],
-    txc_variants: [],
   },
   mutations: {
     RESET_SSE: (state) => {
@@ -84,18 +72,6 @@ export const store = new vuex.Store({
     },
     SET_UTILS: (state, payload) => {
       state.utils.push(payload);
-    },
-    SET_PDC_VARIANTS: (state, payload) => {
-      state.pdc_variants = payload;
-    },
-    SET_PKC_VARIANTS: (state, payload) => {
-      state.pkc_variants = payload;
-    },
-    SET_VLC_VARIANTS: (state, payload) => {
-      state.vlc_variants = payload;
-    },
-    SET_TXC_VARIANTS: (state, payload) => {
-      state.txc_variants = payload;
     },
     TOGGLE_DRAWER: (state, payload) => {
       return (state.drawer = payload);
@@ -158,18 +134,6 @@ export const store = new vuex.Store({
     },
     LOAD_UTILS: (state) => {
       return state.utils;
-    },
-    LOAD_PDC_VARIANTS: (state) => {
-      return state.pdc_variants;
-    },
-    LOAD_PKC_VARIANTS: (state) => {
-      return state.pkc_variants;
-    },
-    LOAD_VLC_VARIANTS: (state) => {
-      return state.vlc_variants;
-    },
-    LOAD_TXC_VARIANTS: (state) => {
-      return state.txc_variants;
     },
     LOAD_DATA: (state) => {
       return state.load_data;
@@ -403,6 +367,32 @@ export const store = new vuex.Store({
         } else {
           line_object.product = plan[i].product;
         }
+        let pdc = [];
+        let vlc = [];
+        let pkc = [];
+        let txc = [];
+        let key_txc = Object.keys(plan[i].txc);
+        let value_txc = Object.values(plan[i].txc);
+        for (let k = 0; k < value_txc.length; k++) {
+          txc.push({ key: key_txc[k], value: value_txc[k] });
+        }
+        line_object.txc_variants = txc;
+        let key_product = Object.keys(plan[i].product);
+        let value_product = Object.values(plan[i].product);
+        for (let k = 0; k < value_product.length; k++) {
+          pdc.push({ key: key_product[k], value: value_product[k][0].pdc });
+          vlc.push({
+            key: value_product[k][0].vol_val,
+            value: value_product[k][0].vlc,
+          });
+          pkc.push({
+            key: value_product[k][0].pkc_val,
+            value: value_product[k][0].pkc,
+          });
+        }
+        line_object.pdc_variants = pdc;
+        line_object.vlc_variants = vlc;
+        line_object.pkc_variants = pkc;
         lines.push(line_object);
       }
       utils = {
@@ -574,37 +564,6 @@ export const store = new vuex.Store({
         context.commit("SET_STATUS_COLOR", "red--text");
       };
       context.commit("SET_SSE", server_side);
-    },
-    GET_PRODUCTION_DATA: async (context, payload) => {
-      let pdc = [];
-      let vlc = [];
-      let pkc = [];
-      let txc = [];
-      let load = context.getters.LOAD_DATA;
-      for (let i = 0; i < load.length; i++) {
-        let lines = Object.values(load[i].lines);
-        let keys = Object.keys(load[i].lines);
-        for (let j = 0; j < lines.length; j++) {
-          if (keys[j] === payload) {
-            let key = Object.keys(lines[j].product);
-            let value = Object.values(lines[j].product);
-            for (let k = 0; k < value.length; k++) {
-              pdc.push({ key: key[k], value: value[k][0].pdc });
-              vlc.push({ key: value[k][0].vol_val, value: value[k][0].vlc });
-              pkc.push({ key: value[k][0].pkc_val, value: value[k][0].pkc });
-            }
-            key = Object.keys(lines[j].txc);
-            value = Object.values(lines[j].txc);
-            for (let k = 0; k < value.length; k++) {
-              txc.push({ key: key[k], value: value[k] });
-            }
-          }
-        }
-      }
-      context.commit("SET_PDC_VARIANTS", pdc);
-      context.commit("SET_PKC_VARIANTS", pkc);
-      context.commit("SET_VLC_VARIANTS", vlc);
-      context.commit("SET_TXC_VARIANTS", txc);
     },
     GET_LOAD_DATA_SINGLE_LINE: async (context, payload) => {
       let { data } = await axios.get(
