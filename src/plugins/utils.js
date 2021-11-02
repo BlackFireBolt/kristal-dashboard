@@ -155,10 +155,29 @@ export function EventsDecoder(events) {
         object_value = Object.values(event_value[i])[0];
         decoded_object.type = "Задание на розлив";
         decoded_object.description =
-          "Начало задания --- " +
+          "Начало --- " +
           object_key +
-          ", конец задания --- " +
-          new Date(object_value.job_end);
+          ", завершено --- " +
+          new Date(object_value.job_end) +
+          "\n Сквозной --- " +
+          object_value.total_counter +
+          "\n Уставка --- " +
+          object_value.sp +
+          "\n Насчитано в розливе --- " +
+          object_value.pv +
+          "\n Насчитано без марок --- " +
+          object_value.pv_0 +
+          "\n Насчитано без задания --- " +
+          object_value.pv_1 +
+          "\n Продукция --- " +
+          object_value.pdc +
+          "\n Тара --- " +
+          object_value.pkc +
+          "\n Объем --- " +
+          object_value.vlc +
+          "\n Тип марки --- " +
+          object_value.txc +
+          "\n Марки --- ";
         decoded_object.date = key;
         break;
       default:

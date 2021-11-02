@@ -643,19 +643,19 @@ export default {
       dialogDelete: false,
       editedItem: {
         letter: "",
-        series_start: 0,
-        series_end: 0,
-        number_start: 0,
-        number_end: 0,
+        series_start: "",
+        series_end: "",
+        number_start: "",
+        number_end: "",
         result: 0,
       },
       editedIndex: -1,
       defaultItem: {
         letter: "",
-        series_start: 0,
-        series_end: 0,
-        number_start: 0,
-        number_end: 0,
+        series_start: "",
+        series_end: "",
+        number_start: "",
+        number_end: "",
         result: 0,
       },
       itemsLetters: ["А", "Б", "В", "Д", "И", "Л", "М", "Х", "Ц", "Я"],
@@ -795,6 +795,12 @@ export default {
     },
   },
   watch: {
+    "editedItem.series_start": function (value) {
+      this.editedItem.series_end = value;
+    },
+    "editedItem.number_start": function (value) {
+      this.editedItem.number_end = value;
+    },
     taxAdd: function (value) {
       if (value === true) {
         this.maintainance = false;
@@ -1039,7 +1045,8 @@ export default {
     save() {
       if (this.$refs.form.validate()) {
         this.editedItem.result =
-          this.editedItem.number_end - this.editedItem.number_start + 1;
+          (this.editedItem.number_end - this.editedItem.number_start + 1) *
+          (this.editedItem.series_end - this.editedItem.series_start + 1);
         if (this.editedIndex > -1) {
           Object.assign(this.values[this.editedIndex], this.editedItem);
         } else {
