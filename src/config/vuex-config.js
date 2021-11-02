@@ -4,6 +4,7 @@ import axios from "axios";
 import { TokenValidation } from "../plugins/utils.js";
 import { StatusDecoder } from "../plugins/utils.js";
 import { AccidentStatus } from "../plugins/utils.js";
+import { EventsDecoder } from "../plugins/utils.js";
 import createPersistedState from "vuex-persistedstate";
 import FormData from "form-data";
 
@@ -282,18 +283,16 @@ export const store = new vuex.Store({
                 },
               ]
             : null,
-          hw_events: [
-            plan[i].boi
-              ? plan[i].boi["1"].hw_events
-                ? plan[i].boi["1"].hw_events
-                : null
-              : null,
-            plan[i].boi
-              ? plan[i].boi["2"].hw_events
-                ? plan[i].boi["2"].hw_events
-                : null
-              : null,
-          ],
+          hw_events_1: plan[i].boi
+            ? plan[i].boi["1"].hw_events
+              ? EventsDecoder(plan[i].boi["1"].hw_events)
+              : null
+            : null,
+          hw_events_2: plan[i].boi
+            ? plan[i].boi["2"].hw_events
+              ? EventsDecoder(plan[i].boi["2"].hw_events)
+              : null
+            : null,
           layout: {
             autosize: true,
             showlegend: false,

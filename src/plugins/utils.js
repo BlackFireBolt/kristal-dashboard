@@ -92,3 +92,81 @@ export function GetDots(plot_last, axe) {
   }
   return result;
 }
+
+export function EventsDecoder(events) {
+  let decoded = [];
+  let key = new Date(parseInt(Object.keys(events)[0]));
+  let value = Object.values(events)[0];
+  let event_type = Object.keys(value);
+  let event_value = Object.values(value);
+  for (let i = 0; i < event_type.length; i++) {
+    let decoded_object = {};
+    let object_key = "";
+    let object_value = "";
+    switch (event_type[i]) {
+      case "1":
+        object_key = new Date(parseInt(Object.keys(event_value[i])[0]));
+        object_value = new Date(Object.values(event_value[i])[0]);
+        decoded_object.type = "Авария датчика";
+        decoded_object.description =
+          "Начало аварии --- " +
+          object_key +
+          ", конец аварии --- " +
+          object_value;
+        decoded_object.date = key;
+        break;
+      case "2":
+        object_key = new Date(parseInt(Object.keys(event_value[i])[0]));
+        object_value = new Date(Object.values(event_value[i])[0]);
+        decoded_object.type = "Ошибка";
+        decoded_object.description =
+          "Начало ошибки --- " +
+          object_key +
+          ", конец ошибки --- " +
+          object_value;
+        decoded_object.date = key;
+        break;
+      case "3":
+        object_key = new Date(parseInt(Object.keys(event_value[i])[0]));
+        object_value = new Date(Object.values(event_value[i])[0]);
+        decoded_object.type = "Отсутствие питания";
+        decoded_object.description =
+          "Начало --- " + object_key + ", конец --- " + object_value;
+        decoded_object.date = key;
+        break;
+      case "4":
+        object_key = new Date(parseInt(Object.keys(event_value[i])[0]));
+        object_value = new Date(Object.values(event_value[i])[0]);
+        decoded_object.type = "Коррекция времени";
+        decoded_object.description =
+          "Старое время --- " +
+          object_key +
+          ", установленное время --- " +
+          object_value;
+        decoded_object.date = key;
+        break;
+      case "5":
+        decoded_object.type = "Неизвестный тип";
+        decoded_object.description = "Неизвестно";
+        decoded_object.date = key;
+        break;
+      case "7":
+        object_key = new Date(parseInt(Object.keys(event_value[i])[0]));
+        object_value = Object.values(event_value[i])[0];
+        decoded_object.type = "Задание на розлив";
+        decoded_object.description =
+          "Начало задания --- " +
+          object_key +
+          ", конец задания --- " +
+          new Date(object_value.job_end);
+        decoded_object.date = key;
+        break;
+      default:
+        decoded_object.type = "Неизвестный тип";
+        decoded_object.description = "Неизвестно";
+        decoded_object.date = key;
+    }
+    decoded.push(decoded_object);
+  }
+  return decoded;
+}

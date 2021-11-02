@@ -384,7 +384,7 @@
                 </p>
               </v-col>
               <v-col cols="12" md="6" sm="12" xs="12" class="text-right">
-                <v-dialog v-model="dialogInfo" width="800">
+                <v-dialog v-model="dialogInfo" width="1300">
                   <template v-slot:activator="{ on, attrs }">
                     <v-btn color="red lighten-2" dark v-bind="attrs" v-on="on">
                       Информация с счетчиков
@@ -465,7 +465,54 @@
                       </div>
                       <p v-else>Нет данных со счетчиков</p>
                       <v-divider class="my-9"></v-divider>
-                      <div>{{ lineData.hw_events }}</div>
+                      <div class="overline mb-4">
+                        Счетчик {{ lineData.info[0].bid }}, акцизный
+                      </div>
+                      <v-simple-table>
+                        <template v-slot:default>
+                          <thead>
+                            <tr>
+                              <th class="text-left">Тип</th>
+                              <th class="text-left">Описание события</th>
+                              <th class="text-left">Дата</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr
+                              v-for="item in lineData.hw_events_1"
+                              :key="item.name"
+                            >
+                              <td>{{ item.type }}</td>
+                              <td>{{ item.description }}</td>
+                              <td>{{ item.date }}</td>
+                            </tr>
+                          </tbody>
+                        </template>
+                      </v-simple-table>
+                      <div class="overline mb-4">
+                        Счетчик {{ lineData.info[1].bid }}, разливной
+                      </div>
+                      <v-simple-table>
+                        <template v-slot:default>
+                          <thead>
+                            <tr>
+                              <th class="text-left">Тип</th>
+                              <th class="text-left">Описание события</th>
+                              <th class="text-left">Дата</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr
+                              v-for="item in lineData.hw_events_2"
+                              :key="item.name"
+                            >
+                              <td>{{ item.type }}</td>
+                              <td>{{ item.description }}</td>
+                              <td>{{ item.date }}</td>
+                            </tr>
+                          </tbody>
+                        </template>
+                      </v-simple-table>
                     </v-card-text>
 
                     <v-divider></v-divider>
@@ -721,8 +768,16 @@ export default {
       if (lines.timetable) {
         for (let i = 0; i < lines.timetable.length; i++) {
           timetable.push({
-            product: lines.timetable[i].export === 0 ?
-              lines.timetable[i].product + " --- " + lines.timetable[i].packing : lines.timetable[i].product + " --- " + lines.timetable[i].packing + " --- " + "ЭКСПОРТ",
+            product:
+              lines.timetable[i].export === 0
+                ? lines.timetable[i].product +
+                  " --- " +
+                  lines.timetable[i].packing
+                : lines.timetable[i].product +
+                  " --- " +
+                  lines.timetable[i].packing +
+                  " --- " +
+                  "ЭКСПОРТ",
             gid: lines.timetable[i].gid,
           });
         }
