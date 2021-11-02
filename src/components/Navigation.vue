@@ -147,7 +147,7 @@
     </v-list>
     <v-divider></v-divider>
     <v-list dense nav rounded v-if="(loadUser.rights & 448) == 448">
-      <v-list-item to="/adminpage">
+      <v-list-item to="/adminpage" @click="drawer = !drawer">
         <v-list-item-icon>
           <v-icon>mdi-account-tie</v-icon>
         </v-list-item-icon>
