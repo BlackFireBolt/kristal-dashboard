@@ -286,13 +286,13 @@ export const store = new vuex.Store({
           hw_events_1: plan[i].boi
             ? plan[i].boi["1"].hw_events
               ? EventsDecoder(plan[i].boi["1"].hw_events)
-              : null
-            : null,
+              : []
+            : [],
           hw_events_2: plan[i].boi
             ? plan[i].boi["2"].hw_events
               ? EventsDecoder(plan[i].boi["2"].hw_events)
-              : null
-            : null,
+              : []
+            : [],
           layout: {
             autosize: true,
             showlegend: false,

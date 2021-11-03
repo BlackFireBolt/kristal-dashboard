@@ -384,7 +384,8 @@
                 </p>
               </v-col>
               <v-col cols="12" md="6" sm="12" xs="12" class="text-right">
-                <v-dialog v-model="dialogInfo" width="1300">
+                <v-dialog v-model="dialogInfo" fullscreen hide-overlay
+      transition="dialog-bottom-transition">
                   <template v-slot:activator="{ on, attrs }">
                     <v-btn color="red lighten-2" dark v-bind="attrs" v-on="on">
                       Информация с счетчиков
@@ -392,15 +393,25 @@
                   </template>
 
                   <v-card>
-                    <v-card-title class="text-h5 grey lighten-2">
-                      Информация с счетчиков
-                    </v-card-title>
-
-                    <v-card-text
-                      ><div v-if="lineData.info">
-                        <div class="overline mb-4">
+                    <v-toolbar
+          dark
+          color="primary"
+        >
+          <v-btn
+            icon
+            dark
+            @click="dialogInfo = false"
+          >
+            <v-icon>mdi-close</v-icon>
+          </v-btn>
+          <v-toolbar-title>Информация с счетчиков</v-toolbar-title>
+          
+        </v-toolbar>
+                    <v-card-text>
+                      <div v-if="lineData.info">
+                        <v-subheader>
                           Счетчик {{ lineData.info[0].bid }}, акцизный
-                        </div>
+                        </v-subheader>
                         <v-simple-table dense v-if="lineData.info[0].info">
                           <template v-slot:default>
                             <thead>
@@ -430,9 +441,9 @@
                           </template>
                         </v-simple-table>
                         <p v-else>Нет данных</p>
-                        <div class="overline mb-4">
+                        <v-subheader>
                           Счетчик {{ lineData.info[1].bid }}, разливной
-                        </div>
+                        </v-subheader>
                         <v-simple-table dense v-if="lineData.info[1].info">
                           <template v-slot:default>
                             <thead>
@@ -465,10 +476,11 @@
                       </div>
                       <p v-else>Нет данных со счетчиков</p>
                       <v-divider class="my-9"></v-divider>
-                      <div class="overline mb-4">
-                        Счетчик {{ lineData.info[0].bid }}, акцизный
-                      </div>
-                      <v-simple-table>
+                      <v-divider class="my-9"></v-divider>
+                      <v-subheader>
+                        Счетчик акцизный
+                      </v-subheader>
+                      <v-simple-table v-if="lineData.hw_events_1">
                         <template v-slot:default>
                           <thead>
                             <tr>
@@ -483,16 +495,17 @@
                               :key="item.name"
                             >
                               <td>{{ item.type }}</td>
-                              <td>{{ item.description }}</td>
+                              <td><pre>{{ item.description }}</pre></td>
                               <td>{{ item.date }}</td>
                             </tr>
                           </tbody>
                         </template>
                       </v-simple-table>
-                      <div class="overline mb-4">
-                        Счетчик {{ lineData.info[1].bid }}, разливной
-                      </div>
-                      <v-simple-table>
+                      <p v-else>Нет данных</p>
+                      <v-subheader>
+                        Счетчик разливной
+                      </v-subheader>
+                      <v-simple-table v-if="lineData.hw_events_2">
                         <template v-slot:default>
                           <thead>
                             <tr>
@@ -507,22 +520,14 @@
                               :key="item.name"
                             >
                               <td>{{ item.type }}</td>
-                              <td>{{ item.description }}</td>
+                              <td><pre>{{ item.description }}</pre></td>
                               <td>{{ item.date }}</td>
                             </tr>
                           </tbody>
                         </template>
                       </v-simple-table>
+                      <p v-else>Нет данных</p>
                     </v-card-text>
-
-                    <v-divider></v-divider>
-
-                    <v-card-actions>
-                      <v-spacer></v-spacer>
-                      <v-btn color="primary" text @click="dialogInfo = false">
-                        Закрыть
-                      </v-btn>
-                    </v-card-actions>
                   </v-card>
                 </v-dialog>
                 <v-btn
@@ -552,6 +557,7 @@
               :id="lineData.key"
               :refers="lineData.key"
               :data="series"
+              :options="options"
               :layout="lineData.layout"
               :display-mode-bar="false"
               :autoResize="true"
@@ -685,6 +691,9 @@ export default {
           name: "Разливной счетчик",
         },
       ],
+      options: {
+        displayModeBar: false 
+      },
       validate: false,
       maintainance: false,
       exportParameter: false,
@@ -796,10 +805,12 @@ export default {
   },
   watch: {
     "editedItem.series_start": function (value) {
-      this.editedItem.series_end = value;
+      if (this.editedIndex === -1) {
+      this.editedItem.series_end = value;}
     },
     "editedItem.number_start": function (value) {
-      this.editedItem.number_end = value;
+      if (this.editedIndex === -1) {
+      this.editedItem.number_end = value;}
     },
     taxAdd: function (value) {
       if (value === true) {
@@ -1087,7 +1098,6 @@ export default {
       return tax;
     },
     async downloadData() {
-      console.log("DOWNLOAD");
       await axios
         .get(
           "http://attp.kristal.local:5000/chart?c=" +
@@ -1128,10 +1138,8 @@ export default {
     this.chartTimeout = setInterval(() => {
       this.downloadData();
     }, 60000);
-    console.log(this.$route.params.key);
   },
   beforeDestroy() {
-    console.log("destroy");
     clearInterval(this.chartTimeout);
   },
 };

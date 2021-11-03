@@ -111,7 +111,7 @@ export function EventsDecoder(events) {
         decoded_object.description =
           "Начало аварии --- " +
           object_key +
-          ", конец аварии --- " +
+          "\nКонец аварии --- " +
           object_value;
         decoded_object.date = key;
         break;
@@ -122,7 +122,7 @@ export function EventsDecoder(events) {
         decoded_object.description =
           "Начало ошибки --- " +
           object_key +
-          ", конец ошибки --- " +
+          "\nКонец ошибки --- " +
           object_value;
         decoded_object.date = key;
         break;
@@ -131,7 +131,7 @@ export function EventsDecoder(events) {
         object_value = new Date(Object.values(event_value[i])[0]);
         decoded_object.type = "Отсутствие питания";
         decoded_object.description =
-          "Начало --- " + object_key + ", конец --- " + object_value;
+          "Начало --- " + object_key + "\nКонец --- " + object_value;
         decoded_object.date = key;
         break;
       case "4":
@@ -141,7 +141,7 @@ export function EventsDecoder(events) {
         decoded_object.description =
           "Старое время --- " +
           object_key +
-          ", установленное время --- " +
+          "\nУстановленное время --- " +
           object_value;
         decoded_object.date = key;
         break;
@@ -157,27 +157,27 @@ export function EventsDecoder(events) {
         decoded_object.description =
           "Начало --- " +
           object_key +
-          ", завершено --- " +
+          "\nЗавершено --- " +
           new Date(object_value.job_end) +
-          "\n Сквозной --- " +
+          "\nСквозной --- " +
           object_value.total_counter +
-          "\n Уставка --- " +
+          "\nУставка --- " +
           object_value.sp +
-          "\n Насчитано в розливе --- " +
+          "\nНасчитано в розливе --- " +
           object_value.pv +
-          "\n Насчитано без марок --- " +
+          "\nНасчитано без марок --- " +
           object_value.pv_0 +
-          "\n Насчитано без задания --- " +
+          "\nНасчитано без задания --- " +
           object_value.pv_1 +
-          "\n Продукция --- " +
+          "\nПродукция --- " +
           object_value.pdc +
-          "\n Тара --- " +
+          "\nТара --- " +
           object_value.pkc +
-          "\n Объем --- " +
+          "\nОбъем --- " +
           object_value.vlc +
-          "\n Тип марки --- " +
+          "\nТип марки --- " +
           object_value.txc +
-          "\n Марки --- ";
+          "\nМарки --- ";
         decoded_object.date = key;
         break;
       default:

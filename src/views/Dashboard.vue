@@ -94,6 +94,7 @@
                         :refers="item.key"
                         :data="item.series"
                         :layout="item.layoutLow"
+                        :options="options"
                         :autoResize="true"
                     />
                   </v-sheet>
@@ -172,7 +173,8 @@ export default {
     return {
       panel: [1],
       options: {
-        responsive: true,
+
+        displayModeBar: false 
       },
       readonly: false,
     };
