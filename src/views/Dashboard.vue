@@ -1,6 +1,13 @@
 <template>
   <div>
-    <v-expansion-panels :readonly="readonly" accordion focusable tile multiple v-model="panel">
+    <v-expansion-panels
+      :readonly="readonly"
+      accordion
+      focusable
+      tile
+      multiple
+      v-model="panel"
+    >
       <v-expansion-panel v-for="(department, index) in linesList" :key="index">
         <v-expansion-panel-header class="body-1">
           {{ loadUtils[index].department }} --- {{ loadUtils[index].site }}
@@ -89,13 +96,13 @@
                         :accident="item.accidentStatus" /></v-container
                   ></v-sheet>
                   <v-sheet width="100%" height="100%">
-                      <vue-plotly
-                        :id="item.key"
-                        :refers="item.key"
-                        :data="item.series"
-                        :layout="item.layoutLow"
-                        :options="options"
-                        :autoResize="true"
+                    <vue-plotly
+                      :id="item.key"
+                      :refers="item.key"
+                      :data="item.series"
+                      :layout="item.layoutLow"
+                      :options="options"
+                      :autoResize="true"
                     />
                   </v-sheet>
                 </v-card-text>
@@ -173,8 +180,8 @@ export default {
     return {
       panel: [1],
       options: {
-
-        displayModeBar: false 
+        displayModeBar: false,
+        staticPlot: true,
       },
       readonly: false,
     };

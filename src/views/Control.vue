@@ -1,7 +1,10 @@
 <template>
   <v-card>
     <v-card-text>
-      <v-card-title>Линия №{{ lineData.line_id }}</v-card-title>
+      <v-card-title
+        >Линия №{{ lineData.line_id }} --- Участок №{{ lineData.plot_id }} ---
+        Цех №{{ lineData.dep_id }}</v-card-title
+      >
       <status
         :status="lineData.status"
         :statusPvFirst="lineData.statusPvFirst"
@@ -380,12 +383,18 @@
                 </p>
                 <p v-else>Нет заданий</p>
                 <p>
-                  Количество бутылок в текущем задании: {{ lineData.statusPv }}
+                  Количество бутылок в текущем задании: А ---
+                  {{ lineData.statusPvFirst }} Р ---
+                  {{ lineData.statusPvSecond }}
                 </p>
               </v-col>
               <v-col cols="12" md="6" sm="12" xs="12" class="text-right">
-                <v-dialog v-model="dialogInfo" fullscreen hide-overlay
-      transition="dialog-bottom-transition">
+                <v-dialog
+                  v-model="dialogInfo"
+                  fullscreen
+                  hide-overlay
+                  transition="dialog-bottom-transition"
+                >
                   <template v-slot:activator="{ on, attrs }">
                     <v-btn color="red lighten-2" dark v-bind="attrs" v-on="on">
                       Информация с счетчиков
@@ -393,20 +402,12 @@
                   </template>
 
                   <v-card>
-                    <v-toolbar
-          dark
-          color="primary"
-        >
-          <v-btn
-            icon
-            dark
-            @click="dialogInfo = false"
-          >
-            <v-icon>mdi-close</v-icon>
-          </v-btn>
-          <v-toolbar-title>Информация с счетчиков</v-toolbar-title>
-          
-        </v-toolbar>
+                    <v-toolbar dark color="primary">
+                      <v-btn icon dark @click="dialogInfo = false">
+                        <v-icon>mdi-close</v-icon>
+                      </v-btn>
+                      <v-toolbar-title>Информация с счетчиков</v-toolbar-title>
+                    </v-toolbar>
                     <v-card-text>
                       <div v-if="lineData.info">
                         <v-subheader>
@@ -477,9 +478,7 @@
                       <p v-else>Нет данных со счетчиков</p>
                       <v-divider class="my-9"></v-divider>
                       <v-divider class="my-9"></v-divider>
-                      <v-subheader>
-                        Счетчик акцизный
-                      </v-subheader>
+                      <v-subheader> Счетчик акцизный </v-subheader>
                       <v-simple-table v-if="lineData.hw_events_1">
                         <template v-slot:default>
                           <thead>
@@ -495,16 +494,16 @@
                               :key="item.name"
                             >
                               <td>{{ item.type }}</td>
-                              <td><pre>{{ item.description }}</pre></td>
+                              <td>
+                                <pre>{{ item.description }}</pre>
+                              </td>
                               <td>{{ item.date }}</td>
                             </tr>
                           </tbody>
                         </template>
                       </v-simple-table>
                       <p v-else>Нет данных</p>
-                      <v-subheader>
-                        Счетчик разливной
-                      </v-subheader>
+                      <v-subheader> Счетчик разливной </v-subheader>
                       <v-simple-table v-if="lineData.hw_events_2">
                         <template v-slot:default>
                           <thead>
@@ -520,7 +519,9 @@
                               :key="item.name"
                             >
                               <td>{{ item.type }}</td>
-                              <td><pre>{{ item.description }}</pre></td>
+                              <td>
+                                <pre>{{ item.description }}</pre>
+                              </td>
                               <td>{{ item.date }}</td>
                             </tr>
                           </tbody>
@@ -553,15 +554,10 @@
               color="green"
               ><v-icon>mdi-update</v-icon></v-btn
             >
-            <vue-plotly
-              :id="lineData.key"
-              :refers="lineData.key"
-              :data="series"
-              :options="options"
-              :layout="lineData.layout"
-              :display-mode-bar="false"
-              :autoResize="true"
-          /></v-container>
+            <v-sheet color="white" height="340"
+              ><JSCharting :options="chartOptions" class="chart"></JSCharting
+            ></v-sheet>
+          </v-container>
           <v-divider></v-divider>
           <accidents class="my-2" :line_key="lineData.key" />
           <v-divider></v-divider>
@@ -621,12 +617,13 @@ import axios from "axios";
 import FormData from "form-data";
 import Status from "../components/Status.vue";
 import Accidents from "../components/Accidents.vue";
-import VuePlotly from "@statnett/vue-plotly";
 import { TokenValidation } from "../plugins/utils.js";
+import { Zipper } from "../plugins/utils.js";
+import JSCharting from "jscharting-vue";
 
 export default {
   name: "Control",
-  components: { Status, Accidents, VuePlotly },
+  components: { Status, Accidents, JSCharting },
   data() {
     return {
       chartTimeout: null,
@@ -675,24 +672,26 @@ export default {
         { text: "Действия", value: "actions", sortable: false },
       ],
       values: [],
-      series: [
-        {
-          x: [],
-          y: [],
-          type: "scatter",
-          line: { shape: "hv" },
-          name: "Акцизный счетчик",
+      chartOptions: {
+        type: "line",
+        defaultPoint_tooltip: "%seriesName<br/>%yValue",
+        legend: {
+          template: "%icon %name",
         },
-        {
-          x: [],
-          y: [],
-          type: "scatter",
-          line: { shape: "hv" },
-          name: "Разливной счетчик",
+        xAxis: {
+          scale: {
+            type: "time",
+            interval: {
+              unit: "minute",
+              multiplier: 2,
+            },
+          },
         },
-      ],
-      options: {
-        displayModeBar: false 
+        yAxis: { scale: { range: [0, 10000] } },
+        series: [
+          { name: "Акцизный счетчик", points: [] },
+          { name: "Разливной счетчик", points: [] },
+        ],
       },
       validate: false,
       maintainance: false,
@@ -806,11 +805,13 @@ export default {
   watch: {
     "editedItem.series_start": function (value) {
       if (this.editedIndex === -1) {
-      this.editedItem.series_end = value;}
+        this.editedItem.series_end = value;
+      }
     },
     "editedItem.number_start": function (value) {
       if (this.editedIndex === -1) {
-      this.editedItem.number_end = value;}
+        this.editedItem.number_end = value;
+      }
     },
     taxAdd: function (value) {
       if (value === true) {
@@ -1114,12 +1115,16 @@ export default {
           for (let i = 0; i < keys.length; i++) {
             if (this.$route.params.key === keys[i]) {
               if (plots[i].plot["1"]) {
-                this.series[0].x = plots[i].plot["1"][0];
-                this.series[0].y = plots[i].plot["1"][1];
+                this.chartOptions.series[0].points = Zipper(
+                  plots[i].plot["1"][0],
+                  plots[i].plot["1"][1]
+                );
               }
               if (plots[i].plot["2"]) {
-                this.series[1].x = plots[i].plot["2"][0];
-                this.series[1].y = plots[i].plot["2"][1];
+                this.chartOptions.series[1].points = Zipper(
+                  plots[i].plot["2"][0],
+                  plots[i].plot["2"][1]
+                );
               }
             }
           }
@@ -1153,5 +1158,8 @@ export default {
 }
 .numpad input[type="number"] {
   -moz-appearance: textfield;
+}
+.chart {
+  height: 340px;
 }
 </style>

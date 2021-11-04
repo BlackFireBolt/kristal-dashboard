@@ -189,3 +189,7 @@ export function EventsDecoder(events) {
   }
   return decoded;
 }
+
+export function Zipper(array1, array2) {
+  return array1.map((x, i) => [x, array2[i]]);
+}

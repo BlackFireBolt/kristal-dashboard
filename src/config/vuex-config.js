@@ -229,6 +229,8 @@ export const store = new vuex.Store({
         ];
         let line_object = {
           line_id: key[i].slice(-1),
+          plot_id: key[i].charAt(1),
+          dep_id: key[i].charAt(4),
           key: key[i],
           status: StatusDecoder(plan[i].bitstatus),
           series: [
