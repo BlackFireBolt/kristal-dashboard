@@ -555,8 +555,7 @@
               ><v-icon>mdi-update</v-icon></v-btn
             >
             <v-sheet color="white" height="340"
-              ><JSCharting :options="chartOptions" class="chart"></JSCharting
-            ></v-sheet>
+              ></v-sheet>
           </v-container>
           <v-divider></v-divider>
           <accidents class="my-2" :line_key="lineData.key" />
@@ -619,11 +618,11 @@ import Status from "../components/Status.vue";
 import Accidents from "../components/Accidents.vue";
 import { TokenValidation } from "../plugins/utils.js";
 import { Zipper } from "../plugins/utils.js";
-import JSCharting from "jscharting-vue";
+
 
 export default {
   name: "Control",
-  components: { Status, Accidents, JSCharting },
+  components: { Status, Accidents },
   data() {
     return {
       chartTimeout: null,
