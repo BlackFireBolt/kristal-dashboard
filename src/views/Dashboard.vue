@@ -1,6 +1,6 @@
 <template>
   <div>
-    <v-container fluid v-if="loadChannels.length > 1" class="mx-auto mb-5">
+    <v-container fluid v-if="loadChannels && loadChannels.length > 1" class="mx-auto mb-5">
       <v-card-text>
         <v-row>
           <v-col

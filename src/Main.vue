@@ -31,9 +31,8 @@ export default {
     },
   },
   created() {
-    if (this.$store.getters.LOAD_SSE === null) {
+    
       let user_channels = this.$store.getters.LOAD_USER.channels;
-      console.log(user_channels);
       if (user_channels.length === 1) {
         this.$store.dispatch("SWITCH_CHANNEL", user_channels[0]);
       } else {
@@ -42,7 +41,7 @@ export default {
           this.$store.dispatch("SWITCH_CHANNEL", channel);
         }
       }
-    }
+    
   },
   beforeDestroy() {
     this.$store.dispatch("CLOSE_SSE");
