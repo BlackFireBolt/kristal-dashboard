@@ -36,7 +36,7 @@
             <v-spacer></v-spacer>
             <v-btn type="submit" color="primary">Вход в систему</v-btn>
           </v-card-actions>
-          </v-form>
+        </v-form>
       </v-card>
     </v-flex>
     <notifications position="bottom right" />
@@ -82,9 +82,8 @@ export default {
         });
     },
   },
-  mounted(){
-    console.log(this.$store)
-  this.$store.getters["RESET_STATE"];
-  }
+  mounted() {
+    this.$store.getters["RESET_STATE"];
+  },
 };
 </script>

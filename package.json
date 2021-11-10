@@ -8,7 +8,6 @@
     "lint": "vue-cli-service lint"
   },
   "dependencies": {
-    "@dangvanthanh/vue-clock": "^0.2.1",
     "@statnett/vue-plotly": "^0.3.2",
     "axios": "^0.21.1",
     "core-js": "^3.6.5",

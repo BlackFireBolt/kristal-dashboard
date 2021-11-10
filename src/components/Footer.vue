@@ -21,21 +21,12 @@ export default {
   },
   methods: {
     reload() {
-      if ((this.$store.getters.LOAD_USER.rights & 1) == 1) {
-        var channels = [];
-        if (this.$store.getters.LOAD_USER.superuser) {
-          channels = ["c1_s1", "c2_s2", "c2_s3"];
-        } else {
-          channels = this.$store.getters.LOAD_USER.channels;
-        }
-        this.$store.dispatch("CLOSE_SSE");
-        this.$store.commit("RESET_STATE_WITH_USER");
-        for (let i = 0; i < channels.length; i++) {
-          this.$store
-            .dispatch("GET_LOAD_DATA", channels[i])
-            .then(() => this.$store.dispatch("GET_LOAD_STREAM", channels[i]));
-        }
-      }
+      this.$store.dispatch("CLOSE_SSE");
+      this.$store.commit("RESET_STATE_WITH_USER");
+      let channel = JSON.parse(this.$cookie.get("channel"));
+      this.$store
+        .dispatch("GET_LOAD_DATA", channel)
+        .then(() => this.$store.dispatch("GET_LOAD_STREAM", channel));
     },
     currentDate() {
       let current = new Date();
@@ -45,13 +36,12 @@ export default {
       return date;
     },
   },
-  props: {
-    status: {
-      type: String,
-      default: "Состояние соединения с сервером неизвестно",
+  computed:{
+    status() {
+      return this.$store.getters.LOAD_STATUS;
     },
-    statusColor: {
-      type: String,
+    statusColor() {
+      return this.$store.getters.LOAD_STATUS_COLOR;
     },
   },
   mounted: function () {

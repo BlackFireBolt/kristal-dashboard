@@ -21,13 +21,13 @@ const dataState = createPersistedState({
 
 const getDefaultState = () => {
   return {
-    sse: [],
+    sse: null,
     status: null,
     statusColor: null,
     loader: true,
-    load_data: [],
+    load_data: null,
     drawer: false,
-    lines: [],
+    lines: null,
     utils: [],
     user: {},
     tokenJWT: "",
@@ -36,34 +36,34 @@ const getDefaultState = () => {
 
 const getDeafultStateWithUser = () => {
   return {
-    sse: [],
+    sse: null,
     status: null,
     statusColor: null,
-    load_data: [],
-    lines: [],
+    load_data: null,
+    lines: null,
     utils: [],
   };
 };
 
 export const store = new vuex.Store({
   state: {
-    sse: [],
+    sse: null,
     status: null,
     statusColor: null,
-    loader: true,
-    load_data: [],
+    loader: false,
+    load_data: null,
     drawer: false,
-    lines: [],
-    utils: [],
+    lines: null,
+    utils: null,
     user: {},
     tokenJWT: "",
   },
   mutations: {
     RESET_SSE: (state) => {
-      state.sse = [];
+      state.sse = null;
     },
     SET_SSE: (state, payload) => {
-      state.sse.push(payload);
+      state.sse = payload;
     },
     SET_STATUS_COLOR: (state, payload) => {
       state.statusColor = payload;
@@ -72,19 +72,19 @@ export const store = new vuex.Store({
       state.status = payload;
     },
     SET_UTILS: (state, payload) => {
-      state.utils.push(payload);
+      state.utils = payload;
     },
     TOGGLE_DRAWER: (state, payload) => {
       return (state.drawer = payload);
     },
     SET_LOAD_DATA: (state, payload) => {
-      state.load_data.push(payload);
+      state.load_data = payload;
     },
     SET_STATUSES: (state, payload) => {
       state.statuses = payload;
     },
     SET_LINES: (state, payload) => {
-      state.lines.push(payload);
+      state.lines = payload;
     },
     UPDATE_LINES: (state, payload) => {
       state.lines = payload;
@@ -156,12 +156,20 @@ export const store = new vuex.Store({
     },
   },
   actions: {
+    SWITCH_CHANNEL: (context, payload) => {
+      Vue.cookie.set("channel", JSON.stringify(payload), 7);
+      context.commit("SET_LOADER", true);
+
+      context.dispatch("GET_LOAD_DATA", payload).then(() => {
+        context.dispatch("GET_LOAD_STREAM", payload).then(() => {
+          context.commit("SET_LOADER", false);
+        });
+      });
+    },
     CLOSE_SSE: (context) => {
       let sse = context.getters.LOAD_SSE;
-      if (sse !== []) {
-        for (let i = 0; i < sse.length; i++) {
-          sse[i].close();
-        }
+      if (sse !== null) {
+        sse.close();
       }
       context.commit("RESET_SSE");
       console.log("closed all");
@@ -174,7 +182,6 @@ export const store = new vuex.Store({
         "http://attp.kristal.local:5000/vue?c=" + payload + "&nz=1",
         {
           headers: { "Content-Type": "application/x-www-form-urlencoded" },
-          timeout: 1000 * 5,
         }
       );
       var load = data.lines;
@@ -246,7 +253,8 @@ export const store = new vuex.Store({
                   : [0]
                 : [0],
               type: "scatter",
-              line: { shape: "hv" },
+              line: { color: '#17BECF', shape: 'hv'},
+              mode: "lines",
               name: "Акцизный счетчик",
             },
             {
@@ -261,10 +269,48 @@ export const store = new vuex.Store({
                   : [0]
                 : [0],
               type: "scatter",
-              line: { shape: "hv" },
+              line: { color: '#7F7F7F', shape: 'hv'},
+              mode: "lines",
               name: "Разливной счетчик",
             },
           ],
+
+          /*chartOptions: {
+            type: "line",
+            defaultPoint_tooltip: "%seriesName<br/>%yValue",
+            legend: {
+              template: "%icon %name",
+            },
+            xAxis: {
+              scale: {
+                type: "time",
+                interval: {
+                  unit: "minute",
+                  multiplier: 2,
+                },
+              },
+            },
+            yAxis: { scale: { range: [0, 10000] } },
+            series: [
+              {
+                name: "Акцизный счетчик",
+                points: plan[i].plot_last
+                  ? plan[i].plot_last.boi["1"]
+                    ? plan[i].plot_last.boi["1"]
+                    : []
+                  : [],
+              },
+              {
+                name: "Разливной счетчик",
+                points: plan[i].plot_last
+                  ? plan[i].plot_last.boi["2"]
+                    ? plan[i].plot_last.boi["2"]
+                    : []
+                  : [],
+              },
+            ],
+          },*/
+
           info: plan[i].boi
             ? [
                 {
@@ -296,8 +342,14 @@ export const store = new vuex.Store({
               : []
             : [],
           layout: {
+            height: 340,
+            scale: 1,
+            margin:{
+              b: 40,
+              t: 20
+            },
             autosize: true,
-            showlegend: false,
+            showlegend: true,
             yaxis: { range: [0, 10000] },
             xaxis: { tickformat: "%H:%M:%S", type: "date" },
             shapes: [
@@ -317,9 +369,14 @@ export const store = new vuex.Store({
             ],
           },
           layoutLow: {
-            height: 250,
+            height: 265,
+            scale: 1,
+            margin:{
+              b: 40,
+              t: 20
+            },
             autosize: true,
-            showlegend: false,
+            showlegend: true,
             yaxis: { range: [0, 10000] },
             xaxis: { tickformat: "%H:%M:%S", type: "date" },
             shapes: [
@@ -409,36 +466,27 @@ export const store = new vuex.Store({
       let server_side = new EventSource(
         "http://attp.kristal.local:5000/stream?chan=" + payload // check bad data?s
       );
-      server_side.addEventListener(
-        "control",
-        () => {
-          /*this.$store.dispatch("GET_CONTROL", event.data);*/
-        },
-        false
-      );
+      server_side.addEventListener("control", () => {}, false);
       server_side.addEventListener(
         "message",
         (event) => {
-          /*this.$store.dispatch("GET_MESSAGES", event.data);*/
           var load_data = JSON.parse(event.data.replace(/^\s+|\s+$/g, ""));
           let key = Object.keys(load_data)[0];
           let data = Object.values(load_data)[0];
           if (data.bitstatus) {
             let payload = context.getters.LOAD_LINES;
             for (let i = 0; i < payload.length; i++) {
-              for (let j = 0; j < payload[i].length; j++) {
-                if (payload[i][j].key === key) {
-                  context.dispatch("GET_STATUS", {
-                    key: key,
-                    status: data.bitstatus,
-                  });
-                  Vue.notify({
-                    title: "Уведомление",
-                    type: "info",
-                    text: "Изменение статуса линии №" + payload[i][j].key + "!",
-                  });
-                  break;
-                }
+              if (payload[i].key === key) {
+                context.dispatch("GET_STATUS", {
+                  key: key,
+                  status: data.bitstatus,
+                });
+                Vue.notify({
+                  title: "Уведомление",
+                  type: "info",
+                  text: "Изменение статуса линии №" + payload[i].key + "!",
+                });
+                break;
               }
             }
           }
@@ -446,61 +494,60 @@ export const store = new vuex.Store({
             let boi = data.boi;
             let payload = context.getters.LOAD_LINES;
             for (let i = 0; i < payload.length; i++) {
-              for (let j = 0; j < payload[i].length; j++) {
-                if (payload[i][j].key === key) {
-                  if (boi["1"]) {
-                    if (boi["1"]["spd"] && boi["1"]["stats-ts"]) {
-                      payload[i][j].series[0].x.push(boi["1"]["stats-ts"]);
-                      payload[i][j].series[0].y.push(boi["1"]["spd"]);
-                    }
-                    if (boi["1"]["status-pv"]) {
-                      payload[i][j].statusPvFirst = boi["1"]["status-pv"];
-                    }
-                    if (boi["1"]["status-sp"]) {
-                      payload[i][j].statusSpFirst = boi["1"]["status-sp"];
-                    }
-                    if (boi["1"]["info"]) {
-                      payload[i][j].info[0].pdc = boi["1"]["info"].pdc;
-                      payload[i][j].info[0].pkc = boi["1"]["info"].pkc;
-                      payload[i][j].info[0].vlc = boi["1"]["info"].vlc;
-                      payload[i][j].info[0].txc = boi["1"]["info"].txc;
-                    }
+              if (payload[i].key === key) {
+                if (boi["1"]) {
+                  if (boi["1"]["spd"] && boi["1"]["stats-ts"]) {
+                    payload[i].series[0].x.push(boi["1"]["stats-ts"]);
+                    payload[i].series[0].y.push(boi["1"]["spd"]);
                   }
-                  if (boi["2"]) {
-                    if (boi["2"]["spd"] && boi["2"]["stats-ts"]) {
-                      payload[i][j].series[1].x.push(boi["2"]["stats-ts"]);
-                      payload[i][j].series[1].y.push(boi["2"]["spd"]);
-                    }
-                    if (boi["2"]["info"]) {
-                      payload[i][j].info[1].pdc = boi["2"]["info"].pdc;
-                      payload[i][j].info[1].pkc = boi["2"]["info"].pkc;
-                      payload[i][j].info[1].vlc = boi["2"]["info"].vlc;
-                      payload[i][j].info[1].txc = boi["2"]["info"].txc;
-                    }
-                    if (boi["2"]["status-pv"]) {
-                      payload[i][j].statusPvSecond = boi["2"]["status-pv"];
-                    }
-                    if (boi["2"]["status-sp"]) {
-                      payload[i][j].statusSpSecond = boi["2"]["status-sp"];
-                    }
+                  if (boi["1"]["status-pv"]) {
+                    payload[i].statusPvFirst = boi["1"]["status-pv"];
                   }
-                  if (
-                    Date.now() - payload[i][j].series[0].x[0] >= 1200000 &&
-                    payload[i][j].series[0].x.length > 10
-                  ) {
-                    payload[i][j].series[0].x.shift();
-                    payload[i][j].series[0].y.shift();
+                  if (boi["1"]["status-sp"]) {
+                    payload[i].statusSpFirst = boi["1"]["status-sp"];
                   }
-                  if (
-                    Date.now() - payload[i][j].series[1].x[0] >= 1200000 &&
-                    payload[i][j].series[1].x.length > 10
-                  ) {
-                    payload[i][j].series[1].x.shift();
-                    payload[i][j].series[1].y.shift();
+                  if (boi["1"]["info"]) {
+                    payload[i].info[0].pdc = boi["1"]["info"].pdc;
+                    payload[i].info[0].pkc = boi["1"]["info"].pkc;
+                    payload[i].info[0].vlc = boi["1"]["info"].vlc;
+                    payload[i].info[0].txc = boi["1"]["info"].txc;
                   }
-                  context.commit("UPDATE_LINES", payload);
-                  break;
                 }
+                if (boi["2"]) {
+                  if (boi["2"]["spd"] && boi["2"]["stats-ts"]) {
+                    payload[i].series[1].x.push(boi["2"]["stats-ts"]);
+                    payload[i].series[1].y.push(boi["2"]["spd"]);
+                  }
+                  if (boi["2"]["info"]) {
+                    payload[i].info[1].pdc = boi["2"]["info"].pdc;
+                    payload[i].info[1].pkc = boi["2"]["info"].pkc;
+                    payload[i].info[1].vlc = boi["2"]["info"].vlc;
+                    payload[i].info[1].txc = boi["2"]["info"].txc;
+                  }
+                  if (boi["2"]["status-pv"]) {
+                    payload[i].statusPvSecond = boi["2"]["status-pv"];
+                  }
+                  if (boi["2"]["status-sp"]) {
+                    payload[i].statusSpSecond = boi["2"]["status-sp"];
+                  }
+                }
+                if (
+                  Date.now() - payload[i].series[0].x[0] >= 1200000 &&
+                  payload[i].series[0].x.length > 10
+                ) {
+                  payload[i].series[0].x.shift();
+                  payload[i].series[0].y.shift();
+                }
+
+                if (
+                  Date.now() - payload[i].series[1].x[0] >= 1200000 &&
+                  payload[i].series[1].x.length > 10
+                ) {
+                  payload[i].series[1].x.shift();
+                  payload[i].series[1].y.shift();
+                }
+                context.commit("UPDATE_LINES", payload);
+                break;
               }
             }
           }

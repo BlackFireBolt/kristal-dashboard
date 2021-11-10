@@ -1,169 +1,212 @@
 <template>
   <div>
-    <v-expansion-panels
-      :readonly="readonly"
-      accordion
-      focusable
-      tile
-      multiple
-      v-model="panel"
-    >
-      <v-expansion-panel v-for="(department, index) in linesList" :key="index">
-        <v-expansion-panel-header class="body-1">
-          {{ loadUtils[index].department }} --- {{ loadUtils[index].site }}
-          <template v-slot:actions>
-            <v-icon color="primary"> $expand </v-icon>
-          </template>
-        </v-expansion-panel-header>
-        <v-expansion-panel-content>
-          <v-row no-gutters>
-            <v-col
-              cols="12"
-              md="6"
-              sm="12"
-              xs="12"
-              v-for="item in department"
-              :key="item.id"
-            >
-              <v-card tile outlined>
-                <v-card-text>
-                  <v-app-bar flat dense color="white">
-                    <v-card-title>Линия №{{ item.line_id }}</v-card-title>
-                    <v-spacer></v-spacer>
-                    <v-btn
-                      color="primary"
-                      @click="
-                        $router.push({
-                          name: 'Control',
-                          params: {
-                            key: item.key,
-                          },
-                        })
-                      "
-                    >
-                      Управление
-                    </v-btn>
-                    <div v-if="item.timetable" class="mx-2">
-                      <v-badge
-                        overlap
-                        :value="item.timetable.length"
-                        :content="item.timetable.length"
-                        color="green"
-                      >
-                        <v-btn
-                          fab
-                          dark
-                          small
-                          @click="item.dialogTasks = true"
-                          color="blue"
+    <v-container fluid v-if="loadChannels.length > 1" class="mx-auto mb-5">
+      <v-card-text>
+        <v-row>
+          <v-col
+            cols="12"
+            md="4"
+            sm="6"
+            xs="12"
+            v-for="channel in loadChannels"
+            :key="channel.id"
+          >
+            <v-card hover cursor:pointer @click="switchChannel(channel)"
+              ><v-card-text>
+                <p class="text-h6 text--primary">
+                  Цех №{{ channel.charAt(1) }} --- Участок №{{
+                    channel.charAt(4)
+                  }}
+                </p>
+                <!--<v-row>
+                  <v-col cols="12" lg="3" md="6" sm="12" xs="12">
+                    <v-card outlined class="mx-auto">
+                      <v-card-subtitle>Линия 1</v-card-subtitle>
+                      <v-card-text>
+                        <v-chip class="mb-2 mr-3" color="success" pill x-small>
+                          <v-icon left>mdi-check-decagram</v-icon
+                          >Работает </v-chip
+                        ><v-chip class="mb-2 mr-3" color="success" pill x-small>
+                          <v-icon left>mdi-check-decagram</v-icon
+                          >Включена</v-chip
                         >
-                          <v-icon dark> mdi-clock-outline </v-icon>
-                        </v-btn></v-badge
-                      >
-                    </div>
-                    <v-btn disabled class="mx-2" fab small color="blue" v-else>
+                      </v-card-text>
+                    </v-card>
+                  </v-col>
+                  <v-col cols="12" lg="3" md="6" sm="12" xs="12">
+                    <v-card outlined class="mx-auto">
+                      <v-card-subtitle>Линия 2</v-card-subtitle>
+                      <v-card-text>
+                        <v-chip class="mb-2 mr-3" color="success" pill x-small>
+                          <v-icon left>mdi-check-decagram</v-icon
+                          >Работает </v-chip
+                        ><v-chip class="mb-2 mr-3" color="success" pill x-small>
+                          <v-icon left>mdi-check-decagram</v-icon
+                          >Включена</v-chip
+                        >
+                      </v-card-text>
+                    </v-card>
+                  </v-col>
+                </v-row>-->
+              </v-card-text></v-card
+            >
+          </v-col>
+        </v-row>
+      </v-card-text>
+    </v-container>
+    <v-container fluid v-if="linesList">
+      <p class="title" v-if="loadUtils">
+        {{ loadUtils.department }} --- {{ loadUtils.site }}
+      </p>
+      <v-row no-gutters>
+        <v-col
+          cols="12"
+          md="6"
+          sm="12"
+          xs="12"
+          v-for="item in linesList"
+          :key="item.id"
+        >
+          <v-card tile outlined>
+            <v-card-text>
+              <v-app-bar flat dense color="white">
+                <v-card-title>Линия №{{ item.line_id }}</v-card-title>
+                <v-spacer></v-spacer>
+                <v-btn
+                  color="primary"
+                  @click="
+                    $router.push({
+                      name: 'Control',
+                      params: {
+                        key: item.key,
+                      },
+                    })
+                  "
+                >
+                  Управление
+                </v-btn>
+                <div v-if="item.timetable" class="mx-2">
+                  <v-badge
+                    overlap
+                    :value="item.timetable.length"
+                    :content="item.timetable.length"
+                    color="green"
+                  >
+                    <v-btn
+                      fab
+                      dark
+                      small
+                      @click="item.dialogTasks = true"
+                      color="blue"
+                    >
                       <v-icon dark> mdi-clock-outline </v-icon>
+                    </v-btn></v-badge
+                  >
+                </div>
+                <v-btn disabled class="mx-2" fab small color="blue" v-else>
+                  <v-icon dark> mdi-clock-outline </v-icon>
+                </v-btn>
+                <v-badge
+                  overlap
+                  color="green"
+                  icon="mdi-exclamation-thick"
+                  :value="item.accidentStatus"
+                  ><v-btn
+                    fab
+                    dark
+                    small
+                    color="warning"
+                    @click="item.dialogAccidents = true"
+                  >
+                    <v-icon dark> mdi-clipboard-check-multiple-outline </v-icon>
+                  </v-btn>
+                </v-badge>
+                <v-btn class="mx-2" fab dark small color="error">
+                  <v-icon dark> mdi-cog-outline </v-icon>
+                </v-btn>
+              </v-app-bar>
+              <v-sheet width="100%" height="120">
+                <v-container
+                  ><status
+                    :status="item.status"
+                    :statusPvFirst="item.statusPvFirst"
+                    :statusSpFirst="item.statusSpFirst"
+                    :statusPvSecond="item.statusPvSecond"
+                    :statusSpSecond="item.statusSpSecond"
+                    :accident="item.accidentStatus" /></v-container
+              ></v-sheet>
+              <v-sheet color="white" height="250">
+                <vue-plotly
+                  :id="item.key"
+                  :refers="item.key"
+                  :data="item.series"
+                  :layout="item.layoutLow"
+                  :options="options"
+                  :autoResize="true"
+                />
+              </v-sheet>
+            </v-card-text>
+          </v-card>
+          <div v-for="item in linesList" :key="item.id">
+            <v-dialog
+              :retain-focus="false"
+              scrollable
+              v-model="item.dialogTasks"
+              width="1000"
+              transition="dialog-top-transition"
+            >
+              <v-card>
+                <v-toolbar color="primary" flat dark>
+                  <v-toolbar-title>Список заданий</v-toolbar-title>
+                  <v-spacer></v-spacer
+                  ><v-btn icon dark @click="item.dialogTasks = false">
+                    <v-icon>mdi-close</v-icon>
+                  </v-btn></v-toolbar
+                >
+
+                <tasks :tasks="item.timetable" />
+              </v-card>
+            </v-dialog>
+            <v-dialog
+              v-model="item.dialogAccidents"
+              fullscreen
+              persistent
+              hide-overlay
+              :retain-focus="false"
+              transition="dialog-bottom-transition"
+            >
+              <v-card tile>
+                <v-toolbar dark flat color="primary">
+                  <v-btn icon dark @click="item.dialogAccidents = false">
+                    <v-icon>mdi-close</v-icon>
+                  </v-btn>
+                  <v-toolbar-title
+                    >Журнал событий линии №{{ item.line_id }}</v-toolbar-title
+                  >
+                  <v-spacer></v-spacer>
+                  <v-toolbar-items>
+                    <v-btn dark text @click="item.dialogAccidents = false"
+                      ><v-icon>mdi-upload</v-icon>
+                      Отправить
                     </v-btn>
-                    <v-badge
-                      overlap
-                      color="green"
-                      icon="mdi-exclamation-thick"
-                      :value="item.accidentStatus"
-                      ><v-btn
-                        fab
-                        dark
-                        small
-                        color="warning"
-                        @click="item.dialogAccidents = true"
-                      >
-                        <v-icon dark>
-                          mdi-clipboard-check-multiple-outline
-                        </v-icon>
-                      </v-btn>
-                    </v-badge>
-                    <v-btn class="mx-2" fab dark small color="error">
-                      <v-icon dark> mdi-cog-outline </v-icon>
-                    </v-btn>
-                  </v-app-bar>
-                  <v-sheet width="100%" height="120">
-                    <v-container
-                      ><status
-                        :status="item.status"
-                        :statusPvFirst="item.statusPvFirst"
-                        :statusSpFirst="item.statusSpFirst"
-                        :statusPvSecond="item.statusPvSecond"
-                        :statusSpSecond="item.statusSpSecond"
-                        :accident="item.accidentStatus" /></v-container
-                  ></v-sheet>
-                  <v-sheet width="100%" height="100%">
-                    <vue-plotly
-                      :id="item.key"
-                      :refers="item.key"
-                      :data="item.series"
-                      :layout="item.layoutLow"
-                      :options="options"
-                      :autoResize="true"
-                    />
-                  </v-sheet>
+                  </v-toolbar-items>
+                </v-toolbar>
+                <v-card-text>
+                  <accidents :line_key="item.key" />
                 </v-card-text>
               </v-card>
-              <div v-for="item in department" :key="item.id">
-                <v-dialog
-                  :retain-focus="false"
-                  scrollable
-                  v-model="item.dialogTasks"
-                  width="1000"
-                  transition="dialog-top-transition"
-                >
-                  <v-card>
-                    <v-toolbar color="primary" flat dark>
-                      <v-toolbar-title>Список заданий</v-toolbar-title>
-                      <v-spacer></v-spacer
-                      ><v-btn icon dark @click="item.dialogTasks = false">
-                        <v-icon>mdi-close</v-icon>
-                      </v-btn></v-toolbar
-                    >
-
-                    <tasks :tasks="item.timetable" />
-                  </v-card>
-                </v-dialog>
-                <v-dialog
-                  v-model="item.dialogAccidents"
-                  fullscreen
-                  persistent
-                  hide-overlay
-                  :retain-focus="false"
-                  transition="dialog-bottom-transition"
-                >
-                  <v-card tile>
-                    <v-toolbar dark flat color="primary">
-                      <v-btn icon dark @click="item.dialogAccidents = false">
-                        <v-icon>mdi-close</v-icon>
-                      </v-btn>
-                      <v-toolbar-title
-                        >Журнал событий линии №{{
-                          item.line_id
-                        }}</v-toolbar-title
-                      >
-                      <v-spacer></v-spacer>
-                      <v-toolbar-items>
-                        <v-btn dark text @click="item.dialogAccidents = false"
-                          ><v-icon>mdi-upload</v-icon>
-                          Отправить
-                        </v-btn>
-                      </v-toolbar-items>
-                    </v-toolbar>
-                    <v-card-text>
-                      <accidents :line_key="item.key" />
-                    </v-card-text>
-                  </v-card>
-                </v-dialog>
-              </div>
-            </v-col>
-          </v-row>
-        </v-expansion-panel-content>
-      </v-expansion-panel>
-    </v-expansion-panels>
+            </v-dialog>
+          </div>
+        </v-col>
+      </v-row>
+    </v-container>
+    <v-container fluid v-else>
+      <div class="message">
+        <p>
+          {{ message }}
+        </p>
+      </div>
+    </v-container>
   </div>
 </template>
 
@@ -178,23 +221,43 @@ export default {
   components: { Status, VuePlotly, Accidents, Tasks },
   data() {
     return {
-      panel: [1],
+      message: "Выберите участок для просмотра",
       options: {
-        displayModeBar: false,
-        staticPlot: true,
+        doubleClick: "reset",
+        responsive: true,
+        displaylogo: false,
+        displayModeBar: true,
+        modeBarButtonsToRemove: [
+          "toggleSpikelines",
+          "toImage",
+          "pan2d",
+          "select2d",
+          "lasso2d",
+          "resetScale2d",
+          "autoScale2d",
+        ],
       },
-      readonly: false,
     };
   },
-  watch: {
-    gid: function (value) {
-      this.changeExport(value);
-    },
-    panel: function (value) {
-      this.$cookie.set("panel", JSON.stringify(value), 7);
+  methods: {
+    switchChannel(channel) {
+      this.$store.dispatch("CLOSE_SSE");
+      this.$store.commit("RESET_STATE_WITH_USER");
+      this.$store.dispatch("SWITCH_CHANNEL", channel);
     },
   },
   computed: {
+    loadChannels() {
+      if ((this.loadUser.rights & 1) === 1) {
+        var channels = [];
+        if (this.loadUser.superuser) {
+          channels = ["c1_s1", "c2_s2", "c2_s3"];
+        } else {
+          channels = this.loadUser.channels;
+        }
+      }
+      return channels;
+    },
     loadUser() {
       return this.$store.getters.LOAD_USER;
     },
@@ -208,13 +271,23 @@ export default {
       return this.$store.getters.LOAD_UTILS;
     },
   },
-  created() {
-    if (this.loadUser.channels.length == 1) {
-      this.panel = [0];
-      this.readonly = true;
-    } else {
-      this.panel = JSON.parse(this.$cookie.get("panel"));
-    }
-  },
 };
 </script>
+
+<style scoped>
+.message {
+  text-align: center;
+  position: relative;
+}
+.message p {
+  font-size: 36px;
+  color: teal;
+  padding-top: 90px;
+  position: relative;
+  z-index: 9;
+  line-height: 100%;
+}
+.chart {
+  height: 240px;
+}
+</style>
