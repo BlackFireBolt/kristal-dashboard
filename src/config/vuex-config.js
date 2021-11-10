@@ -783,6 +783,7 @@ export const store = new vuex.Store({
         { user: context.getters.LOAD_USER.name, description: "LOGOUT" },
         { header: { "Content-type": "application/json" }, timeout: 1000 * 5 }
       );
+      context.dispatch("CLOSE_SSE");
       context.commit("RESET_STATE");
     },
   },
