@@ -399,6 +399,22 @@ export const store = new vuex.Store({
           dialogAccidents: false,
           accidents: accidents,
           accidentStatus: AccidentStatus(accidents),
+          statusPv0First: plan[i].boi
+          ?  plan[i].boi["1"]["status-pv_0"]
+            
+          : null,
+          statusPv0Second: plan[i].boi
+          ?  plan[i].boi["2"]["status-pv_0"]
+            
+          : null,
+          statusPv1First: plan[i].boi
+          ?  plan[i].boi["1"]["status-pv_1"]
+            
+          : null,
+          statusPv1Second: plan[i].boi
+          ?  plan[i].boi["2"]["status-pv_1"]
+            
+          : null,
           statusPvFirst: plan[i].boi
             ? plan[i].boi["1"]["status-pv"]
               ? plan[i].boi["1"]["status-pv"]

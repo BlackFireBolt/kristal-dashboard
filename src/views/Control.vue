@@ -56,10 +56,10 @@
                   ></v-row>
                   <div v-if="!maintainance">
                     <v-select
-                      v-model="gid"
+                      v-model="gid_id"
                       :items="taskSelect"
                       item-text="product"
-                      item-value="gid"
+                      item-value="id"
                       :label="taskSelectionMessage"
                       filled
                       required
@@ -272,7 +272,7 @@
                           ? true
                           : false
                         : exportParameter
-                        ? gid === null || tax === null
+                        ? gid === null || tax === null || tax === ''
                           ? true
                           : false
                         : gid === null ||
@@ -389,6 +389,12 @@
                     Количество бутылок в текущем задании: А ---
                     {{ lineData.statusPvFirst }} Р ---
                     {{ lineData.statusPvSecond }}
+                  </p>
+                  <p>
+                    Насчитано без марок: А --- {{lineData.statusPv0First}} Р --- {{lineData.statusPv0Second}}
+                  </p>
+                  <p>
+                    Насчитано без задания: А --- {{lineData.statusPv1First}} Р --- {{lineData.statusPv1Second}}
                   </p>
                 </v-col>
                 <v-col cols="12" md="6" sm="12" xs="12" class="text-right">
@@ -723,32 +729,14 @@ export default {
           "autoScale2d",
         ],
       },
-      chartOptions: {
-        type: "line",
-        defaultPoint_tooltip: "%seriesName<br/>%yValue",
-        legend: {
-          template: "%icon %name",
-        },
-        xAxis: {
-          scale: {
-            type: "time",
-            interval: {
-              unit: "minute",
-              multiplier: 2,
-            },
-          },
-        },
-        yAxis: { scale: { range: [0, 10000] } },
-        series: [
-          { name: "Акцизный счетчик", points: [] },
-          { name: "Разливной счетчик", points: [] },
-        ],
-      },
       validate: false,
       maintainance: false,
       exportParameter: false,
       gid: null,
+      gid_id: -1,
+      tax_export_default: 0,
       tax: null,
+      rules:[(value) => !!value || "Введите значение.",(value) => !isNaN(value) || "Требуется ввод цифрового значения.",(value) => value[0] !== "0" || "Первый символ не должен быть нулем.",],
       ruleSeriesStart: [
         (value) => !!value || "Введите значение.",
         (value) => (value || "").indexOf(" ") < 0 || "Пробелы запрещены.",
@@ -827,17 +815,19 @@ export default {
       if (lines.timetable) {
         for (let i = 0; i < lines.timetable.length; i++) {
           timetable.push({
+            id: i,
             product:
               lines.timetable[i].export === 0
                 ? lines.timetable[i].product +
                   " --- " +
-                  lines.timetable[i].packing
+                  lines.timetable[i].packing + " --- " + lines.timetable[i].cnt
                 : lines.timetable[i].product +
                   " --- " +
                   lines.timetable[i].packing +
-                  " --- " +
-                  "ЭКСПОРТ",
+                  " --- " + 
+                  "ЭКСПОРТ" + " --- " + lines.timetable[i].cnt,
             gid: lines.timetable[i].gid,
+            cnt: lines.timetable[i].cnt
           });
         }
         return timetable;
@@ -880,8 +870,12 @@ export default {
     dialogDelete: function (value) {
       value || this.closeDelete();
     },
-    gid: function (value) {
-      this.changeExport(value);
+    gid_id: function (value) {
+      this.gid = this.taskSelect[value].gid;
+      this.changeExport(this.gid);
+      if (this.exportParameter){
+        this.tax = this.taskSelect[value].cnt;
+      }
     },
     username: function () {
       this.validateFieldAuth();
