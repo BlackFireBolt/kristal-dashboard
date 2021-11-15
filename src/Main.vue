@@ -1,8 +1,5 @@
 <template>
   <div>
-    <v-overlay :value="loadingStatus">
-      <v-progress-circular indeterminate size="64"></v-progress-circular>
-    </v-overlay>
     <navigation />
     <bar />
     <v-main>
@@ -25,11 +22,6 @@ import Footer from "./components/Footer.vue";
 export default {
   components: { Navigation, Bar, "footer-comp": Footer },
   name: "Main",
-  computed: {
-    loadingStatus() {
-      return this.$store.getters.LOAD_LOADER;
-    },
-  },
   created() {
     
       let user_channels = this.$store.getters.LOAD_USER.channels;

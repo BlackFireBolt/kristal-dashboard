@@ -253,7 +253,7 @@ export const store = new vuex.Store({
                   : [0]
                 : [0],
               type: "scatter",
-              line: { color: '#17BECF', shape: 'hv'},
+              line: { color: '#17BECF', shape: 'vh'},
               mode: "lines",
               name: "Акцизный счетчик",
             },
@@ -269,7 +269,7 @@ export const store = new vuex.Store({
                   : [0]
                 : [0],
               type: "scatter",
-              line: { color: '#7F7F7F', shape: 'hv'},
+              line: { color: '#7F7F7F', shape: 'vh'},
               mode: "lines",
               name: "Разливной счетчик",
             },

@@ -1,5 +1,8 @@
 <template>
   <div>
+    <v-overlay :value="loadingStatus">
+      <v-progress-circular indeterminate size="64"></v-progress-circular>
+    </v-overlay>
     <v-container fluid v-if="loadChannels && loadChannels.length > 1" class="mx-auto mb-5">
       <v-card-text>
         <v-row>
@@ -247,6 +250,9 @@ export default {
     },
   },
   computed: {
+    loadingStatus() {
+      return this.$store.getters.LOAD_LOADER;
+    },
     loadChannels() {
       if ((this.loadUser.rights & 1) === 1) {
         var channels = [];
