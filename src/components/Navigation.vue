@@ -30,65 +30,6 @@
         <template v-slot:activator="{ on, attrs }">
           <v-list-item v-bind="attrs" v-on="on">
             <v-list-item-icon>
-              <v-icon>mdi-package-down</v-icon>
-            </v-list-item-icon>
-            <v-list-item-content>
-              <v-list-item-title>Архив</v-list-item-title>
-            </v-list-item-content>
-          </v-list-item>
-        </template>
-        <template v-slot:default="dialog">
-          <v-card>
-            <v-toolbar color="primary" dark>Архив графиков и событий</v-toolbar>
-            <v-card-text>
-              <div class="text-h6 pa-5">
-                Выберите дату и линию для отображения
-              </div>
-              <v-menu
-                v-model="pickMenu"
-                :close-on-content-click="false"
-                :nudge-right="40"
-                transition="scale-transition"
-                offset-y
-                min-width="auto"
-              >
-                <template v-slot:activator="{ on, attrs }">
-                  <v-text-field
-                    v-model="date"
-                    label="Выберите дату"
-                    prepend-icon="mdi-calendar"
-                    readonly
-                    v-bind="attrs"
-                    v-on="on"
-                  ></v-text-field>
-                </template>
-                <v-date-picker
-                  v-model="date"
-                  @input="pickMenu = false"
-                ></v-date-picker>
-              </v-menu>
-              <v-select
-                v-model="line_key"
-                :items="lineSelect"
-                item-text="name"
-                item-value="key"
-                label="Выберите линию"
-                filled
-                required
-              >
-              </v-select>
-            </v-card-text>
-            <v-card-actions class="justify-end">
-              <v-btn text @click="dialog.value = false">Отмена</v-btn>
-              <v-btn color="success" @click="dialog.value = false">Поиск</v-btn>
-            </v-card-actions>
-          </v-card>
-        </template>
-      </v-dialog>
-      <v-dialog transition="dialog-top-transition" max-width="600">
-        <template v-slot:activator="{ on, attrs }">
-          <v-list-item v-bind="attrs" v-on="on">
-            <v-list-item-icon>
               <v-icon>mdi-television-classic</v-icon>
             </v-list-item-icon>
             <v-list-item-content>
@@ -167,6 +108,7 @@ export default {
     return {
       items: [
         { title: "Панель", icon: "mdi-view-dashboard", to: "/" },
+        { title: "Архив", icon: "mdi-package-down", to: "/archive"},
         { title: "ППР", icon: "mdi-cog-clockwise", to: "/maintenance" },
         {
           title: "Метрика",

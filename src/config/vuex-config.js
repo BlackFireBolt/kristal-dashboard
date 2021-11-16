@@ -253,7 +253,7 @@ export const store = new vuex.Store({
                   : [0]
                 : [0],
               type: "scatter",
-              line: { color: '#17BECF', shape: 'vh'},
+              line: { color: "#17BECF", shape: "vh" },
               mode: "lines",
               name: "Акцизный счетчик",
             },
@@ -269,48 +269,11 @@ export const store = new vuex.Store({
                   : [0]
                 : [0],
               type: "scatter",
-              line: { color: '#7F7F7F', shape: 'vh'},
+              line: { color: "#7F7F7F", shape: "vh" },
               mode: "lines",
               name: "Разливной счетчик",
             },
           ],
-
-          /*chartOptions: {
-            type: "line",
-            defaultPoint_tooltip: "%seriesName<br/>%yValue",
-            legend: {
-              template: "%icon %name",
-            },
-            xAxis: {
-              scale: {
-                type: "time",
-                interval: {
-                  unit: "minute",
-                  multiplier: 2,
-                },
-              },
-            },
-            yAxis: { scale: { range: [0, 10000] } },
-            series: [
-              {
-                name: "Акцизный счетчик",
-                points: plan[i].plot_last
-                  ? plan[i].plot_last.boi["1"]
-                    ? plan[i].plot_last.boi["1"]
-                    : []
-                  : [],
-              },
-              {
-                name: "Разливной счетчик",
-                points: plan[i].plot_last
-                  ? plan[i].plot_last.boi["2"]
-                    ? plan[i].plot_last.boi["2"]
-                    : []
-                  : [],
-              },
-            ],
-          },*/
-
           info: plan[i].boi
             ? [
                 {
@@ -344,9 +307,9 @@ export const store = new vuex.Store({
           layout: {
             height: 340,
             scale: 1,
-            margin:{
+            margin: {
               b: 40,
-              t: 20
+              t: 20,
             },
             autosize: true,
             showlegend: true,
@@ -371,9 +334,9 @@ export const store = new vuex.Store({
           layoutLow: {
             height: 265,
             scale: 1,
-            margin:{
+            margin: {
               b: 40,
-              t: 20
+              t: 20,
             },
             autosize: true,
             showlegend: true,
@@ -399,42 +362,14 @@ export const store = new vuex.Store({
           dialogAccidents: false,
           accidents: accidents,
           accidentStatus: AccidentStatus(accidents),
-          statusPv0First: plan[i].boi
-          ?  plan[i].boi["1"]["status-pv_0"]
-            
-          : null,
-          statusPv0Second: plan[i].boi
-          ?  plan[i].boi["2"]["status-pv_0"]
-            
-          : null,
-          statusPv1First: plan[i].boi
-          ?  plan[i].boi["1"]["status-pv_1"]
-            
-          : null,
-          statusPv1Second: plan[i].boi
-          ?  plan[i].boi["2"]["status-pv_1"]
-            
-          : null,
-          statusPvFirst: plan[i].boi
-            ? plan[i].boi["1"]["status-pv"]
-              ? plan[i].boi["1"]["status-pv"]
-              : 0
-            : 0,
-          statusSpFirst: plan[i].boi
-            ? plan[i].boi["1"]["status-sp"]
-              ? plan[i].boi["1"]["status-sp"]
-              : 0
-            : 0,
-          statusPvSecond: plan[i].boi
-            ? plan[i].boi["2"]["status-pv"]
-              ? plan[i].boi["2"]["status-pv"]
-              : 0
-            : 0,
-          statusSpSecond: plan[i].boi
-            ? plan[i].boi["2"]["status-sp"]
-              ? plan[i].boi["2"]["status-sp"]
-              : 0
-            : 0,
+          statusPv0First: plan[i].boi ? plan[i].boi["1"]["status-pv_0"] : null,
+          statusPv0Second: plan[i].boi ? plan[i].boi["2"]["status-pv_0"] : null,
+          statusPv1First: plan[i].boi ? plan[i].boi["1"]["status-pv_1"] : null,
+          statusPv1Second: plan[i].boi ? plan[i].boi["2"]["status-pv_1"] : null,
+          statusPvFirst: plan[i].boi ? plan[i].boi["1"]["status-pv"] : null,
+          statusSpFirst: plan[i].boi ? plan[i].boi["1"]["status-sp"] : null,
+          statusPvSecond: plan[i].boi ? plan[i].boi["2"]["status-pv"] : null,
+          statusSpSecond: plan[i].boi ? plan[i].boi["2"]["status-sp"] : null,
         };
         if (plan[i].plan) {
           line_object.timetable = plan[i].plan.timetable;
@@ -512,17 +447,20 @@ export const store = new vuex.Store({
             for (let i = 0; i < payload.length; i++) {
               if (payload[i].key === key) {
                 if (boi["1"]) {
-                  if (boi["1"]["spd"] && boi["1"]["stats-ts"]) {
+                  if (
+                    typeof boi["1"]["spd"] !== "undefined" &&
+                    typeof boi["1"]["stats-ts"] !== "undefined"
+                  ) {
                     payload[i].series[0].x.push(boi["1"]["stats-ts"]);
                     payload[i].series[0].y.push(boi["1"]["spd"]);
                   }
-                  if (boi["1"]["status-pv"]) {
+                  if (typeof boi["1"]["status-pv"] !== "undefined") {
                     payload[i].statusPvFirst = boi["1"]["status-pv"];
                   }
-                  if (boi["1"]["status-sp"]) {
+                  if (typeof boi["1"]["status-sp"] !== "undefined") {
                     payload[i].statusSpFirst = boi["1"]["status-sp"];
                   }
-                  if (boi["1"]["info"]) {
+                  if (typeof boi["1"]["info"] !== "undefined") {
                     payload[i].info[0].pdc = boi["1"]["info"].pdc;
                     payload[i].info[0].pkc = boi["1"]["info"].pkc;
                     payload[i].info[0].vlc = boi["1"]["info"].vlc;
@@ -530,20 +468,23 @@ export const store = new vuex.Store({
                   }
                 }
                 if (boi["2"]) {
-                  if (boi["2"]["spd"] && boi["2"]["stats-ts"]) {
+                  if (
+                    typeof boi["2"]["spd"] !== "undefined" &&
+                    typeof boi["2"]["stats-ts"] !== "undefined"
+                  ) {
                     payload[i].series[1].x.push(boi["2"]["stats-ts"]);
                     payload[i].series[1].y.push(boi["2"]["spd"]);
                   }
-                  if (boi["2"]["info"]) {
+                  if (typeof boi["2"]["info"] !== "undefined") {
                     payload[i].info[1].pdc = boi["2"]["info"].pdc;
                     payload[i].info[1].pkc = boi["2"]["info"].pkc;
                     payload[i].info[1].vlc = boi["2"]["info"].vlc;
                     payload[i].info[1].txc = boi["2"]["info"].txc;
                   }
-                  if (boi["2"]["status-pv"]) {
+                  if (typeof boi["2"]["status-pv"] !== "undefined") {
                     payload[i].statusPvSecond = boi["2"]["status-pv"];
                   }
-                  if (boi["2"]["status-sp"]) {
+                  if (typeof boi["2"]["status-sp"] !== "undefined") {
                     payload[i].statusSpSecond = boi["2"]["status-sp"];
                   }
                 }

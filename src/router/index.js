@@ -29,6 +29,12 @@ const routes = [
         meta: { requiresAuth: true, title: "Панель управления линией" },
       },
       {
+        path: "archive",
+        name: "Archive",
+        component: () => import("../views/Archive.vue"),
+        meta: { requiresAuth: true, title: "Архив" },
+      },
+      {
         path: "maintenance",
         name: "Maintenance",
         component: () => import("../views/Maintenance.vue"),
@@ -44,15 +50,15 @@ const routes = [
         path: "adminpage",
         name: "AdminPage",
         component: () => import("../views/AdminPage.vue"),
-        meta: { requiresAuth: true, title: "Панель администратора"},
+        meta: { requiresAuth: true, title: "Панель администратора" },
         beforeEnter: (to, from, next) => {
-          if((store.getters.LOAD_USER.rights & 448) == 448){
+          if ((store.getters.LOAD_USER.rights & 448) == 448) {
             next();
           } else {
-            next ("/login");
+            next("/login");
           }
-        }
-      }
+        },
+      },
     ],
   },
   {

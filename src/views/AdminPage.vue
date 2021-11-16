@@ -6,7 +6,7 @@
     </v-tabs>
     <v-tabs-items v-model="tab">
       <v-tab-item>
-        <v-card>
+        <v-card class="mt-5">
           <v-card-text>
             <v-row>
               <v-col cols="12" sm="1">
@@ -41,7 +41,7 @@
         </v-card>
       </v-tab-item>
       <v-tab-item>
-        <v-card>
+        <v-card class="mt-5">
           <v-row>
             <v-col :cols="2">
               <v-tabs v-model="tabUsers" vertical>
@@ -577,7 +577,6 @@ export default {
       this.editedItemRole = Object.assign({}, item);
       this.dialogCreateRole = true;
     },
-
     async saveUsers() {
       if (this.$refs.formUsers.validate()) {
         if (this.editedIndexUser > -1) {
@@ -744,8 +743,14 @@ export default {
     dialogCreateUser: function (value) {
       value || this.closeCreateUser();
     },
-    dialogDeleteUser: function (value) {
-      value || this.closeDeleteUser();
+    dialogCreateRole: function (value) {
+      value || this.closeCreateRole();
+    },
+    dialogPasswordUser: function (value) {
+      value || this.closeChangePasswordUsers();
+    },
+    dialogDeleteRole: function (value) {
+      value || this.closeDeleteRole();
     },
   },
   mounted() {

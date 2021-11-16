@@ -266,6 +266,7 @@
                     x-large
                     v-if="!taxAdd"
                     @click.stop="securityCheck(1)"
+                    :loading="loadingBtn"
                     :disabled="
                       maintainance
                         ? vlc === null || pdc === null || pkc === null
@@ -289,6 +290,7 @@
                     x-large
                     v-else
                     @click.stop="securityCheck(2)"
+                    :loading="loadingBtn"
                     :disabled="values.length === 0 ? true : false"
                     >Добавить акциз</v-btn
                   >
@@ -303,6 +305,7 @@
               color="success"
               x-large
               @click.stop="securityCheck(3)"
+              :loading="loadingBtn"
               :disabled="lineData.status === -1"
               >Старт линии</v-btn
             >
@@ -313,6 +316,7 @@
               class="my-5"
               x-large
               @click.stop="securityCheck(4)"
+              :loading="loadingBtn"
               >Остановка линии</v-btn
             >
             <v-btn
@@ -320,6 +324,7 @@
               elevation="2"
               class="my-5"
               large
+              :loading="loadingBtn"
               @click.stop="securityCheck(5)"
             >
               Сброс данных
@@ -391,10 +396,12 @@
                     {{ lineData.statusPvSecond }}
                   </p>
                   <p>
-                    Насчитано без марок: А --- {{lineData.statusPv0First}} Р --- {{lineData.statusPv0Second}}
+                    Насчитано без марок: А --- {{ lineData.statusPv0First }} Р
+                    --- {{ lineData.statusPv0Second }}
                   </p>
                   <p>
-                    Насчитано без задания: А --- {{lineData.statusPv1First}} Р --- {{lineData.statusPv1Second}}
+                    Насчитано без задания: А --- {{ lineData.statusPv1First }} Р
+                    --- {{ lineData.statusPv1Second }}
                   </p>
                 </v-col>
                 <v-col cols="12" md="6" sm="12" xs="12" class="text-right">
@@ -650,6 +657,7 @@ export default {
   components: { Status, Accidents, VuePlotly },
   data() {
     return {
+      loadingBtn: false,
       chartTimeout: null,
       form: {
         validate: false,
@@ -736,7 +744,11 @@ export default {
       gid_id: -1,
       tax_export_default: 0,
       tax: null,
-      rules:[(value) => !!value || "Введите значение.",(value) => !isNaN(value) || "Требуется ввод цифрового значения.",(value) => value[0] !== "0" || "Первый символ не должен быть нулем.",],
+      rules: [
+        (value) => !!value || "Введите значение.",
+        (value) => !isNaN(value) || "Требуется ввод цифрового значения.",
+        (value) => value[0] !== "0" || "Первый символ не должен быть нулем.",
+      ],
       ruleSeriesStart: [
         (value) => !!value || "Введите значение.",
         (value) => (value || "").indexOf(" ") < 0 || "Пробелы запрещены.",
@@ -820,14 +832,18 @@ export default {
               lines.timetable[i].export === 0
                 ? lines.timetable[i].product +
                   " --- " +
-                  lines.timetable[i].packing + " --- " + lines.timetable[i].cnt
+                  lines.timetable[i].packing +
+                  " --- " +
+                  lines.timetable[i].cnt
                 : lines.timetable[i].product +
                   " --- " +
                   lines.timetable[i].packing +
-                  " --- " + 
-                  "ЭКСПОРТ" + " --- " + lines.timetable[i].cnt,
+                  " --- " +
+                  "ЭКСПОРТ" +
+                  " --- " +
+                  lines.timetable[i].cnt,
             gid: lines.timetable[i].gid,
-            cnt: lines.timetable[i].cnt
+            cnt: lines.timetable[i].cnt,
           });
         }
         return timetable;
@@ -873,7 +889,7 @@ export default {
     gid_id: function (value) {
       this.gid = this.taskSelect[value].gid;
       this.changeExport(this.gid);
-      if (this.exportParameter){
+      if (this.exportParameter) {
         this.tax = this.taskSelect[value].cnt;
       }
     },
@@ -886,6 +902,7 @@ export default {
   },
   methods: {
     async sendCommand(form, success, error, journal) {
+      this.btnTimeout();
       await axios
         .post("http://attp.kristal.local:5000/vue", form, {
           headers: { "Content-Type": "multipart/form-data" },
@@ -903,7 +920,8 @@ export default {
             text: success,
           });
         })
-        .catch(() => {
+        .catch((err) => {
+          console.log(err.response);
           journal.description = journal.description + " ERROR";
           axios.post(
             "http://auth.vmvisioprom.kristal.local/api/log/",
@@ -913,7 +931,7 @@ export default {
           this.$notify({
             title: "Уведомление",
             type: "error",
-            text: error,
+            text: err.response.data.e_code_info,
           });
         });
     },
@@ -1176,6 +1194,10 @@ export default {
             text: "Ошибка соединения!",
           });
         });
+    },
+    btnTimeout() {
+      this.loadingBtn = true;
+      setTimeout(() => (this.loadingBtn = false), 1000);
     },
   },
   mounted() {
