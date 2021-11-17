@@ -558,7 +558,7 @@
                     class="ml-4"
                     color="green lighten-2"
                     dark
-                    href="http://attp:5000/loglog"
+                    v-bind:href="'http://attp:5000/loglog?c='+ lineData.key.substring(0,5)"
                     target="_blank"
                   >
                     ЛОГ
