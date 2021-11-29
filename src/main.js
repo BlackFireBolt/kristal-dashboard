@@ -4,6 +4,7 @@ import router from "./router";
 import vuetify from "./plugins/vuetify";
 import axios from "axios";
 import vuecookie from "vue-cookie";
+import VuePipeline from "vue-pipeline";
 
 import "./config/notification-config.js";
 import { store } from "./config/vuex-config.js";
@@ -13,7 +14,9 @@ axios.defaults.headers.post["Content-Type"] =
 
 Vue.config.productionTip = false;
 
-Vue.use(vuecookie)
+Vue.use(vuecookie);
+
+Vue.use(VuePipeline);
 
 new Vue({
   router,

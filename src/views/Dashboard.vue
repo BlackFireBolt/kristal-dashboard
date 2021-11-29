@@ -124,9 +124,6 @@
                     <v-icon dark> mdi-clipboard-check-multiple-outline </v-icon>
                   </v-btn>
                 </v-badge>
-                <v-btn class="mx-2" fab dark small color="error">
-                  <v-icon dark> mdi-cog-outline </v-icon>
-                </v-btn>
               </v-app-bar>
               <v-sheet width="100%" height="120">
                 <v-container

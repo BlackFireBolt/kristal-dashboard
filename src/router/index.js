@@ -41,6 +41,12 @@ const routes = [
         meta: { requiresAuth: true, title: "Планово-предупредительный ремонт" },
       },
       {
+        path: "maintenance/:id",
+        name: "MaintenanceDetail",
+        component: () => import("../views/MaintenanceDetail.vue"),
+        meta: { requiresAuth: true, title: "Детальная информация об оборудовании"}
+      },
+      {
         path: "metrics",
         name: "Metrics",
         component: () => import("../views/Metrics.vue"),
