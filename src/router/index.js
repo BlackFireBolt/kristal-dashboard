@@ -35,6 +35,12 @@ const routes = [
         meta: { requiresAuth: true, title: "Архив" },
       },
       {
+        path: "archive/:key",
+        name: "ArchiveDetail",
+        component: () => import("../views/ArchiveDetail.vue"),
+        meta: { requiresAuth: true, title: "Информация о разливке" },
+      },
+      {
         path: "maintenance",
         name: "Maintenance",
         component: () => import("../views/Maintenance.vue"),
@@ -44,7 +50,10 @@ const routes = [
         path: "maintenance/:id",
         name: "MaintenanceDetail",
         component: () => import("../views/MaintenanceDetail.vue"),
-        meta: { requiresAuth: true, title: "Детальная информация об оборудовании"}
+        meta: {
+          requiresAuth: true,
+          title: "Детальная информация об оборудовании",
+        },
       },
       {
         path: "metrics",

@@ -328,19 +328,41 @@
           </v-btn>
           <v-row v-if="lineData.info">
             <v-col cols="12" md="6" sm="12" xs="12">
-              <v-btn block elevation="2" class="my-5" large v-bind:href="'http://attp.kristal.local:5000/datalog?bid=' + lineData.info[0].bid + '&period='+ currentYear"
-                  target="_blank" :disabled="lineData.info? false : true">
-            Выгрузка данных акцизный
-          </v-btn>
-
+              <v-btn
+                block
+                elevation="2"
+                class="my-5"
+                large
+                v-bind:href="
+                  'http://attp.kristal.local:5000/datalog?bid=' +
+                  lineData.info[0].bid +
+                  '&period=' +
+                  currentYear
+                "
+                target="_blank"
+                :disabled="lineData.info ? false : true"
+              >
+                Выгрузка данных акцизный
+              </v-btn>
             </v-col>
             <v-col cols="12" md="6" sm="12" xs="12">
-              <v-btn block elevation="2" class="my-5" large v-bind:href="'http://attp.kristal.local:5000/datalog?bid=' + lineData.info[1].bid + '&period='+ currentYear"
-                  target="_blank" :disabled="lineData.info? false : true">
-            Выгрузка данных разливной
-          </v-btn>
+              <v-btn
+                block
+                elevation="2"
+                class="my-5"
+                large
+                v-bind:href="
+                  'http://attp.kristal.local:5000/datalog?bid=' +
+                  lineData.info[1].bid +
+                  '&period=' +
+                  currentYear
+                "
+                target="_blank"
+                :disabled="lineData.info ? false : true"
+              >
+                Выгрузка данных разливной
+              </v-btn>
             </v-col>
-
           </v-row>
           <v-dialog v-model="dialogLogin" max-width="500" persistent>
             <v-card>
@@ -557,74 +579,85 @@
                     </v-card-text>
                   </v-card>
                 </v-dialog>
-                
-                
 
+                <v-dialog
+                  transition="dialog-top-transition"
+                  max-width="600"
+                  v-model="dialogLog"
+                  v-if="lineData.info"
+                >
+                  <template v-slot:activator="{ on, attrs }">
+                    <v-btn
+                      color="green lighten-2"
+                      class="ml-4"
+                      v-bind="attrs"
+                      v-on="on"
+                      dark
+                      >Отчет</v-btn
+                    >
+                  </template>
 
-                
-                <v-dialog transition="dialog-top-transition"  max-width="600" v-model="dialogLog" v-if="lineData.info">
-        <template v-slot:activator="{ on, attrs }">
-          <v-btn color="green lighten-2" class="ml-4" v-bind="attrs"
-          v-on="on" dark>Отчет</v-btn>
-        </template>
-        
-          <v-card>
-            <v-toolbar color="primary" dark>Отчет о разливках</v-toolbar>
-            <v-card-text>
-              <div class="text-h6 pa-5">
-                Выберите дату и счетчик для отображения
-              </div>
-              <v-menu
-                v-model="pickMenu"
-                :close-on-content-click="false"
-                :nudge-right="40"
-                transition="scale-transition"
-                offset-y
-                min-width="auto"
-              >
-                <template v-slot:activator="{ on, attrs }">
-                  <v-text-field
-                    v-model="dateLog"
-                    label="Выберите дату"
-                    prepend-icon="mdi-calendar"
-                    readonly
-                    v-bind="attrs"
-                    v-on="on"
-                  ></v-text-field>
-                </template>
-                <v-date-picker
-                  locale="ru-ru"
-                  v-model="dateLog"
-                  :first-day-of-week="1"
-                  @input="pickMenu = false"
-                ></v-date-picker>
-              </v-menu>
-              <v-select
-                v-model="bidLog"
-                :items="counter"
-                item-text="name"
-                item-value="value"
-                label="Выберите счетчик"
-                filled
-                required
-              >
-              </v-select>
-            </v-card-text>
-            <v-card-actions class="justify-end">
-              <v-btn text @click="dialogLogClose">Отмена</v-btn>
-              <v-btn color="success"
-              v-bind:href="'http://attp.kristal.local:5000/datalog?bid=' + counterLog + '&period='+ formatDate(dateLog)"
-                  target="_blank"
-               :disabled="bidLog === null ? true : false">Поиск</v-btn>
-            </v-card-actions>
-          </v-card>
-        
-      </v-dialog>
-
-
-
-
-
+                  <v-card>
+                    <v-toolbar color="primary" dark
+                      >Отчет о разливках</v-toolbar
+                    >
+                    <v-card-text>
+                      <div class="text-h6 pa-5">
+                        Выберите дату и счетчик для отображения
+                      </div>
+                      <v-menu
+                        v-model="pickMenu"
+                        :close-on-content-click="false"
+                        :nudge-right="40"
+                        transition="scale-transition"
+                        offset-y
+                        min-width="auto"
+                      >
+                        <template v-slot:activator="{ on, attrs }">
+                          <v-text-field
+                            v-model="dateLog"
+                            label="Выберите дату"
+                            prepend-icon="mdi-calendar"
+                            readonly
+                            v-bind="attrs"
+                            v-on="on"
+                          ></v-text-field>
+                        </template>
+                        <v-date-picker
+                          locale="ru-ru"
+                          v-model="dateLog"
+                          :first-day-of-week="1"
+                          @input="pickMenu = false"
+                        ></v-date-picker>
+                      </v-menu>
+                      <v-select
+                        v-model="bidLog"
+                        :items="counter"
+                        item-text="name"
+                        item-value="value"
+                        label="Выберите счетчик"
+                        filled
+                        required
+                      >
+                      </v-select>
+                    </v-card-text>
+                    <v-card-actions class="justify-end">
+                      <v-btn text @click="dialogLogClose">Отмена</v-btn>
+                      <v-btn
+                        color="success"
+                        v-bind:href="
+                          'http://attp.kristal.local:5000/datalog?bid=' +
+                          counterLog +
+                          '&period=' +
+                          formatDate(dateLog)
+                        "
+                        target="_blank"
+                        :disabled="bidLog === null ? true : false"
+                        >Поиск</v-btn
+                      >
+                    </v-card-actions>
+                  </v-card>
+                </v-dialog>
               </v-col>
             </v-row>
           </v-card-text>
@@ -719,9 +752,9 @@ export default {
   data() {
     return {
       dialogLog: false,
-      counter:[
-        {name:"Акцизный счетчик", value: 0},
-        {name:"Разливной счетчик", value: 1}
+      counter: [
+        { name: "Акцизный счетчик", value: 0 },
+        { name: "Разливной счетчик", value: 1 },
       ],
       pickMenu: false,
       bidLog: null,
@@ -860,7 +893,7 @@ export default {
     counterLog() {
       if (this.bidLog !== null) {
         let i = this.bidLog;
-        return this.lineData.info[i].bid
+        return this.lineData.info[i].bid;
       } else {
         return 0;
       }
@@ -941,7 +974,7 @@ export default {
     },
   },
   watch: {
-    dateLog: function(value){
+    dateLog: function (value) {
       console.log(this.formatDate(value));
     },
     "editedItem.series_start": function (value) {
@@ -985,18 +1018,17 @@ export default {
     },
   },
   methods: {
-    dialogLogClose(){
+    dialogLogClose() {
       this.dialogLog = false;
-      this.bidLog=null;
-      this.dateLog="";
+      this.bidLog = null;
+      this.dateLog = "";
     },
-formatDate (dateLog) {
-        if (!dateLog) return '';
+    formatDate(dateLog) {
+      if (!dateLog) return "";
 
-        const [year, month, day] = dateLog.split('-')
-        return `${day}-${month}-${year}`
-      },
-    
+      const [year, month, day] = dateLog.split("-");
+      return `${day}-${month}-${year}`;
+    },
     async sendCommand(form, success, error, journal) {
       this.btnTimeout();
       await axios
@@ -1316,8 +1348,5 @@ formatDate (dateLog) {
 }
 .numpad input[type="number"] {
   -moz-appearance: textfield;
-}
-.chart {
-  height: 340px;
 }
 </style>

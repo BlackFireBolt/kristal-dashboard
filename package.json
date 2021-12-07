@@ -16,6 +16,7 @@
     "plotly.js": "^1.58.4",
     "typeface-roboto": "^1.1.13",
     "vue": "^2.6.11",
+    "vue-cal": "^3.10.1",
     "vue-cookie": "^1.1.4",
     "vue-loading-overlay": "^3.4.2",
     "vue-moment": "^4.1.0",

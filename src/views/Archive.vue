@@ -1,152 +1,193 @@
 <template>
-  <v-row class="fill-height">
-    <v-col>
-      <v-sheet height="64">
-        <v-toolbar flat>
-          <v-btn outlined class="mr-4" color="grey darken-2" @click="setToday">
-            Сегодня
-          </v-btn>
-          <v-btn fab text small color="grey darken-2" @click="prev">
-            <v-icon small> mdi-chevron-left </v-icon>
-          </v-btn>
-          <v-btn fab text small color="grey darken-2" @click="next">
-            <v-icon small> mdi-chevron-right </v-icon>
-          </v-btn>
-          <v-toolbar-title v-if="$refs.calendar">
-            {{ $refs.calendar.title }}
-          </v-toolbar-title>
-          <v-spacer></v-spacer>
-          <v-menu bottom right>
-            <template v-slot:activator="{ on, attrs }">
-              <v-btn outlined color="grey darken-2" v-bind="attrs" v-on="on">
-                <span>{{ typeToLabel[type] }}</span>
-                <v-icon right> mdi-menu-down </v-icon>
-              </v-btn>
-            </template>
-            <v-list>
-              <v-list-item @click="type = 'day'">
-                <v-list-item-title>День</v-list-item-title>
-              </v-list-item>
-              <v-list-item @click="type = 'week'">
-                <v-list-item-title>Неделя</v-list-item-title>
-              </v-list-item>
-              <v-list-item @click="type = 'month'">
-                <v-list-item-title>Месяц</v-list-item-title>
-              </v-list-item>
-              <v-list-item @click="type = '4day'">
-                <v-list-item-title>4 дня</v-list-item-title>
-              </v-list-item>
-            </v-list>
-          </v-menu>
-        </v-toolbar>
-      </v-sheet>
-      <v-sheet height="600">
-        <v-calendar
-          ref="calendar"
-          v-model="focus"
-          color="primary"
-          :events="events"
-          :event-color="getEventColor"
-          :type="type"
-          @click:event="showEvent"
-          @click:more="viewDay"
-          @click:date="viewDay"
-          @change="updateRange"
-        ></v-calendar>
-        <v-menu
-          v-model="selectedOpen"
-          :close-on-content-click="false"
-          :activator="selectedElement"
-          offset-x
+  <div>
+    <v-container>
+      <v-select
+        solo
+        v-model="channel"
+        :items="channels"
+        item-text="text"
+        item-value="value"
+      ></v-select>
+    </v-container>
+    <v-container fluid v-if="dataLog">
+      <v-row no-gutters>
+        <v-col
+          cols="12"
+          md="6"
+          sm="12"
+          xs="12"
+          v-for="item in dataLog"
+          :key="item.id"
         >
-          <v-card color="grey lighten-4" min-width="350px" flat>
-            <v-toolbar :color="selectedEvent.color" dark>
-              <v-btn icon>
-                <v-icon>mdi-pencil</v-icon>
-              </v-btn>
-              <v-toolbar-title v-html="selectedEvent.name"></v-toolbar-title>
-              <v-spacer></v-spacer>
-              <v-btn icon>
-                <v-icon>mdi-heart</v-icon>
-              </v-btn>
-              <v-btn icon>
-                <v-icon>mdi-dots-vertical</v-icon>
-              </v-btn>
-            </v-toolbar>
+          <v-card tile outlined>
+            <v-card-title class="justify-center"
+              >Линия № {{ item.key.slice(-1) }}</v-card-title
+            >
             <v-card-text>
-              <span v-html="selectedEvent.details"></span>
+              <v-sheet height="350px">
+                <vue-cal
+                  active-view="month"
+                  hide-view-selector
+                  :time="false"
+                  locale="ru"               
+                  :events="item.events"
+                  events-on-month-view="short"
+                  :on-event-click="onEventClick"
+                  :disable-views="['years', 'year', 'week', 'day']"
+                />
+              </v-sheet>
             </v-card-text>
-            <v-card-actions>
-              <v-btn text color="secondary" @click="selectedOpen = false">
-                Закрыть
-              </v-btn>
-            </v-card-actions>
           </v-card>
-        </v-menu>
-      </v-sheet>
-    </v-col>
-  </v-row>
+        </v-col>
+      </v-row>
+    </v-container>
+    <v-dialog
+      v-model="showDialogEvent"
+      transition="dialog-top-transition"
+      max-width="500"
+    >
+      <v-card>
+        <v-card-title>
+          <span>{{ selectedEvent.title }}</span>
+          <v-spacer />
+          <strong>{{
+            selectedEvent.start && selectedEvent.start.format("DD/MM/YYYY")
+          }}</strong>
+        </v-card-title>
+        <v-card-text>
+          <p v-html="selectedEvent.content" />
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer
+          ><v-btn color="rgb(114, 189, 114)" dark
+            @click="
+              $router.push({
+                name: 'ArchiveDetail',
+                params: {
+                  key: selectedEvent.key,
+                },
+              })
+            "
+            >Подробнее</v-btn
+          ></v-card-actions
+        >
+      </v-card>
+    </v-dialog>
+  </div>
 </template>
 
 <script>
+import axios from "axios";
+import VueCal from "vue-cal";
+import "vue-cal/dist/vuecal.css";
+import "vue-cal/dist/i18n/ru.js";
+
 export default {
   name: "Archive",
+  components: { VueCal },
   data() {
     return {
-      focus: "",
-      type: "month",
-      typeToLabel: {
-        month: "Месяц",
-        week: "Неделя",
-        day: "День",
-        "4day": "4 Дня",
-      },
       selectedEvent: {},
-      selectedElement: null,
-      selectedOpen: false,
-      events: [],
+      showDialogEvent: false,
+      dataLog: null,
+      data: true,
+      channel: null,
+      channels: [
+        { text: "Цех 1 --- Участок 1", value: "c1_s1" },
+        {
+          text: "Цех 2 --- Участок 3",
+          value: "c2_s3",
+        },
+      ],
+      events: [{ start: "2021-12-1", end: "2021-12-1", title: "96876" }],
     };
   },
+  watch: {
+    channel: function (value) {
+      this.loadDatalog(value);
+    },
+  },
   methods: {
-    viewDay({ date }) {
-      this.focus = date;
-      this.type = "day";
+    async loadDatalog(value) {
+      await axios
+        .get(
+          "http://attp.kristal.local:5000/datalog?&period=2021&format=json&redkey=" +
+            value,
+          { headers: { "Content-Type": "application/json" } }
+        )
+        .then((response) => {
+          let key = Object.keys(response.data);
+          let values = Object.values(response.data);
+          let dataLog = [];
+          for (let i = 0; i < values.length; i++) {
+            let key_data = Object.keys(values[i]);
+            let values_data = Object.values(values[i]);
+            let events = [];
+            for (let j = 0; j < values_data.length; j++) {
+              let content = "";
+              let title = "";
+              let maintainance = "";
+              let pouring = "";
+              if (typeof values_data[j]["1"] !== "undefined") {
+                maintainance =
+                  "Наладка:<br><ul><li> сумма по всем разливкам --- " +
+                  values_data[j]["1"][0] +
+                  "</li><li> количество разливок --- " +
+                  values_data[j]["1"][1] +
+                  "</li><li> ошибки --- " +
+                  values_data[j]["1"][2] +
+                  "</li></ul>";
+                content += maintainance;
+                title += "Наладка";
+              }
+              if (
+                typeof values_data[j]["1"] !== "undefined" &&
+                typeof values_data[j]["2"] !== "undefined"
+              ) {
+                title += " + ";
+              }
+              if (typeof values_data[j]["2"] !== "undefined") {
+                pouring =
+                  "Разливка:<br><ul><li> сумма по всем разливкам --- " +
+                  values_data[j]["2"][0] +
+                  "</li><li> количество разливок --- " +
+                  values_data[j]["2"][1] +
+                  "</li><li> ошибки --- " +
+                  values_data[j]["2"][2] +
+                  "</li></ul>";
+                content += pouring;
+                title += "Разливка";
+              }
+              events.push({
+                start: new Date(parseInt(key_data[j]) * 1000),
+                end: new Date(parseInt(key_data[j]) * 1000),
+                title: title,
+                content: content,
+                key: key[i],
+              });
+            }
+            dataLog.push({ key: key[i], events: events });
+          }
+          this.dataLog = dataLog;
+        });
     },
-    getEventColor(event) {
-      return event.color;
-    },
-    setToday() {
-      this.focus = "";
-    },
-    prev() {
-      this.$refs.calendar.prev();
-    },
-    next() {
-      this.$refs.calendar.next();
-    },
-    showEvent({ nativeEvent, event }) {
-      const open = () => {
-        this.selectedEvent = event;
-        this.selectedElement = nativeEvent.target;
-        requestAnimationFrame(() =>
-          requestAnimationFrame(() => (this.selectedOpen = true))
-        );
-      };
-
-      if (this.selectedOpen) {
-        this.selectedOpen = false;
-        requestAnimationFrame(() => requestAnimationFrame(() => open()));
-      } else {
-        open();
-      }
-      nativeEvent.stopPropagation();
-    },
-    updateRange({ start, end }) {
-      console.log(start, end);
+    onEventClick(event) {
+      this.selectedEvent = event;
+      this.showDialogEvent = true;
     },
   },
-  mounted() {
-    this.$refs.calendar.checkChange();
-  },
+  mounted() {},
 };
 </script>
+
+<style>
+.vuecal__cell--has-events {
+  background-color: rgb(114, 189, 114);
+}
+.vuecal__cell-events-count {
+  display: none;
+}
+.vuecal__event {
+  cursor: pointer;
+}
+</style>
