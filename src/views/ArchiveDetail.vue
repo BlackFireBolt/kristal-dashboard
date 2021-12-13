@@ -32,6 +32,10 @@ import VuePlotly from "@statnett/vue-plotly";
 
 export default {
   name: "ArchiveDetail",
-  components: {VuePlotly}
+  components: {VuePlotly},
+  mounted(){
+      console.log(this.$route.params.key);
+      console.log(this.$route.params.date);
+  }
 };
 </script>

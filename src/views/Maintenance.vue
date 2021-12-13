@@ -78,50 +78,57 @@
                   :ystep="parseInt(graph.ystep)"
                   :xstep="parseInt(graph.xstep)"
                   :lineStyle="graph.lineStyle"
-                  @select="action"
+                  @select="openEditDetailEquipment"
                 ></vue-pipeline>
               </v-container>
             </v-sheet>
           </v-col>
           <v-divider vertical></v-divider>
           <v-col cols="12" md="2">
-            <v-card height="95%">
+            <v-card>
               <v-app-bar color="orange" flat dark dense>
                 Список оборудования
               </v-app-bar>
               <v-card-text>
-                <v-list style="max-height: 600px" class="overflow-y-auto">
-                  <v-list-item
-                    v-for="equipment in equipmentList"
-                    :key="equipment.id"
-                  >
-                    <v-list-item-content>
-                      <v-list-item-title
-                        ><span
-                          class="d-inline-block text-truncate"
-                          style="max-width: 215px"
-                          >{{ equipment.name }}</span
-                        ><v-spacer></v-spacer>
-                        <v-btn
-                          icon
+                <v-virtual-scroll
+                  :items="equipments"
+                  :item-height="70"
+                  height="400"
+                >
+                  <template v-slot:default="{ item }">
+                    <v-list-item
+                      ><v-list-item-action>
+                        <v-icon
+                          small
                           @click="
                             $router.push({
                               name: 'MaintenanceDetail',
                               params: {
-                                id: 3,
+                                id: item.id,
                               },
                             })
                           "
-                          ><v-icon> mdi-information </v-icon></v-btn
                         >
-                        <v-btn icon><v-icon> mdi-pencil </v-icon></v-btn>
-                        <v-btn icon
-                          ><v-icon> mdi-delete </v-icon></v-btn
-                        ></v-list-item-title
-                      ><v-divider></v-divider>
-                    </v-list-item-content>
-                  </v-list-item>
-                </v-list>
+                          mdi-information
+                        </v-icon>
+                        <v-icon
+                          small
+                          @click="
+                            openDeleteEquipment(item)
+                          "
+                        >
+                          mdi-delete
+                        </v-icon>
+                      </v-list-item-action>
+                      <v-list-item-content>
+                        <v-list-item-title>
+                          {{ item.name }}
+                        </v-list-item-title>
+                      </v-list-item-content>
+                    </v-list-item>
+                    <v-divider></v-divider>
+                  </template>
+                </v-virtual-scroll>
 
                 <div class="my-5 text-center">
                   <v-btn
@@ -145,7 +152,7 @@
         </v-card-title>
         <v-card-text>
           <v-container>
-            <v-from
+            <v-form
               ref="formCreateEquipment"
               lazy-validation
               v-model="validateCreateEquipment"
@@ -178,13 +185,92 @@
                 :disabled="toList.length === 1 ? true : false"
                 data-vv-name="К элементу"
               ></v-select>
-            </v-from>
+              <v-divider class="my-5"></v-divider>
+              <v-text-field
+                v-model="equipmentNew.manufacturer"
+                label="Производитель"
+              ></v-text-field>
+              <v-textarea
+                v-model="equipmentNew.specifications"
+                label="Технические характеристики"
+              ></v-textarea>
+              <v-select
+                v-model="equipmentNew.department"
+                :items="departments"
+                item-value="id"
+                item-text="name"
+                label="Структурное подразделение"
+                data-vv-name="Структурное подразделение"
+              ></v-select>
+              <v-row>
+                <v-col cols="12" md="4">
+                  <v-text-field
+                    v-model="equipmentNew.factory_number"
+                    label="Заводской номер"
+                  ></v-text-field
+                ></v-col>
+                <v-col cols="12" md="4">
+                  <v-text-field
+                    v-model="equipmentNew.inventory_number"
+                    label="Инвентарный номер"
+                  ></v-text-field
+                ></v-col>
+                <v-col cols="12" md="4">
+                  <v-text-field
+                    v-model="equipmentNew.registration_number"
+                    label="Регистрационный номер"
+                  ></v-text-field
+                ></v-col>
+              </v-row>
+              <v-text-field
+                class="numpad"
+                type="number"
+                v-model="equipmentNew.operating_hours"
+                label="Часы наработки"
+              ></v-text-field>
+              <v-row>
+                <v-col cols="12" md="6">
+                  <v-text-field
+                    v-model="equipmentNew.year"
+                    label="Год выпуска"
+                    class="numpad"
+                    type="number"
+                  ></v-text-field
+                ></v-col>
+                <v-col cols="12" md="6">
+                  <v-menu
+                    v-model="datePick"
+                    :close-on-content-click="false"
+                    :nudge-right="40"
+                    transition="scale-transition"
+                    offset-y
+                    min-width="auto"
+                  >
+                    <template v-slot:activator="{ on, attrs }">
+                      <v-text-field
+                        v-model="equipmentNew.commissioning_date"
+                        label="Дата ввода в эксплуатацию"
+                        prepend-icon="mdi-calendar"
+                        readonly
+                        v-bind="attrs"
+                        v-on="on"
+                      ></v-text-field>
+                    </template>
+                    <v-date-picker
+                      locale="ru-ru"
+                      :first-day-of-week="1"
+                      v-model="equipmentNew.commissioning_date"
+                      @input="datePick = false"
+                    ></v-date-picker>
+                  </v-menu>
+                </v-col>
+              </v-row>
+            </v-form>
           </v-container>
         </v-card-text>
-
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn color="blue darken-1" text @click.stop="closeAdd">
+          <v-btn color="blue darken-1" text @click.stop="closeAddEquipment">
             Отмена
           </v-btn>
           <v-btn color="blue darken-1" text @click="addEquipment">
@@ -193,27 +279,45 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
-
-    <v-dialog
-      v-model="dialogDetailEdit"
-      fullscreen
-      hide-overlay
-      transition="dialog-bottom-transition"
-    >
+    <v-dialog v-model="dialogDetail" max-width="500px">
       <v-card>
-        <v-toolbar dark color="teal lighten-1">
-          <v-btn icon dark @click="dialogDetailEdit = false">
-            <v-icon>mdi-close</v-icon>
-          </v-btn>
-          <v-toolbar-title>{{ detailTitle }}</v-toolbar-title>
-          <v-spacer></v-spacer>
-          <v-toolbar-items>
-            <v-btn dark text @click="addEquipment"> Сохранить </v-btn>
-          </v-toolbar-items>
-        </v-toolbar>
+        <v-card-title>
+          <span class="text-h5">Информация об оборудовании</span>
+        </v-card-title>
         <v-card-text>
-          <v-container v-if="editFlag">
-            <v-from
+          <p>Наименование: {{ equipmentDetail.name }}</p>
+          <p>Характеристики: {{ equipmentDetail.specifications }}</p>
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn color="blue darken-1" text @click.stop="closeDetailEquipment">
+            Отмена
+          </v-btn>
+          <v-btn
+            color="blue"
+            dark
+            @click="
+              $router.push({
+                name: 'MaintenanceDetail',
+                params: {
+                  id: equipmentDetail.id,
+                },
+              })
+            "
+          >
+            Подробнее
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+    <v-dialog v-model="dialogEdit" max-width="800px">
+      <v-card>
+        <v-card-title>
+          <span class="text-h5">Редактировать информацию об оборудовании</span>
+        </v-card-title>
+        <v-card-text class="mt-5">
+          <v-container>
+            <v-form
               ref="formEditEquipment"
               lazy-validation
               v-model="validateEditEquipment"
@@ -228,39 +332,160 @@
                 label="Статус"
                 data-vv-name="Статус"
               ></v-select>
-              <v-list style="max-height: 600px" class="overflow-y-auto">
-                <v-list-item v-for="link in equipmentEdit.next" :key="link.id">
-                  <v-list-item-content>
-                    <v-list-item-title
-                      ><span
-                        class="d-inline-block text-truncate"
-                        style="max-width: 215px"
-                        >{{ fromToList[link.id].name }}</span
-                      ><v-spacer></v-spacer>
-                      <v-btn
-                        icon
-                        @click="
-                          $router.push({
-                            name: 'MaintenanceDetail',
-                            params: {
-                              id: 3,
-                            },
-                          })
-                        "
-                        ><v-icon> mdi-information </v-icon></v-btn
-                      >
-                      <v-btn icon><v-icon> mdi-pencil </v-icon></v-btn>
-                      <v-btn icon
-                        ><v-icon> mdi-delete </v-icon></v-btn
-                      ></v-list-item-title
-                    ><v-divider></v-divider>
-                  </v-list-item-content>
-                </v-list-item>
-              </v-list>
-            </v-from>
+              <v-data-table
+                :headers="linkHeaders"
+                :items="linkTable"
+                hide-default-footer
+              >
+                <template v-slot:top>
+                  <v-toolbar flat>
+                    <v-toolbar-title>Связи элементов</v-toolbar-title>
+                    <v-divider class="mx-4" inset vertical></v-divider>
+                    <v-spacer></v-spacer>
+                    <v-dialog v-model="dialogAddLink" max-width="500px">
+                      <template v-slot:activator="{ on, attrs }">
+                        <v-btn
+                          color="primary"
+                          dark
+                          class="mb-2"
+                          v-bind="attrs"
+                          v-on="on"
+                        >
+                          Новая связь
+                        </v-btn>
+                      </template>
+                      <v-card>
+                        <v-card-title>
+                          <span class="text-h5">Добавить связь</span>
+                        </v-card-title>
+
+                        <v-card-text>
+                          <v-container>
+                            <v-select
+                              v-model="linkAdd"
+                              :items="toList"
+                              item-text="name"
+                              item-value="value"
+                              label="К элементу"
+                              :disabled="toList.length === 1 ? true : false"
+                              data-vv-name="К элементу"
+                            ></v-select>
+                          </v-container>
+                        </v-card-text>
+                        <v-card-actions>
+                          <v-spacer></v-spacer>
+                          <v-btn
+                            color="blue darken-1"
+                            text
+                            @click="closeAddLink"
+                          >
+                            Закрыть
+                          </v-btn>
+                          <v-btn color="blue darken-1" text @click="addLink">
+                            Сохранить
+                          </v-btn>
+                        </v-card-actions>
+                      </v-card>
+                    </v-dialog>
+                  </v-toolbar>
+                </template>
+                <template v-slot:[`item.actions`]="{ item }">
+                  <v-icon small @click="deleteLink(item)"> mdi-delete </v-icon>
+                </template>
+                <template v-slot:no-data>
+                  <p>Нет доступных значений</p>
+                </template>
+              </v-data-table>
+              <v-divider class="my-5"></v-divider>
+              <v-text-field
+                v-model="equipmentEdit.manufacturer"
+                label="Производитель"
+              ></v-text-field>
+              <v-textarea
+                v-model="equipmentEdit.specifications"
+                label="Технические характеристики"
+              ></v-textarea>
+              <v-select
+                v-model="equipmentEdit.department"
+                :items="departments"
+                item-value="id"
+                item-text="name"
+                label="Структурное подразделение"
+                data-vv-name="Структурное подразделение"
+              ></v-select>
+              <v-row>
+                <v-col cols="12" md="4">
+                  <v-text-field
+                    v-model="equipmentEdit.factory_number"
+                    label="Заводской номер"
+                  ></v-text-field
+                ></v-col>
+                <v-col cols="12" md="4">
+                  <v-text-field
+                    v-model="equipmentEdit.inventory_number"
+                    label="Инвентарный номер"
+                  ></v-text-field
+                ></v-col>
+                <v-col cols="12" md="4">
+                  <v-text-field
+                    v-model="equipmentEdit.registration_number"
+                    label="Регистрационный номер"
+                  ></v-text-field
+                ></v-col>
+              </v-row>
+              <v-text-field
+                class="numpad"
+                type="number"
+                v-model="equipmentEdit.operating_hours"
+                label="Часы наработки"
+              ></v-text-field>
+              <v-row>
+                <v-col cols="12" md="6">
+                  <v-text-field
+                    v-model="equipmentEdit.year"
+                    label="Год выпуска"
+                    class="numpad"
+                    type="number"
+                  ></v-text-field
+                ></v-col>
+                <v-col cols="12" md="6">
+                  <v-menu
+                    v-model="datePick"
+                    :close-on-content-click="false"
+                    :nudge-right="40"
+                    transition="scale-transition"
+                    offset-y
+                    min-width="auto"
+                  >
+                    <template v-slot:activator="{ on, attrs }">
+                      <v-text-field
+                        v-model="equipmentEdit.commissioning_date"
+                        label="Дата ввода в эксплуатацию"
+                        prepend-icon="mdi-calendar"
+                        readonly
+                        v-bind="attrs"
+                        v-on="on"
+                      ></v-text-field>
+                    </template>
+                    <v-date-picker
+                      locale="ru-ru"
+                      :first-day-of-week="1"
+                      v-model="equipmentEdit.commissioning_date"
+                      @input="datePick = false"
+                    ></v-date-picker>
+                  </v-menu>
+                </v-col>
+              </v-row>
+            </v-form>
           </v-container>
-          <v-container v-else> </v-container>
         </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn color="blue darken-1" text @click="closeEditEquipment"> Отмена </v-btn>
+          <v-btn color="blue" dark @click="editEquipment">
+            Сохранить изменения
+          </v-btn>
+        </v-card-actions>
       </v-card>
     </v-dialog>
   </div>
@@ -273,32 +498,76 @@ export default {
   name: "Maintenance",
   data() {
     return {
+      datePick: false,
+      dialogAddLink: false,
+      dialogDeleteLink: false,
+      linkAdd: null,
       validateCreateEquipment: false,
       validateEditEquipment: false,
       statuses: ["success", "running", "failure", "paused", "unstable"],
       dialogAdd: false,
-      dialogDetailEdit: false,
+      dialogEdit: false,
+      dialogDetail: false,
+      dialogDelete: false,
       equipmentNew: {
         name: "",
         status: "",
         from: 0,
         to: 1,
+        manufacturer: "",
+        specifications: "",
+        department: "",
+        factory_number: "",
+        inventory_number: "",
+        registration_number: "",
+        operating_hours: "",
+        year: "",
+        commissioning_date: "",
       },
       equipmentEdit: {
         name: "",
         status: "",
         next: [],
+        manufacturer: "",
+        specifications: "",
+        department: "",
+        factory_number: "",
+        inventory_number: "",
+        registration_number: "",
+        operating_hours: "",
+        year: "",
+        commissioning_date: "",
       },
+      equipmentDetail: {},
+      equipmentEditIndex: -1,
       equipmentEditDefault: {
         name: "",
         status: "",
         next: [],
+        manufacturer: "",
+        specifications: "",
+        department: "",
+        factory_number: "",
+        inventory_number: "",
+        registration_number: "",
+        operating_hours: "",
+        year: "",
+        commissioning_date: "",
       },
       equipmentNewDefault: {
         name: "",
         status: "",
         from: 0,
         to: 1,
+        manufacturer: "",
+        specifications: "",
+        department: "",
+        factory_number: "",
+        inventory_number: "",
+        registration_number: "",
+        operating_hours: "",
+        year: "",
+        commissioning_date: "",
       },
       graph: {
         x: 60,
@@ -318,7 +587,6 @@ export default {
           status: "start",
           next: [{ index: 1, weight: 2 }],
         },
-
         { name: "End", status: "end", next: [] },
       ],
       editFlag: false,
@@ -330,11 +598,17 @@ export default {
       left: 0,
       tabMain: null,
       departments: [],
+      equipments: [],
       departmentFirst: null,
       departmentSecond: null,
       departmentThird: null,
       departmentsSecondLevel: [],
       departmentsThirdLevel: [],
+      linkHeaders: [
+        { text: "ID", align: "start", value: "id" },
+        { text: "Имя", value: "name" },
+        { text: "Удалить", value: "actions", sortable: false },
+      ],
     };
   },
   watch: {
@@ -369,18 +643,39 @@ export default {
       this.departmentsThirdLevel = result;
     },
     departmentThird: function (value) {
-      console.log(value);
       if (value !== null) {
         this.seen = true;
-        //this.loadEquipments();
+        let department = this.departments.find((item) => item.id === value);
+        if (department.diagram !== null) {
+          this.data = JSON.parse(department.diagram);
+        } else {
+          this.data = [
+            {
+              name: "Start",
+
+              status: "start",
+              next: [{ index: 1, weight: 2 }],
+            },
+            { name: "End", status: "end", next: [] },
+          ];
+        }
+        this.loadEquipments(value);
       }
     },
   },
   computed: {
-    detailTitle() {
-      return this.editFlag
-        ? "Редактировать информацию об оборудовании"
-        : "Детальная информация об оборудовании";
+    linkTable() {
+      let data = [];
+      if (this.equipmentEditIndex > -1) {
+        for (let i = 0; i < this.equipmentEdit.next.length; i++) {
+          data.push({
+            id: i + 1,
+            name: this.data[this.equipmentEdit.next[i].index].name,
+            index: i,
+          });
+        }
+      }
+      return data;
     },
     fromList() {
       let list = [];
@@ -420,23 +715,55 @@ export default {
     },
   },
   methods: {
-    action(node) {
-      if (this.editFlag) {
-        console.log(node);
-        this.equipmentEdit = Object.assign({}, node);
-        this.dialogDetailEdit = true;
-      } else {
-        this.dialogDetailEdit = true;
-      }
-    },
-    closeAdd() {
-      this.dialogAdd = false;
+    closeDetailEquipment() {
+      this.dialogDetail = false;
       this.$nextTick(() => {
-        this.equipmentNew = Object.assign({}, this.equipmentNewDefault);
+        this.equipmentDetail = {};
       });
     },
-    async editEquipment() {
-      this.$refs["pipeline"].render();
+    openEditDetailEquipment(node) {
+      if (this.editFlag) {
+        console.log(node);
+        this.equipmentEditIndex = this.equipments.findIndex(
+          (item) => item.name === node.name
+        );
+        this.equipmentEdit = Object.assign({}, this.equipments[this.equipmentEditIndex]);
+        this.dialogEdit = true;
+      } else {
+        this.equipmentDetail = this.equipments.find(
+          (item) => item.name === node.name
+        );
+        this.dialogDetail = true;
+      }
+    },
+
+
+
+    async loadDepartments() {
+      await axios
+        .get("http://127.0.0.1:8000/api/department/", {
+          headers: { Accept: "application/json" },
+          timeout: 1000 * 5,
+        })
+        .then((response) => {
+          this.departments = response.data;
+        });
+    },
+    async loadEquipments(id) {
+      await axios
+        .get("http://127.0.0.1:8000/api/equipment-filter/" + id + "/", {
+          headers: { Accept: "application/json" },
+          timeout: 1000 * 5,
+        })
+        .then((response) => {
+          this.equipments = response.data;
+        });
+    },
+    //-------------------------------------------------------------
+    openDeleteEquipment(item) {
+      this.equipmentEditIndex = this.roles.indexOf(item);
+      this.equipmentEdit = Object.assign({}, item);
+      this.dialogDelete = true;
     },
     async addEquipment() {
       this.data.push({
@@ -455,18 +782,140 @@ export default {
           weight: 2,
         });
       }
-      this.$refs["pipeline"].render();
-      this.closeAdd();
-    },
-    async loadDepartments() {
+      console.log(JSON.stringify(this.data));
       await axios
-        .get("http://127.0.0.1:8000/api/department/", {
+        .post("http://127.0.0.1:8000/api/equipment/", this.equipmentNew, {
           headers: { Accept: "application/json" },
           timeout: 1000 * 5,
         })
-        .then((response) => {
-          this.departments = response.data;
+        .then(() => {
+          let department = this.departments.find(
+            (item) => item.id === this.equipmentNew.department
+          );
+          department.diagram = JSON.stringify(this.data);
+          department.diagram = department.diagram.replace(/\\/g, "");
+          axios.put(
+            "http://127.0.0.1:8000/api/department/" +
+              this.equipmentNew.department +
+              "/",
+            department,
+            {
+              headers: { Accept: "application/json" },
+              timeout: 1000 * 5,
+            }
+          );
         });
+      this.$refs["pipeline"].render();
+      this.closeAddEquipment();
+    },
+    closeAddEquipment() {
+      this.dialogAdd = false;
+      this.$nextTick(() => {
+        this.equipmentNew = Object.assign({}, this.equipmentNewDefault);
+      });
+    },
+    async editEquipment() {
+      let dataIndex = this.data.findIndex(
+        (item) => item.name === this.equipments[this.equipmentEditIndex]
+      );
+      Object.assign(
+        this.equipments[this.equipmentEditIndex],
+        this.equipmentEdit
+      );
+      this.data[dataIndex].name = this.equipmentEdit.name;
+      this.data[dataIndex].next = this.equipmentEdit.next;
+      let department = this.departments.find(
+        (item) => item.id === this.equipmentEdit.department
+      );
+      department.diagram = JSON.stringify(this.data);
+      department.diagram = department.diagram.replace(/\\/g, "");
+      await axios
+        .put(
+          "http://127.0.0.1:8000/api/equipment/" + this.equipmentEdit.id + "/",
+          this.equipmentEdit,
+          {
+            headers: { Accept: "application/json" },
+            timeout: 1000 * 5,
+          }
+        )
+        .then((response) => {
+          console.log(response);
+
+          axios.put(
+            "http://127.0.0.1:8000/api/department/" +
+              this.equipmentEdit.department +
+              "/",
+            department,
+            {
+              headers: { Accept: "application/json" },
+              timeout: 1000 * 5,
+            }
+          );
+        });
+      this.$refs["pipeline"].render();
+      this.closeEditEquipment();
+    },
+    closeEditEquipment() {
+      this.dialogEdit = false;
+      this.$nextTick(() => {
+        this.equipmentEdit = Object.assign({}, this.equipmentEditDefault);
+        this.equipmentEditIndex = -1;
+      });
+    },
+    async deleteEquipment() {
+      let dataIndex = this.data.findIndex(
+        (item) => item.name === this.equipments[this.equipmentEditIndex]
+      );
+      this.data[dataIndex].splice(this.equipmentEditIndex, 1);
+      let department = this.departments.find(
+        (item) => item.id === this.equipmentEdit.department
+      );
+      department.diagram = JSON.stringify(this.data);
+      department.diagram = department.diagram.replace(/\\/g, "");
+      await axios
+        .delete(
+          "http://127.0.0.1:8000/api/equipment/" + this.equipmentEdit.id + "/",
+          { headers: { Accept: "application/json" } }
+        )
+        .then((response) => {
+          console.log(response);
+
+          axios.put(
+            "http://127.0.0.1:8000/api/department/" +
+              this.equipmentEdit.department +
+              "/",
+            department,
+            {
+              headers: { Accept: "application/json" },
+              timeout: 1000 * 5,
+            }
+          );
+        });
+      this.$refs["pipeline"].render();
+      this.closeDeleteEquipment();
+    },
+    closeDeleteEquipment() {
+      this.dialogDelete = false;
+      this.$nextTick(() => {
+        this.equipmentEdit = Object.assign({}, this.equipmentEditDefault);
+        this.equipmentEditIndex = -1;
+      });
+    },
+    async addLink() {
+      if (this.equipmentEdit && this.addLink) {
+        this.equipmentEdit.next.push({ index: this.linkAdd, weight: 2 });
+      }
+      this.closeAddLink();
+    },
+    closeAddLink() {
+      this.dialogAddLink = false;
+      this.$nextTick(() => {
+        this.linkAdd = null;
+      });
+    },
+    async deleteLink(item) {
+
+      this.equipmentEdit.next.splice(item.index, 1);
     },
   },
   mounted() {
@@ -493,5 +942,14 @@ export default {
   background-color: #ccc;
   left: 5px;
   top: 5px;
+}
+
+.numpad input::-webkit-outer-spin-button,
+.numpad input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+.numpad input[type="number"] {
+  -moz-appearance: textfield;
 }
 </style>

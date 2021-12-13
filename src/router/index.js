@@ -35,7 +35,7 @@ const routes = [
         meta: { requiresAuth: true, title: "Архив" },
       },
       {
-        path: "archive/:key",
+        path: "archive/:key/:date",
         name: "ArchiveDetail",
         component: () => import("../views/ArchiveDetail.vue"),
         meta: { requiresAuth: true, title: "Информация о разливке" },
