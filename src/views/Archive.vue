@@ -171,7 +171,7 @@
                 name: 'ArchiveDetail',
                 params: {
                   key: selectedEvent.key,
-                  date: selectedEvent.start.toISOString().substr(0, 10)
+                  date: selectedEvent.start.toISOString().substr(0, 10),
                 },
               })
             "
@@ -239,7 +239,7 @@ export default {
         this.filterMessage = "Информация за " + this.filterMonthText;
       } else if (this.filterType === 1) {
         filterString = this.filterYear.toString();
-        this.filterMessage = "Информация за "+filterString+" год";
+        this.filterMessage = "Информация за " + filterString + " год";
       }
       await axios
         .get(
@@ -250,6 +250,7 @@ export default {
           { headers: { "Content-Type": "application/json" } }
         )
         .then((response) => {
+          this.$cookie.set("datalog_channel", JSON.stringify(value), 7);
           let key = Object.keys(response.data);
           let values = Object.values(response.data);
           let dataLog = [];
@@ -312,7 +313,12 @@ export default {
       this.showDialogEvent = true;
     },
   },
-  mounted() {},
+  mounted() {
+    this.channel = JSON.parse(this.$cookie.get("datalog_channel"));
+    if (this.channel) {
+      this.loadDatalog(this.channel);
+    }
+  },
 };
 </script>
 

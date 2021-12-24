@@ -418,23 +418,23 @@
           <v-card-text>
             <v-row>
               <v-col cols="12" md="6" sm="12" xs="12">
-                <p v-if="lineData.timetable">
+                <div v-if="lineData.timetable">
                   Количество заданий: {{ lineData.timetable.length }}
-                </p>
-                <p v-else>Нет заданий</p>
-                <p>
+                </div>
+                <div v-else>Нет заданий</div>
+                <div>
                   Количество бутылок в текущем задании: А ---
                   {{ lineData.statusPvFirst }} Р ---
                   {{ lineData.statusPvSecond }}
-                </p>
-                <p>
+                </div>
+                <div>
                   Насчитано без марок: А --- {{ lineData.statusPv0First }} Р ---
                   {{ lineData.statusPv0Second }}
-                </p>
-                <p>
+                </div>
+                <div>
                   Насчитано без задания: А --- {{ lineData.statusPv1First }} Р
                   --- {{ lineData.statusPv1Second }}
-                </p>
+                </div>
               </v-col>
               <v-col cols="12" md="6" sm="12" xs="12" class="text-right">
                 <v-dialog
