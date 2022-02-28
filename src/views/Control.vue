@@ -685,7 +685,7 @@
             </v-sheet>
           </v-container>
           <v-divider></v-divider>
-          <accidents class="my-2" :line_key="lineData.key" />
+          <accidents v-show="false" class="my-2" :line_key="lineData.key" />
           <v-divider></v-divider>
           <v-card-text v-if="lineData.timetable">
             <v-card

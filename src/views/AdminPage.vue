@@ -32,6 +32,7 @@
             <v-data-table
               :headers="log_headers"
               :items="log"
+              locale="ru"
               :items-per-page="20"
               :footer-props="{
                 'items-per-page-options': [20, 30, 40, 50],
@@ -58,6 +59,7 @@
                         :headers="users_headers"
                         :items="users"
                         :items-per-page="20"
+                        locale="ru"
                         :footer-props="{
                           'items-per-page-options': [20, 30, 40, 50],
                         }"
@@ -217,6 +219,7 @@
                     <v-data-table
                       :headers="roles_headers"
                       :items="roles"
+                      locale="ru"
                       :items-per-page="20"
                       :footer-props="{
                         'items-per-page-options': [20, 30, 40, 50],
@@ -758,8 +761,9 @@ export default {
     this.logTimeout = setInterval(() => {
       this.loadLog();
     }, 60000);
-    this.loadRoles();
     this.loadUsers();
+    this.loadRoles();
+    
   },
   beforeDestroy() {
     console.log("destroy");

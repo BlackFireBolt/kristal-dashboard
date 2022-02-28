@@ -110,11 +110,6 @@ export default {
         { title: "Панель", icon: "mdi-view-dashboard", to: "/" },
         { title: "Архив", icon: "mdi-package-down", to: "/archive"},
         { title: "ППР", icon: "mdi-cog-clockwise", to: "/maintenance" },
-        {
-          title: "Метрика",
-          icon: "mdi-calculator-variant-outline",
-          to: "/metrics",
-        },
       ],
       right: null,
       date: new Date().toISOString().substr(0, 10),
